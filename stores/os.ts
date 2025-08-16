@@ -69,6 +69,7 @@ export const useOSStore = defineStore('os', {
           kind: w.kind,
           rect: w.rect,
           zIndex: w.zIndex,
+          appId: w.appId ?? null,
           resizable: w.resizable ?? true,
           minimizable: w.minimizable ?? true,
           closable: w.closable ?? true,
@@ -137,6 +138,7 @@ export const useOSStore = defineStore('os', {
           height: baseHeight
         },
         zIndex: this.nextZ++,
+        appId: partial?.appId,
         resizable: partial?.resizable ?? true,
         minimizable: partial?.minimizable ?? true,
         closable: partial?.closable ?? true,
@@ -166,6 +168,9 @@ export const useOSStore = defineStore('os', {
       if (!w) return
       w.zIndex = this.nextZ++
       this.setFocused(id)
+      if (this.nextZ > 10000) {
+        this.normalizeZOrder()
+      }
       this.saveSession()
     },
 
@@ -324,6 +329,31 @@ export const useOSStore = defineStore('os', {
       this.saveSession()
     },
 
+    /**
+     * Re-apply bounds to all windows (e.g., when the viewport size changes).
+     * Performs a single save after adjustments.
+     */
+    realignAllToBounds() {
+      for (const w of this.windows) {
+        this.ensureBounds(w)
+      }
+      this.saveSession()
+    },
+
+    /**
+     * Compact z-index ordering to avoid runaway growth.
+     * Preserves current stacking order.
+     */
+    normalizeZOrder() {
+      const base = 100
+      const sorted = [...this.windows].sort((a, b) => a.zIndex - b.zIndex)
+      let z = base
+      for (const w of sorted) {
+        w.zIndex = z++
+      }
+      this.nextZ = z
+    },
+ 
     // ---------- Menu ----------
     toggleAppleMenu(v?: boolean) {
       this.menu.isAppleOpen = typeof v === 'boolean' ? v : !this.menu.isAppleOpen

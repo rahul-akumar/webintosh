@@ -46,6 +46,14 @@ function onUp() {
   store.endDrag()
 }
 
+let resizeTimer: number | undefined
+function onResize() {
+  if (resizeTimer) window.clearTimeout(resizeTimer)
+  resizeTimer = window.setTimeout(() => {
+    store.realignAllToBounds()
+  }, 100)
+}
+
 function cycleWindowsForward() {
   const list = store.orderedWindows
   if (list.length === 0) return
@@ -60,6 +68,7 @@ function onKeyDown(e: KeyboardEvent) {
   if (e.key === 'Escape') {
     store.endDrag()
     store.toggleAppleMenu(false)
+    e.preventDefault()
     return
   }
 
@@ -71,15 +80,18 @@ function onKeyDown(e: KeyboardEvent) {
     case 'm': { // minimize
       const f = store.focused
       if (f) store.toggleMinimize(f.id)
+      e.preventDefault()
       break
     }
     case 'w': { // close
       const f = store.focused
       if (f) store.closeWindow(f.id)
+      e.preventDefault()
       break
     }
     case '`': { // cycle
       cycleWindowsForward()
+      e.preventDefault()
       break
     }
     default:
@@ -91,11 +103,13 @@ onMounted(() => {
   window.addEventListener('mousemove', onMove)
   window.addEventListener('mouseup', onUp)
   window.addEventListener('keydown', onKeyDown)
+  window.addEventListener('resize', onResize)
 })
 onUnmounted(() => {
   window.removeEventListener('mousemove', onMove)
   window.removeEventListener('mouseup', onUp)
   window.removeEventListener('keydown', onKeyDown)
+  window.removeEventListener('resize', onResize)
 })
 </script>
 

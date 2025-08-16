@@ -5,6 +5,8 @@
 .nitro
 .cache
 dist
+test-results
+tests
 
 # Node dependencies
 node_modules
@@ -24,3 +26,4 @@ logs
 !.env.example
 repo-structure.md
 copilot-commit-message-instructions.md
+playwright.config.ts

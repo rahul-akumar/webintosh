@@ -16,6 +16,9 @@ export interface OSWindowModel {
   rect: OSWindowRect;
   zIndex: number;
 
+  // App linkage (Phase 2)
+  appId?: string;
+
   // Window Management v1 flags
   resizable?: boolean;      // default true for app windows
   minimizable?: boolean;    // default true for app windows

@@ -1,6 +1,7 @@
 <template>
   <div
     class="os-window"
+    :class="{ 'is-focused': isFocused }"
     :style="styleObject"
     @mousedown.stop="onFocus"
   >
@@ -48,17 +49,21 @@ const store = useOSStore()
 const styleObject = computed<CSSProperties>(() => ({
   position: 'absolute',
   left: props.win.rect.x + 'px',
-  top: props.win.rect.y + 'px',
+  top: (props.win.rect.y - store.menuBarHeight) + 'px',
   width: props.win.rect.width + 'px',
   height: props.win.rect.height + 'px',
   zIndex: props.win.zIndex
 }))
 
+const isFocused = computed(() => store.focusedId === props.win.id)
+
 function onStartDrag(e: MouseEvent) {
+  store.toggleAppleMenu(false)
   store.startDrag(props.win.id, e.clientX, e.clientY)
 }
 
 function onStartResize(edge: 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw', e: MouseEvent) {
+  store.toggleAppleMenu(false)
   store.startResize(props.win.id, edge, e.clientX, e.clientY)
 }
 
@@ -67,6 +72,7 @@ function onTitlebarDblClick() {
 }
 
 function onFocus() {
+  store.toggleAppleMenu(false)
   store.bringToFront(props.win.id)
 }
 </script>
@@ -81,6 +87,10 @@ function onFocus() {
   display: flex;
   flex-direction: column;
   position: absolute;
+}
+.os-window.is-focused {
+  box-shadow: 0 0 0 2px rgba(51, 132, 255, 0.5), 0 12px 28px rgba(0,0,0,0.18);
+  border-color: #c9defc;
 }
 
 .titlebar {
@@ -136,12 +146,12 @@ function onFocus() {
 .resize-handle {
   position: absolute;
 }
-.handle-n  { top: -3px; left: 8px; right: 8px; height: 6px; cursor: n-resize; }
-.handle-s  { bottom: -3px; left: 8px; right: 8px; height: 6px; cursor: s-resize; }
-.handle-e  { right: -3px; top: 8px; bottom: 8px; width: 6px; cursor: e-resize; }
-.handle-w  { left: -3px; top: 8px; bottom: 8px; width: 6px; cursor: w-resize; }
-.handle-ne { top: -3px; right: -3px; width: 10px; height: 10px; cursor: ne-resize; }
-.handle-nw { top: -3px; left:  -3px; width: 10px; height: 10px; cursor: nw-resize; }
-.handle-se { bottom: -3px; right: -3px; width: 10px; height: 10px; cursor: se-resize; }
-.handle-sw { bottom: -3px; left:  -3px; width: 10px; height: 10px; cursor: sw-resize; }
+.handle-n  { top: -4px; left: 8px; right: 8px; height: 8px; cursor: n-resize; }
+.handle-s  { bottom: -4px; left: 8px; right: 8px; height: 8px; cursor: s-resize; }
+.handle-e  { right: -4px; top: 8px; bottom: 8px; width: 8px; cursor: e-resize; }
+.handle-w  { left: -4px; top: 8px; bottom: 8px; width: 8px; cursor: w-resize; }
+.handle-ne { top: -4px; right: -4px; width: 12px; height: 12px; cursor: ne-resize; }
+.handle-nw { top: -4px; left:  -4px; width: 12px; height: 12px; cursor: nw-resize; }
+.handle-se { bottom: -4px; right: -4px; width: 12px; height: 12px; cursor: se-resize; }
+.handle-sw { bottom: -4px; left:  -4px; width: 12px; height: 12px; cursor: sw-resize; }
 </style>
