@@ -14,7 +14,9 @@ defineOptions({ name: 'OsDesktop' })
 const store = useOSStore()
 
 function onDesktopClick() {
+  // Close any menus and clear focused window when clicking the desktop
   store.toggleAppleMenu(false)
+  store.setFocused(null)
 }
 </script>
 

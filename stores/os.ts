@@ -45,7 +45,8 @@ export const useOSStore = defineStore('os', {
     focusedId: null,
     clock: '',
     menuBarHeight: 40,
-    desktopPadding: 8
+    desktopPadding: 8,
+    snapThreshold: 16
   }),
 
   getters: {
@@ -96,11 +97,25 @@ export const useOSStore = defineStore('os', {
         }
         if (typeof parsed?.nextWindowId === 'number') this.nextWindowId = parsed.nextWindowId
         if (typeof parsed?.nextZ === 'number') this.nextZ = parsed.nextZ
+
+        // Ensure we have a sane focused window after loading
+        this.focusTopMost()
       } catch { /* ignore */ }
     },
 
     setFocused(id: WindowId | null) {
       this.focusedId = id
+    },
+
+    /**
+     * Set focus to the current top-most non-minimized window, or null if none.
+     */
+    focusTopMost() {
+      const candidates = this.windows
+        .filter(w => !w.minimized)
+        .sort((a, b) => a.zIndex - b.zIndex)
+      const top = candidates[candidates.length - 1] ?? null
+      this.focusedId = top ? top.id : null
     },
 
     ensureBounds(w: OSWindowModel) {
@@ -158,7 +173,7 @@ export const useOSStore = defineStore('os', {
         this.endDrag()
       }
       if (this.focusedId === id) {
-        this.focusedId = null
+        this.focusTopMost()
       }
       this.saveSession()
     },
@@ -234,28 +249,44 @@ export const useOSStore = defineStore('os', {
       const dx = clientX - this.drag.startX
       const dy = clientY - this.drag.startY
 
-      let x = this.drag.originX
-      let y = this.drag.originY
-      let width = this.drag.originW ?? w.rect.width
-      let height = this.drag.originH ?? w.rect.height
+      const originX = this.drag.originX
+      const originY = this.drag.originY
+      const originW = this.drag.originW ?? w.rect.width
+      const originH = this.drag.originH ?? w.rect.height
+
+      // Start with original geometry
+      let x = originX
+      let y = originY
+      let width = originW
+      let height = originH
 
       const edge = this.drag.edge
 
-      if (edge?.includes('e')) width = this.drag.originW! + dx
-      if (edge?.includes('s')) height = this.drag.originH! + dy
+      // Opposite edges (anchors)
+      const eastEdge = originX + originW
+      const southEdge = originY + originH
+
+      // East/South grow from origin
+      if (edge?.includes('e')) {
+        width = Math.max(MIN_W, originW + dx)
+      }
+      if (edge?.includes('s')) {
+        height = Math.max(MIN_H, originH + dy)
+      }
+
+      // West/North shrink towards mouse but anchor opposite edge.
       if (edge?.includes('w')) {
-        x = this.drag.originX + dx
-        width = this.drag.originW! - dx
+        const candidate = originW - dx
+        width = Math.max(MIN_W, candidate)
+        x = eastEdge - width
       }
       if (edge?.includes('n')) {
-        y = this.drag.originY + dy
-        height = this.drag.originH! - dy
+        const candidate = originH - dy
+        height = Math.max(MIN_H, candidate)
+        y = southEdge - height
       }
 
-      width = Math.max(MIN_W, width)
-      height = Math.max(MIN_H, height)
-
-      // Constrain to desktop bounds
+      // Constrain to desktop bounds (after final width/height so clamps use correct max)
       const { vw, vh } = getViewport()
       const pad = this.desktopPadding
       const minX = pad
@@ -302,7 +333,7 @@ export const useOSStore = defineStore('os', {
       const w = this.windows.find(w => w.id === id)
       if (!w) return
       w.minimized = true
-      if (this.focusedId === id) this.focusedId = null
+      if (this.focusedId === id) this.focusTopMost()
       this.saveSession()
     },
 

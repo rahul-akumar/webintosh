@@ -66,4 +66,8 @@ export interface OSState {
    * Padding inside the desktop to keep windows from hugging edges.
    */
   desktopPadding: number;
+  /**
+   * Distance in px from an edge to trigger snap.
+   */
+  snapThreshold: number;
 }
