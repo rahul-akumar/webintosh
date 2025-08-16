@@ -1,0 +1,147 @@
+<template>
+  <div
+    class="os-window"
+    :style="styleObject"
+    @mousedown.stop="onFocus"
+  >
+    <div class="titlebar" @mousedown.stop="onStartDrag" @dblclick.stop="onTitlebarDblClick">
+      <div class="controls">
+        <button class="ctrl close" v-if="win.closable" @click.stop="store.closeWindow(win.id)" aria-label="Close"></button>
+        <button class="ctrl min" v-if="win.minimizable !== false" @click.stop="store.toggleMinimize(win.id)" aria-label="Minimize"></button>
+        <button class="ctrl max" v-if="win.resizable !== false" @click.stop="store.toggleMaximize(win.id)" aria-label="Maximize"></button>
+      </div>
+      <div class="title">{{ win.title }}</div>
+    </div>
+
+    <!-- Resize handles -->
+    <div class="resize-handle handle-n"  @mousedown.stop="onStartResize('n',  $event)" />
+    <div class="resize-handle handle-s"  @mousedown.stop="onStartResize('s',  $event)" />
+    <div class="resize-handle handle-e"  @mousedown.stop="onStartResize('e',  $event)" />
+    <div class="resize-handle handle-w"  @mousedown.stop="onStartResize('w',  $event)" />
+    <div class="resize-handle handle-ne" @mousedown.stop="onStartResize('ne', $event)" />
+    <div class="resize-handle handle-nw" @mousedown.stop="onStartResize('nw', $event)" />
+    <div class="resize-handle handle-se" @mousedown.stop="onStartResize('se', $event)" />
+    <div class="resize-handle handle-sw" @mousedown.stop="onStartResize('sw', $event)" />
+
+    <div class="content">
+      <slot>
+        <!-- Placeholder content -->
+        <p>This is a window body (id: {{ win.id }})</p>
+      </slot>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { computed, type CSSProperties } from 'vue'
+import type { OSWindowModel } from '../../../types/os'
+import { useOSStore } from '../../../stores/os'
+
+defineOptions({ name: 'OsWindow' })
+
+const props = defineProps<{
+  win: OSWindowModel
+}>()
+
+const store = useOSStore()
+
+const styleObject = computed<CSSProperties>(() => ({
+  position: 'absolute',
+  left: props.win.rect.x + 'px',
+  top: props.win.rect.y + 'px',
+  width: props.win.rect.width + 'px',
+  height: props.win.rect.height + 'px',
+  zIndex: props.win.zIndex
+}))
+
+function onStartDrag(e: MouseEvent) {
+  store.startDrag(props.win.id, e.clientX, e.clientY)
+}
+
+function onStartResize(edge: 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw', e: MouseEvent) {
+  store.startResize(props.win.id, edge, e.clientX, e.clientY)
+}
+
+function onTitlebarDblClick() {
+  store.toggleMaximize(props.win.id)
+}
+
+function onFocus() {
+  store.bringToFront(props.win.id)
+}
+</script>
+
+<style scoped>
+.os-window {
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.15);
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+}
+
+.titlebar {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px;
+  background: #f8f8f8;
+  border-bottom: 1px solid #ececec;
+  cursor: grab;
+  user-select: none;
+}
+.titlebar:active {
+  cursor: grabbing;
+}
+
+.controls {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.ctrl {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 0;
+  display: inline-block;
+  cursor: pointer;
+}
+.ctrl.close { background: #ff605c; }
+.ctrl.min   { background: #ffbd44; }
+.ctrl.max   { background: #00ca4e; }
+.ctrl:hover { filter: brightness(0.95) }
+
+.title {
+  font-size: 13px;
+  color: #333;
+  font-weight: 600;
+  margin-left: 6px;
+}
+
+.content {
+  padding: 10px;
+  font-size: 14px;
+  color: #222;
+  background: #fff;
+  flex: 1;
+  overflow: auto;
+}
+
+/* Resize handles */
+.resize-handle {
+  position: absolute;
+}
+.handle-n  { top: -3px; left: 8px; right: 8px; height: 6px; cursor: n-resize; }
+.handle-s  { bottom: -3px; left: 8px; right: 8px; height: 6px; cursor: s-resize; }
+.handle-e  { right: -3px; top: 8px; bottom: 8px; width: 6px; cursor: e-resize; }
+.handle-w  { left: -3px; top: 8px; bottom: 8px; width: 6px; cursor: w-resize; }
+.handle-ne { top: -3px; right: -3px; width: 10px; height: 10px; cursor: ne-resize; }
+.handle-nw { top: -3px; left:  -3px; width: 10px; height: 10px; cursor: nw-resize; }
+.handle-se { bottom: -3px; right: -3px; width: 10px; height: 10px; cursor: se-resize; }
+.handle-sw { bottom: -3px; left:  -3px; width: 10px; height: 10px; cursor: sw-resize; }
+</style>
