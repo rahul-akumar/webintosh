@@ -52,6 +52,19 @@ export const useAppsStore = defineStore('apps', {
       } catch { /* ignore */ }
     },
 
+    isPinned(id: AppId): boolean {
+      return this.pinned.includes(id);
+    },
+
+    togglePin(id: AppId) {
+      if (this.isPinned(id)) {
+        this.pinned = this.pinned.filter((x) => x !== id);
+      } else {
+        this.pinned.push(id);
+      }
+      this.savePins();
+    },
+
     pinApp(id: AppId) {
       if (!this.pinned.includes(id)) {
         this.pinned.push(id);

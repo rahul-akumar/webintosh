@@ -26,8 +26,16 @@
 
     <div class="content">
       <slot>
+        <!-- Default content for known app windows -->
+        <template v-if="win.kind === 'app'">
+          <FinderApp v-if="win.appId === 'finder'" />
+          <TextEditApp v-else-if="win.appId === 'textedit'" />
+        </template>
+
         <!-- Placeholder content -->
-        <p>This is a window body (id: {{ win.id }})</p>
+        <template v-else>
+          <p>This is a window body (id: {{ win.id }})</p>
+        </template>
       </slot>
     </div>
   </div>

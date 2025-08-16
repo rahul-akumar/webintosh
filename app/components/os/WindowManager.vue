@@ -9,33 +9,17 @@
       :win="w"
     />
 
-    <!-- Minimized Shelf overlay (above windows, inside overlay layer) -->
-    <div v-if="minimized.length" class="shelf">
-      <div class="shelf-title">Minimized</div>
-      <div class="shelf-items">
-        <button
-          v-for="w in minimized"
-          :key="w.id"
-          class="shelf-chip"
-          @click="store.restoreWindow(w.id)"
-          :title="`Restore ${w.title}`"
-        >
-          {{ w.title }}
-        </button>
-      </div>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, computed } from 'vue'
+import { onMounted, onUnmounted } from 'vue'
 import { useOSStore } from '../../../stores/os'
 import OsWindow from './Window.vue'
 
 defineOptions({ name: 'OsWindowManager' })
 
 const store = useOSStore()
-const minimized = computed(() => store.windows.filter(w => !!w.minimized))
 
 function onMove(e: MouseEvent) {
   // Support both dragging and resizing depending on store.drag.resizing
@@ -142,42 +126,4 @@ onUnmounted(() => {
   z-index: 10000;
 }
 
-/* Minimized Shelf */
-.shelf {
-  position: absolute;
-  left: 12px;
-  right: 12px;
-  bottom: 12px;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid #e3e3e3;
-  border-radius: 10px;
-  padding: 8px 10px;
-  box-shadow: 0 8px 22px rgba(0,0,0,0.12);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  z-index: 3; /* above windows within overlay */
-}
-.shelf-title {
-  font-size: 12px;
-  color: #666;
-  margin-right: 6px;
-}
-.shelf-items {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-.shelf-chip {
-  background: #f1f1f1;
-  color: #222;
-  border: 1px solid #e1e1e1;
-  border-radius: 999px;
-  padding: 6px 10px;
-  font-size: 12px;
-  cursor: pointer;
-}
-.shelf-chip:hover {
-  background: #eaeaea;
-}
 </style>

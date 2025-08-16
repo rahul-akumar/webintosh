@@ -1,12 +1,16 @@
 <template>
   <nav class="os-dock" aria-label="Dock">
     <ul class="dock-list">
-      <li v-for="app in pinned" :key="app.id" class="dock-item">
-        <button class="dock-button" @click="onLaunch(app)" :title="app.title" aria-haspopup="true">
-          <span class="dock-icon" aria-hidden="true">{{ app.emoji }}</span>
-          <span class="sr-only">{{ app.title }}</span>
-        </button>
-      </li>
+      <OsDockItem
+        v-for="it in items"
+        :key="it.id"
+        :title="it.title"
+        :emoji="it.emoji"
+        :running="it.running"
+        :minimized="it.minimized"
+        @launch="onLaunchId(it.id)"
+        @context="onContextId(it.id)"
+      />
     </ul>
   </nav>
 </template>
@@ -14,27 +18,50 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useAppsStore } from '../../../stores/apps'
+import { useOSStore } from '../../../stores/os'
 
 defineOptions({ name: 'OsDock' })
 
 const apps = useAppsStore()
+const os = useOSStore()
 
-type PinnedApp = {
+type DockItem = {
   id: string
   title: string
   emoji: string
+  running: boolean        // any window exists for appId
+  minimized: boolean      // true when only minimized windows exist (no visible)
 }
 
-const pinned = computed<PinnedApp[]>(() =>
-  apps.pinnedDescriptors.map(d => ({
-    id: d.id,
-    title: d.title,
-    emoji: d.emoji ?? '🗂️'
-  }))
-)
+const items = computed<DockItem[]>(() => {
+  // Build quick index of app run-state
+  const appWindows = new Map<string, { any: boolean; anyVisible: boolean }>()
+  for (const w of os.windows) {
+    if (!w.appId) continue
+    const cur = appWindows.get(w.appId) ?? { any: false, anyVisible: false }
+    cur.any = true
+    if (!w.minimized) cur.anyVisible = true
+    appWindows.set(w.appId, cur)
+  }
 
-function onLaunch(app: PinnedApp) {
-  apps.launchOrFocus(app.id)
+  return apps.pinnedDescriptors.map(d => {
+    const state = appWindows.get(d.id) ?? { any: false, anyVisible: false }
+    return {
+      id: d.id,
+      title: d.title,
+      emoji: d.emoji ?? '🗂️',
+      running: state.any,
+      minimized: state.any && !state.anyVisible
+    }
+  })
+})
+
+function onLaunchId(id: string) {
+  apps.launchOrFocus(id)
+}
+
+function onContextId(id: string) {
+  apps.togglePin(id)
 }
 </script>
 
