@@ -1,12 +1,15 @@
 <template>
-  <div class="icons-grid" role="grid">
+  <div class="icons-container" role="grid">
     <OsDesktopIcon
-      v-for="app in appList"
+      v-for="(app, index) in appList"
       :key="app.id"
       :title="app.title"
       :emoji="app.emoji ?? '🗂️'"
+      :x="getX(app.id, index)"
+      :y="getY(app.id, index)"
       @open="onOpenApp(app.id)"
       @context="onContextApp(app.id, $event)"
+      @move="onIconMove(app.id, $event)"
     />
   </div>
 </template>
@@ -26,9 +29,28 @@ const apps = useAppsStore()
 const os = useOSStore()
 
 const appList = computed<AppDescriptor[]>(() => {
-  // Render all registered apps
   return Object.values(apps.registry)
 })
+
+function getX(appId: AppId, index: number): number {
+  const pos = apps.iconPositions[appId]
+  if (pos) return pos.x
+  // Default grid position
+  const col = index % 8
+  return 20 + (col * 100)
+}
+
+function getY(appId: AppId, index: number): number {
+  const pos = apps.iconPositions[appId]
+  if (pos) return pos.y
+  // Default grid position
+  const row = Math.floor(index / 8)
+  return 20 + (row * 100)
+}
+
+function onIconMove(appId: AppId, data: { x: number; y: number }) {
+  apps.setIconPosition(appId, data.x, data.y)
+}
 
 function onOpenApp(id: AppId) {
   // If any minimized windows for the app: restore the topmost minimized
@@ -69,14 +91,10 @@ function onContextApp(id: AppId, e: MouseEvent) {
 </script>
 
 <style scoped>
-.icons-grid {
-  position: absolute;
-  inset: 0;
-  padding: 12px;
-  display: flex;
-  flex-wrap: wrap;
-  align-content: flex-start;
-  gap: 4px 8px;
-  pointer-events: auto; /* ensure icons are clickable over wm-root pointer-events:none */
+.icons-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  pointer-events: auto;
 }
 </style>

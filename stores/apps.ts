@@ -4,18 +4,21 @@ import { useOSStore } from './os';
 
 const PINS_KEY = 'webintosh:dock:v1:pins';
 const MIN_ORDER_KEY = 'webintosh:dock:v1:minOrder';
+const ICON_POSITIONS_KEY = 'webintosh:desktop:v1:iconPositions';
 
 export interface AppsState {
   registry: Record<AppId, AppDescriptor>;
   pinned: AppId[];
   minimizedOrder: AppId[];
+  iconPositions: Record<AppId, { x: number; y: number }>;
 }
 
 export const useAppsStore = defineStore('apps', {
   state: (): AppsState => ({
     registry: {},
     pinned: [],
-    minimizedOrder: []
+    minimizedOrder: [],
+    iconPositions: {}
   }),
 
   getters: {
@@ -78,6 +81,35 @@ export const useAppsStore = defineStore('apps', {
     unpinApp(id: AppId) {
       this.pinned = this.pinned.filter((x) => x !== id);
       this.savePins();
+    },
+
+    // ----- Desktop icon positions -----
+    
+    loadIconPositions() {
+      if (typeof localStorage === 'undefined') return;
+      try {
+        const raw = localStorage.getItem(ICON_POSITIONS_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (typeof parsed === 'object' && parsed !== null) {
+            this.iconPositions = parsed;
+          }
+        }
+      } catch (e) {
+        console.error('Failed to load icon positions:', e);
+      }
+    },
+
+    setIconPosition(appId: AppId, x: number, y: number) {
+      this.iconPositions[appId] = { x, y };
+      // Save immediately to localStorage
+      if (typeof localStorage !== 'undefined') {
+        try {
+          localStorage.setItem(ICON_POSITIONS_KEY, JSON.stringify(this.iconPositions));
+        } catch (e) {
+          console.error('Failed to save icon positions:', e);
+        }
+      }
     },
 
     // ----- Dock (minimized apps) ordering persistence -----

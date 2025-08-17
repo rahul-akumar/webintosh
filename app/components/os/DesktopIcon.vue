@@ -1,5 +1,9 @@
 <template>
-  <div class="desktop-icon">
+  <div 
+    class="desktop-icon"
+    :style="positionStyle"
+    @mousedown="startDrag"
+  >
     <button
       class="icon-button"
       :title="title"
@@ -13,17 +17,83 @@
 </template>
 
 <script setup lang="ts">
+import { computed, ref, watch } from 'vue'
+
 defineOptions({ name: 'OsDesktopIcon' })
 
-const { title, emoji } = defineProps<{
+const props = defineProps<{
   title: string
   emoji: string
+  x?: number
+  y?: number
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
   (e: 'open'): void
   (e: 'context', ev: MouseEvent): void
+  (e: 'move', data: { x: number; y: number }): void
 }>()
+
+const isDragging = ref(false)
+const currentX = ref(props.x ?? 0)
+const currentY = ref(props.y ?? 0)
+
+// Update local position when props change
+watch(() => props.x, (newX) => {
+  if (newX !== undefined && !isDragging.value) {
+    currentX.value = newX
+  }
+})
+
+watch(() => props.y, (newY) => {
+  if (newY !== undefined && !isDragging.value) {
+    currentY.value = newY
+  }
+})
+
+const positionStyle = computed(() => {
+  if (props.x !== undefined && props.y !== undefined) {
+    return {
+      position: 'absolute',
+      left: `${currentX.value}px`,
+      top: `${currentY.value}px`,
+      opacity: isDragging.value ? 0.6 : 1,
+      transition: isDragging.value ? 'none' : 'opacity 0.2s'
+    }
+  }
+  return {}
+})
+
+function startDrag(e: MouseEvent) {
+  if (e.button !== 0) return // Only left click
+  
+  e.preventDefault()
+  
+  const startX = e.clientX
+  const startY = e.clientY
+  const origX = currentX.value
+  const origY = currentY.value
+  
+  isDragging.value = true
+  
+  function onMouseMove(e: MouseEvent) {
+    const deltaX = e.clientX - startX
+    const deltaY = e.clientY - startY
+    currentX.value = Math.max(0, origX + deltaX)
+    currentY.value = Math.max(0, origY + deltaY)
+  }
+  
+  function onMouseUp() {
+    isDragging.value = false
+    // Emit final position
+    emit('move', { x: currentX.value, y: currentY.value })
+    document.removeEventListener('mousemove', onMouseMove)
+    document.removeEventListener('mouseup', onMouseUp)
+  }
+  
+  document.addEventListener('mousemove', onMouseMove)
+  document.addEventListener('mouseup', onMouseUp)
+}
 </script>
 
 <style scoped>
@@ -32,13 +102,15 @@ defineEmits<{
   width: 88px;
   margin: 8px;
   justify-content: center;
+  cursor: move;
+  user-select: none;
 }
 
 .icon-button {
   appearance: none;
   background: transparent;
   border: 0;
-  cursor: default;
+  cursor: inherit;
   width: 88px;
   padding: 8px 6px;
   border-radius: 10px;
@@ -47,9 +119,12 @@ defineEmits<{
   gap: 6px;
   text-align: center;
   user-select: none;
+  pointer-events: none;
 }
-.icon-button:hover {
+
+.desktop-icon:hover .icon-button {
   background: rgba(0, 0, 0, 0.06);
+  pointer-events: auto;
 }
 
 .icon-emoji {
