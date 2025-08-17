@@ -1,13 +1,15 @@
 <template>
-  <div class="desktop" @click="onDesktopClick">
-    <div class="desktop-actions">
-      <button class="btn" @click.stop="store.openWindow()">Open Window</button>
-    </div>
+  <div
+    class="desktop"
+    @click="onDesktopClick"
+    @contextmenu.prevent="onDesktopContextmenu"
+  >
   </div>
 </template>
 
 <script setup lang="ts">
 import { useOSStore } from '../../../stores/os'
+import { Menu } from '../../../types/menu'
 
 defineOptions({ name: 'OsDesktop' })
 
@@ -15,8 +17,22 @@ const store = useOSStore()
 
 function onDesktopClick() {
   // Close any menus and clear focused window when clicking the desktop
-  store.toggleAppleMenu(false)
+  store.closeMenu()
   store.setFocused(null)
+}
+
+function onDesktopContextmenu(e: MouseEvent) {
+  // Build a minimal context template using the shared menu model
+  const ctx = Menu.template('desktop-context', 'Webintosh', [
+    Menu.section('file', 'File', [
+      Menu.item('ctx.openWindow', 'Open Window', { command: 'os.openWindow' }),
+      Menu.item('ctx.shortcuts', 'Shortcuts', { command: 'system.showShortcuts' }),
+      Menu.submenu('ctx.dev', 'Developer', [
+        Menu.item('ctx.dev.openTest', 'Open Test Window', { command: 'os.openTestWindow' })
+      ])
+    ])
+  ])
+  store.openContext(e.clientX, e.clientY, ctx)
 }
 </script>
 
@@ -26,22 +42,5 @@ function onDesktopClick() {
   width: 100%;
   height: calc(100vh - 40px); /* keep in sync with menu bar height */
   background: #f5f6f8;
-}
-
-.desktop-actions {
-  padding: 12px;
-}
-
-.btn {
-  padding: 6px 10px;
-  font-size: 14px;
-  background: #222;
-  color: #fff;
-  border: 0;
-  border-radius: 6px;
-  cursor: pointer;
-}
-.btn:hover {
-  background: #333;
 }
 </style>

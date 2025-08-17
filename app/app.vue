@@ -6,9 +6,13 @@
       <OsDesktop />
       <OsWindowManager />
       <OsDock />
-      <div class="tester">
-        <button class="btn" @click="store.openWindow()">Open Test Window</button>
-      </div>
+      <OsContextMenu
+        v-if="store.menu.openType === 'context' && store.menu.contextTemplate && store.menu.contextPos"
+        :entries="store.menu.contextTemplate.sections[0]?.entries ?? []"
+        :origin="store.menu.contextPos"
+        :z="3000"
+        @request-close="store.closeMenu()"
+      />
     </main>
   </div>
 </template>
@@ -17,6 +21,8 @@
 import { useOSStore } from '../stores/os'
 import { useAppsStore } from '../stores/apps'
 import { onMounted } from 'vue'
+import { registerDefaultCommands } from './composables/menuCommands'
+import OsContextMenu from './components/os/ContextMenu.vue'
 
 defineOptions({ name: 'AppRoot' })
 
@@ -34,13 +40,17 @@ onMounted(() => {
   // Phase 2: register core apps and hydrate Dock pins
   apps.registerApps([
     { id: 'finder', title: 'Finder', emoji: '🗂️', kind: 'system' },
-    { id: 'textedit', title: 'TextEdit', emoji: '📝', kind: 'app' }
+    { id: 'textedit', title: 'TextEdit', emoji: '📝', kind: 'app' },
+    { id: 'shortcuts', title: 'Shortcuts', emoji: '⌨️', kind: 'system' }
   ])
   apps.loadPins()
   if (apps.pinned.length === 0) {
     apps.pinApp('finder')
     apps.pinApp('textedit')
   }
+
+  // Menu commands (Phase 0): register default command handlers once
+  registerDefaultCommands()
 })
 </script>
 
@@ -73,22 +83,4 @@ body {
   overflow: hidden; /* Clip window shadows/edges to viewport to avoid 1-2px scrollbars */
 }
 
-/* Helper test button */
-.tester {
-  position: absolute;
-  right: 12px;
-  bottom: 12px;
-  z-index: 1; /* Below .wm-root (z-index: 2) */
-  pointer-events: none; /* Never intercept OS window events */
-}
-.btn {
-  padding: 6px 10px;
-  font-size: 14px;
-  background: #222;
-  color: #fff;
-  border: 0;
-  border-radius: 6px;
-  cursor: pointer;
-}
-.btn:hover { background: #333; }
 </style>

@@ -5,6 +5,7 @@ import type {
   OSWindowRect,
   WindowId
 } from '../types/os'
+import type { MenuTemplate } from '../types/menu'
 
 const MIN_W = 240
 const MIN_H = 160
@@ -42,7 +43,11 @@ export const useOSStore = defineStore('os', {
       originH: 0
     },
     menu: {
-      isAppleOpen: false
+      openType: 'none',
+      menubarIndex: null,
+      activePath: [],
+      contextPos: null,
+      contextTemplate: null
     },
     focusedId: null,
     clock: '',
@@ -58,7 +63,20 @@ export const useOSStore = defineStore('os', {
         .sort((a, b) => a.zIndex - b.zIndex),
 
     focused: (s): OSWindowModel | null =>
-      s.windows.find(w => w.id === s.focusedId) ?? null
+      s.windows.find(w => w.id === s.focusedId) ?? null,
+
+    activeAppId(): string | null {
+      return this.focused?.appId ?? null
+    },
+
+    activeMenuTemplate(): MenuTemplate {
+      // Phase 1 stub: replaced in Phase 2 with real templates
+      return {
+        id: 'system-stub',
+        title: this.activeAppId ? 'App' : 'Webintosh',
+        sections: []
+      }
+    }
   },
 
   actions: {
@@ -413,8 +431,34 @@ export const useOSStore = defineStore('os', {
     },
  
     // ---------- Menu ----------
-    toggleAppleMenu(v?: boolean) {
-      this.menu.isAppleOpen = typeof v === 'boolean' ? v : !this.menu.isAppleOpen
-    }
+    openMenubar(index?: number) {
+      this.menu.openType = 'menubar'
+      this.menu.menubarIndex = typeof index === 'number' ? index : 0
+      this.menu.activePath = []
+      // Clear any context state
+      this.menu.contextPos = null
+      this.menu.contextTemplate = null
+    },
+
+    openContext(x: number, y: number, template: MenuTemplate) {
+      this.menu.openType = 'context'
+      this.menu.menubarIndex = null
+      this.menu.activePath = []
+      this.menu.contextPos = { x, y }
+      this.menu.contextTemplate = template
+    },
+
+    setActivePath(path: number[]) {
+      this.menu.activePath = Array.isArray(path) ? [...path] : []
+    },
+
+    closeMenu() {
+      this.menu.openType = 'none'
+      this.menu.menubarIndex = null
+      this.menu.activePath = []
+      this.menu.contextPos = null
+      this.menu.contextTemplate = null
+    },
+
   }
 })

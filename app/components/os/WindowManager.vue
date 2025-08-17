@@ -16,6 +16,7 @@
 import { onMounted, onUnmounted } from 'vue'
 import { useOSStore } from '../../../stores/os'
 import OsWindow from './Window.vue'
+import { execute, registerDefaultCommands } from '../../composables/menuCommands'
 
 defineOptions({ name: 'OsWindowManager' })
 
@@ -51,12 +52,63 @@ function onKeyDown(e: KeyboardEvent) {
   // ESC: cancel drag/resize and close menus
   if (e.key === 'Escape') {
     store.endDrag()
-    store.toggleAppleMenu(false)
+    store.closeMenu()
     e.preventDefault()
     return
   }
 
-  // Cmd/Ctrl combos
+  // Alt-based accelerators (avoid browser conflicts)
+  if (e.altKey && !e.metaKey && !e.ctrlKey) {
+    const k = e.key.toLowerCase()
+    switch (k) {
+      case 'n': {
+        // New/Open window behavior:
+        // - If TextEdit focused: New Document
+        // - If any app focused: New Window for that app
+        // - Else (desktop): OS Open Window
+        const appId = store.focused?.appId ?? null
+        if (appId === 'textedit') {
+          execute('app.newDocument', { appId })
+        } else if (appId) {
+          execute('app.newWindow', { appId })
+        } else {
+          execute('os.openWindow')
+        }
+        e.preventDefault()
+        return
+      }
+      case 'w': {
+        execute('os.closeFocused')
+        e.preventDefault()
+        return
+      }
+      case 'm': {
+        execute('os.minimizeFocused')
+        e.preventDefault()
+        return
+      }
+      case 'z': {
+        execute('view.toggleZoom')
+        e.preventDefault()
+        return
+      }
+      case '/': {
+        execute('system.showShortcuts')
+        e.preventDefault()
+        return
+      }
+      case '`': {
+        // Cycle windows forward using existing helper
+        cycleWindowsForward()
+        e.preventDefault()
+        return
+      }
+      default:
+        break
+    }
+  }
+
+  // Cmd/Ctrl combos (existing behavior)
   const mod = e.metaKey || e.ctrlKey
   if (!mod) return
 
@@ -84,6 +136,8 @@ function onKeyDown(e: KeyboardEvent) {
 }
 
 onMounted(() => {
+  // Ensure command registry is initialized (idempotent; safe across HMR)
+  registerDefaultCommands()
   window.addEventListener('mousemove', onMove)
   window.addEventListener('mouseup', onUp)
   window.addEventListener('keydown', onKeyDown)

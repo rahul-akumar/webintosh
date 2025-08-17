@@ -1,3 +1,5 @@
+import type { MenuTemplate } from './menu';
+
 export type WindowId = number;
 
 export interface OSWindowRect {
@@ -46,7 +48,14 @@ export interface DragState {
 }
 
 export interface OSMenuState {
-  isAppleOpen: boolean;
+  // Generic menu open state
+  openType: 'none' | 'menubar' | 'context';
+  menubarIndex?: number | null;
+  activePath: number[];
+
+  // Context menu positioning and template (for reuse by context menus)
+  contextPos?: { x: number; y: number } | null;
+  contextTemplate?: MenuTemplate | null;
 }
 
 export interface OSState {

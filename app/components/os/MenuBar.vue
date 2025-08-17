@@ -1,34 +1,66 @@
 <template>
-  <header class="menu-bar" @click="store.toggleAppleMenu(false)">
-    <div class="menu-left">
-      <button class="menu-title" @click.stop="store.toggleAppleMenu()">
-        Webintosh
+  <header class="menu-bar" @click="store.closeMenu()">
+    <div ref="menuLeftEl" class="menu-left" role="menubar">
+      <!-- Left-most title: System or Active App -->
+      <button
+        class="menu-title"
+        role="menuitem"
+        aria-haspopup="true"
+        :data-index="0"
+        :aria-expanded="isMenubarOpen ? 'true' : 'false'"
+        @click.stop="openSection(0, $event)"
+        @mouseenter="onHoverSection(0, $event)"
+      >
+        {{ activeTemplate.title }}
       </button>
-      <!-- Placeholder static menus -->
-      <span class="menu-item">File</span>
-      <span class="menu-item">Edit</span>
-      <span class="menu-item">View</span>
+
+      <!-- Dynamic top-level sections (excluding the first, which is opened by the title button) -->
+      <button
+        v-for="(section, i) in activeTemplate.sections.slice(1)"
+        :key="section.id"
+        class="menu-item"
+        role="menuitem"
+        aria-haspopup="true"
+        :data-index="i + 1"
+        :aria-expanded="isMenubarOpen && store.menu.menubarIndex === (i + 1) ? 'true' : 'false'"
+        @click.stop="openSection(i + 1, $event)"
+        @mouseenter="onHoverSection(i + 1, $event)"
+      >
+        {{ section.label }}
+      </button>
     </div>
+
     <div class="menu-right">
       <span class="clock">{{ store.clock }}</span>
     </div>
 
-    <!-- Simple dropdown to prove menu toggling works -->
-    <div v-if="store.menu.isAppleOpen" class="dropdown" @click.stop>
-      <div class="dropdown-item">About</div>
-      <div class="dropdown-item">Preferences…</div>
-    </div>
+    <!-- Dropdown for the active section -->
+    <MenuDropdown
+      v-if="isMenubarOpen && currentEntries.length"
+      :entries="currentEntries"
+      :origin="dropdownOrigin"
+      :z="2000"
+      @executed="onExecuted"
+      @navLeft="onNavLeft"
+      @navRight="onNavRight"
+    />
   </header>
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useOSStore } from '../../../stores/os'
+import { useAppsStore } from '../../../stores/apps'
+import MenuDropdown from './MenuDropdown.vue'
+import { getSystemMenuTemplate, getAppMenuTemplate } from './menus'
 
 defineOptions({ name: 'OsMenuBar' })
 
 const store = useOSStore()
+const apps = useAppsStore()
+const menuLeftEl = ref<HTMLElement | null>(null)
 
+// Clock tick (unchanged behavior)
 let t: number | undefined
 onMounted(() => {
   store.tickClock()
@@ -37,11 +69,97 @@ onMounted(() => {
 onUnmounted(() => {
   if (t) window.clearInterval(t)
 })
+
+// Resolve active template by focus: desktop -> system; window -> app menu
+const activeTemplate = computed(() => {
+  const appId = store.activeAppId
+  if (!appId) return getSystemMenuTemplate()
+  const title = apps.registry[appId]?.title
+  return getAppMenuTemplate(appId, title)
+})
+
+const isMenubarOpen = computed(() => store.menu.openType === 'menubar')
+
+// Entries of the currently opened section
+const currentEntries = computed(() => {
+  const idx = store.menu.menubarIndex ?? 0
+  return activeTemplate.value.sections[idx]?.entries ?? []
+})
+
+// Position for dropdown (absolute page coords)
+const dropdownOrigin = ref<{ x: number; y: number }>({ x: 10, y: 40 })
+
+function computeOriginFromEvent(e: Event) {
+  const el = e.currentTarget as HTMLElement | null
+  if (!el) return
+  const r = el.getBoundingClientRect()
+  dropdownOrigin.value = {
+    x: Math.round(r.left + 4),
+    y: Math.round(r.bottom) // directly under the menubar
+  }
+}
+
+function openSection(i: number, e: Event) {
+  computeOriginFromEvent(e)
+  store.openMenubar(i)
+}
+
+function onHoverSection(i: number, e: Event) {
+  if (!isMenubarOpen.value) return
+  if (store.menu.menubarIndex !== i) {
+    computeOriginFromEvent(e)
+    store.openMenubar(i)
+  }
+}
+
+function onExecuted() {
+  store.closeMenu()
+}
+
+/**
+ * Helpers to move between sections via keyboard (Left/Right).
+ * Finds the corresponding menubar button by data-index and repositions the dropdown.
+ */
+function getButtonElByIndex(i: number): HTMLElement | null {
+  const root = menuLeftEl.value
+  if (!root) return null
+  return root.querySelector<HTMLElement>(`[data-index="${i}"]`)
+}
+
+function setOriginFromIndex(i: number) {
+  const el = getButtonElByIndex(i)
+  if (!el) return
+  const r = el.getBoundingClientRect()
+  dropdownOrigin.value = {
+    x: Math.round(r.left + 4),
+    y: Math.round(r.bottom)
+  }
+}
+
+function switchSection(nextIndex: number) {
+  setOriginFromIndex(nextIndex)
+  store.openMenubar(nextIndex)
+}
+
+function onNavLeft() {
+  const sections = activeTemplate.value.sections.length
+  const cur = store.menu.menubarIndex ?? 0
+  const next = (cur - 1 + sections) % sections
+  switchSection(next)
+}
+
+function onNavRight() {
+  const sections = activeTemplate.value.sections.length
+  const cur = store.menu.menubarIndex ?? 0
+  const next = (cur + 1) % sections
+  switchSection(next)
+}
 </script>
 
 <style scoped>
 .menu-bar {
   position: relative;
+  z-index: 4; /* Above .wm-root (z:2) and Dock (z:3) to ensure dropdown overlays windows */
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -77,7 +195,9 @@ onUnmounted(() => {
   font-size: 14px;
   padding: 4px 6px;
   border-radius: 6px;
-  cursor: default;
+  cursor: pointer;
+  border: 0;
+  background: transparent;
 }
 .menu-item:hover {
   background: rgba(0, 0, 0, 0.06);
@@ -86,28 +206,5 @@ onUnmounted(() => {
 .menu-right .clock {
   font-size: 13px;
   color: #444;
-}
-
-/* Dropdown */
-.dropdown {
-  position: absolute;
-  top: 40px;
-  left: 10px;
-  min-width: 180px;
-  background: #fff;
-  border: 1px solid #e3e3e3;
-  border-radius: 8px;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12);
-  padding: 6px;
-  z-index: 1000;
-}
-.dropdown-item {
-  padding: 8px 10px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-}
-.dropdown-item:hover {
-  background: rgba(0, 0, 0, 0.06);
 }
 </style>

@@ -30,6 +30,7 @@
         <template v-if="win.kind === 'app'">
           <FinderApp v-if="win.appId === 'finder'" />
           <TextEditApp v-else-if="win.appId === 'textedit'" />
+          <ShortcutsApp v-else-if="win.appId === 'shortcuts'" />
         </template>
 
         <!-- Placeholder content -->
@@ -66,12 +67,12 @@ const styleObject = computed<CSSProperties>(() => ({
 const isFocused = computed(() => store.focusedId === props.win.id)
 
 function onStartDrag(e: MouseEvent) {
-  store.toggleAppleMenu(false)
+  store.closeMenu()
   store.startDrag(props.win.id, e.clientX, e.clientY)
 }
 
 function onStartResize(edge: 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw', e: MouseEvent) {
-  store.toggleAppleMenu(false)
+  store.closeMenu()
   store.startResize(props.win.id, edge, e.clientX, e.clientY)
 }
 
@@ -80,7 +81,7 @@ function onTitlebarDblClick() {
 }
 
 function onFocus() {
-  store.toggleAppleMenu(false)
+  store.closeMenu()
   store.bringToFront(props.win.id)
 }
 </script>
