@@ -14,8 +14,10 @@ function clamp(n: number, min: number, max: number) {
 }
 
 function getViewport() {
-  if (typeof window !== 'undefined') {
-    return { vw: window.innerWidth, vh: window.innerHeight }
+  if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+    const docEl = document.documentElement
+    // Use clientWidth/Height to exclude scrollbars and avoid 1–2px overflow
+    return { vw: docEl.clientWidth, vh: docEl.clientHeight }
   }
   // SSR/defaults
   return { vw: 1280, vh: 800 }
@@ -123,10 +125,22 @@ export const useOSStore = defineStore('os', {
       const pad = this.desktopPadding
       const minX = pad
       const minY = this.menuBarHeight
+
+      // Maximum size that fits within the viewport (respecting menu bar and padding)
+      const maxWidth = Math.max(MIN_W, vw - pad * 2)
+      const maxHeight = Math.max(MIN_H, vh - this.menuBarHeight - pad)
+
+      // Clamp size first and snap to integer pixels to avoid subpixel overflow
+      const clampedW = clamp(w.rect.width, MIN_W, maxWidth)
+      const clampedH = clamp(w.rect.height, MIN_H, maxHeight)
+      w.rect.width = Math.floor(clampedW)
+      w.rect.height = Math.floor(clampedH)
+
+      // Then clamp position so the rect remains fully visible; snap to integer pixels
       const maxX = vw - w.rect.width - pad
       const maxY = vh - w.rect.height - pad
-      w.rect.x = clamp(w.rect.x, minX, Math.max(minX, maxX))
-      w.rect.y = clamp(w.rect.y, minY, Math.max(minY, maxY))
+      w.rect.x = Math.round(clamp(w.rect.x, minX, Math.max(minX, maxX)))
+      w.rect.y = Math.round(clamp(w.rect.y, minY, Math.max(minY, maxY)))
     },
 
     // ---------- Clock ----------
@@ -254,6 +268,16 @@ export const useOSStore = defineStore('os', {
       const originW = this.drag.originW ?? w.rect.width
       const originH = this.drag.originH ?? w.rect.height
 
+      // Viewport constraints
+      const { vw, vh } = getViewport()
+      const pad = this.desktopPadding
+      const minX = pad
+      const minY = this.menuBarHeight
+
+      // Anchors (fixed opposite edges)
+      const eastEdge = originX + originW
+      const southEdge = originY + originH
+
       // Start with original geometry
       let x = originX
       let y = originY
@@ -262,42 +286,45 @@ export const useOSStore = defineStore('os', {
 
       const edge = this.drag.edge
 
-      // Opposite edges (anchors)
-      const eastEdge = originX + originW
-      const southEdge = originY + originH
-
-      // East/South grow from origin
+      // East: grow to the right, cap to viewport
       if (edge?.includes('e')) {
-        width = Math.max(MIN_W, originW + dx)
-      }
-      if (edge?.includes('s')) {
-        height = Math.max(MIN_H, originH + dy)
+        const maxWidthE = Math.max(MIN_W, vw - pad - originX)
+        width = clamp(originW + dx, MIN_W, maxWidthE)
       }
 
-      // West/North shrink towards mouse but anchor opposite edge.
+      // South: grow downward, cap to viewport
+      if (edge?.includes('s')) {
+        const maxHeightS = Math.max(MIN_H, vh - pad - originY)
+        height = clamp(originH + dy, MIN_H, maxHeightS)
+      }
+
+      // West: shrink left, keep east edge anchored, cap so left doesn't cross minX
       if (edge?.includes('w')) {
-        const candidate = originW - dx
-        width = Math.max(MIN_W, candidate)
+        const maxWidthW = Math.max(MIN_W, eastEdge - minX)
+        width = clamp(originW - dx, MIN_W, maxWidthW)
         x = eastEdge - width
       }
+
+      // North: shrink up, keep south edge anchored, cap so top doesn't cross minY
       if (edge?.includes('n')) {
-        const candidate = originH - dy
-        height = Math.max(MIN_H, candidate)
+        const maxHeightN = Math.max(MIN_H, southEdge - minY)
+        height = clamp(originH - dy, MIN_H, maxHeightN)
         y = southEdge - height
       }
 
-      // Constrain to desktop bounds (after final width/height so clamps use correct max)
-      const { vw, vh } = getViewport()
-      const pad = this.desktopPadding
-      const minX = pad
-      const minY = this.menuBarHeight
+      // Final safety clamp on position with resolved size (should be no-ops if above caps are correct)
       const maxX = vw - width - pad
       const maxY = vh - height - pad
-
       x = clamp(x, minX, Math.max(minX, maxX))
       y = clamp(y, minY, Math.max(minY, maxY))
 
-      w.rect = { x, y, width, height }
+      // Snap final geometry to integer pixels to prevent 1–2px page overflow
+      w.rect = {
+        x: Math.round(x),
+        y: Math.round(y),
+        width: Math.floor(width),
+        height: Math.floor(height)
+      }
     },
 
     endResize() {
@@ -316,8 +343,8 @@ export const useOSStore = defineStore('os', {
         w.lastNormalRect = { ...w.rect }
         w.rect.x = pad
         w.rect.y = this.menuBarHeight
-        w.rect.width = Math.max(MIN_W, vw - pad * 2)
-        w.rect.height = Math.max(MIN_H, vh - this.menuBarHeight - pad)
+        w.rect.width = Math.floor(Math.max(MIN_W, vw - pad * 2))
+        w.rect.height = Math.floor(Math.max(MIN_H, vh - this.menuBarHeight - pad))
         w.maximized = true
       } else {
         if (w.lastNormalRect) {

@@ -45,8 +45,13 @@ onMounted(() => {
 </script>
 
 <style>
+/* Use border-box globally to avoid 1–2px overflow from borders/padding */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
 html, body, #__nuxt {
   height: 100%;
+  overflow: hidden; /* Prevent page-level scrollbars; only windows may scroll internally */
 }
 body {
   margin: 0;
@@ -65,6 +70,7 @@ body {
   position: relative;
   height: calc(100vh - 40px);
   user-select: none;
+  overflow: hidden; /* Clip window shadows/edges to viewport to avoid 1-2px scrollbars */
 }
 
 /* Helper test button */
