@@ -32,6 +32,9 @@ const apps = useAppsStore()
 onMounted(() => {
   // Load persisted session first
   store.loadSession()
+  
+  // Load icon positions early
+  apps.loadIconPositions()
 
   // Do not auto-open any window on fresh sessions
 
