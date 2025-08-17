@@ -4,12 +4,15 @@
     @click="onDesktopClick"
     @contextmenu.prevent="onDesktopContextmenu"
   >
+    <!-- Desktop app icons -->
+    <OsDesktopIcons />
   </div>
 </template>
 
 <script setup lang="ts">
 import { useOSStore } from '../../../stores/os'
 import { Menu } from '../../../types/menu'
+import OsDesktopIcons from './DesktopIcons.vue'
 
 defineOptions({ name: 'OsDesktop' })
 

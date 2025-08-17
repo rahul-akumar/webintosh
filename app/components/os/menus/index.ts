@@ -3,6 +3,7 @@ import type { MenuTemplate } from '../../../../types/menu'
 import { createSystemMenuTemplate } from './systemMenu'
 import { createFinderMenuTemplate } from '../../apps/Finder/finderMenu'
 import { createTextEditMenuTemplate } from '../../apps/TextEdit/textEditMenu'
+import { createDockMenuForApp } from './dockMenu'
 
 /**
  * Return the system (desktop) menu template.
@@ -36,3 +37,6 @@ export function getAppMenuTemplate(appId: string, appTitle?: string): MenuTempla
  * Optional helper: list of known app ids with first-party menus.
  */
 export const KnownMenuApps = new Set<string>(['finder', 'textedit'])
+
+// Re-export Dock context menu builder
+export { createDockMenuForApp }

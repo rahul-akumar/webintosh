@@ -1,13 +1,22 @@
 <template>
-  <li class="dock-item">
+  <li
+    class="dock-item"
+  >
     <button
       class="dock-button"
       @click="$emit('launch')"
-      @contextmenu.prevent="$emit('context')"
+      @contextmenu.prevent="$emit('context', $event)"
       :title="title"
       aria-haspopup="true"
+      draggable="true"
+      @dragstart="$emit('drag-start', { id, ev: $event })"
+      @dragover.prevent="$emit('drag-over', { id, ev: $event })"
+      @drop.prevent="$emit('drop', { id, ev: $event })"
     >
       <span class="dock-icon" aria-hidden="true">{{ emoji }}</span>
+      <!-- Optional minimized count badge (shown when 2+ minimized windows exist) -->
+      <span v-if="minimizedCount && minimizedCount > 1" class="count-badge" aria-hidden="true">{{ minimizedCount }}</span>
+      <!-- Legacy running indicator kept for compatibility; can be removed when Dock shows minimized-only -->
       <span v-if="running" class="running-dot" :class="{ hidden: minimized }" aria-hidden="true"></span>
       <span class="sr-only">{{ title }}</span>
     </button>
@@ -17,15 +26,18 @@
 <script setup lang="ts">
 defineOptions({ name: 'OsDockItem' })
 
-const { title, emoji, running = false, minimized = false } = defineProps<{
+const { id, title, emoji, running = false, minimized = false, minimizedCount = 0 } = defineProps<{
+  id: string
   title: string
   emoji: string
   running?: boolean
   minimized?: boolean
+  minimizedCount?: number
 }>()
 
 defineEmits<{
   (e: 'launch' | 'context', ev?: MouseEvent): void
+  (e: 'drag-start' | 'drag-over' | 'drop', payload: { id: string; ev: DragEvent }): void
 }>()
 </script>
 
@@ -71,6 +83,23 @@ defineEmits<{
 }
 .running-dot.hidden {
   background: #9aa4b2; /* minimized-only */
+}
+
+/* Minimized count badge */
+.count-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: #2a7cff;
+  color: #fff;
+  font-size: 11px;
+  line-height: 16px;
+  text-align: center;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.06);
 }
 
 /* a11y */

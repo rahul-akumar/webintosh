@@ -73,6 +73,15 @@ export function registerDefaultCommands(): void {
     if (f) os.toggleMaximize(f.id)
   })
 
+  // Restore a specific window by id (used by Dock context listing minimized instances)
+  register('os.restoreWindowById', (args?: unknown) => {
+    const os = useOSStore()
+    const id = getArg<number>(args, 'id')
+    if (typeof id === 'number') {
+      os.restoreWindow(id as number)
+    }
+  })
+
   // View commands (placeholder)
   register('view.toggleZoom', () => {
     // For now, treat "zoom" as maximize toggle on the focused window

@@ -12,6 +12,7 @@ export type CommandId =
   | 'os.closeFocused'
   | 'os.minimizeFocused'
   | 'os.maximizeFocused'
+  | 'os.restoreWindowById'
   | 'view.toggleZoom'
   | 'app.newWindow'
   | 'app.newDocument'

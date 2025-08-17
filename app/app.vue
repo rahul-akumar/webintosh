@@ -37,19 +37,16 @@ onMounted(() => {
     store.openWindow()
   }
 
-  // Phase 2: register core apps and hydrate Dock pins
+  // Register core apps
   apps.registerApps([
     { id: 'finder', title: 'Finder', emoji: '🗂️', kind: 'system' },
     { id: 'textedit', title: 'TextEdit', emoji: '📝', kind: 'app' },
     { id: 'shortcuts', title: 'Shortcuts', emoji: '⌨️', kind: 'system' }
   ])
-  apps.loadPins()
-  if (apps.pinned.length === 0) {
-    apps.pinApp('finder')
-    apps.pinApp('textedit')
-  }
+  // Load Dock minimized ordering (Dock now shows minimized apps only)
+  apps.loadMinOrder()
 
-  // Menu commands (Phase 0): register default command handlers once
+  // Menu commands: register default command handlers once
   registerDefaultCommands()
 })
 </script>
