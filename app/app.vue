@@ -32,10 +32,8 @@ const apps = useAppsStore()
 onMounted(() => {
   // Load persisted session first
   store.loadSession()
-  // If no windows, open one to verify wiring
-  if (!store.windows.length) {
-    store.openWindow()
-  }
+
+  // Do not auto-open any window on fresh sessions
 
   // Register core apps
   apps.registerApps([
