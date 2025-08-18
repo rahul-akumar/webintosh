@@ -10,6 +10,7 @@
         :key="it.id"
         :id="it.id"
         :title="it.title"
+        :icon="it.icon"
         :emoji="it.emoji"
         :minimized-count="it.minimizedCount"
         @launch="onLaunchId(it.id)"
@@ -37,7 +38,8 @@ const os = useOSStore()
 type DockItem = {
   id: AppId
   title: string
-  emoji: string
+  icon?: string
+  emoji?: string
   minimizedCount: number
 }
 
@@ -66,6 +68,7 @@ const items = computed<DockItem[]>(() => {
       return {
         id,
         title: d.title,
+        icon: d.icon,
         emoji: d.emoji ?? '🗂️',
         minimizedCount: count
       }

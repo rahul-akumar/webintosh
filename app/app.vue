@@ -41,13 +41,14 @@ onMounted(() => {
 
   // Register core apps
   apps.registerApps([
-    { id: 'finder', title: 'Finder', emoji: '🗂️', kind: 'system' },
-    { id: 'textedit', title: 'TextEdit', emoji: '📝', kind: 'app' },
-    { id: 'shortcuts', title: 'Shortcuts', emoji: '⌨️', kind: 'system', showOnDesktop: false },
+    { id: 'finder', title: 'Finder', icon: '/icons/system/finder.svg', emoji: '🗂️', kind: 'system' },
+    { id: 'textedit', title: 'TextEdit', icon: '/icons/apps/textEdit.svg', emoji: '📝', kind: 'app' },
+    { id: 'shortcuts', title: 'Shortcuts', icon: '/icons/system/shortcuts.svg', emoji: '⌨️', kind: 'system', showOnDesktop: false },
     { 
       id: 'about', 
       title: 'About Webintosh', 
-      emoji: 'ℹ️', 
+      icon: '/icons/system/about.svg',
+      emoji: 'ℹ️',
       kind: 'system',
       defaultRect: { x: 100, y: 80, width: 400, height: 500 },
       showOnDesktop: false

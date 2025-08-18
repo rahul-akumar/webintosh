@@ -4,6 +4,7 @@
       v-for="(app, index) in appList"
       :key="app.id"
       :title="app.title"
+      :icon="app.icon"
       :emoji="app.emoji ?? '🗂️'"
       :x="getX(app.id, index)"
       :y="getY(app.id, index)"

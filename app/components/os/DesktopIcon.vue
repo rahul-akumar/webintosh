@@ -10,7 +10,9 @@
       @dblclick.stop="$emit('open')"
       @contextmenu.prevent.stop="$emit('context', $event)"
     >
-      <span class="icon-emoji" aria-hidden="true">{{ emoji }}</span>
+      <!-- Use SVG icon if available, otherwise fall back to emoji -->
+      <img v-if="icon" :src="icon" :alt="title" class="icon-svg" aria-hidden="true">
+      <span v-else class="icon-emoji" aria-hidden="true">{{ emoji }}</span>
       <span class="icon-label">{{ title }}</span>
     </button>
   </div>
@@ -23,7 +25,8 @@ defineOptions({ name: 'OsDesktopIcon' })
 
 const props = defineProps<{
   title: string
-  emoji: string
+  icon?: string
+  emoji?: string
   x?: number
   y?: number
 }>()
@@ -141,6 +144,11 @@ function startDrag(e: MouseEvent) {
 .desktop-icon:hover .icon-button {
   background: rgba(0, 0, 0, 0.06);
   pointer-events: auto;
+}
+
+.icon-svg {
+  width: 28px;
+  height: 28px;
 }
 
 .icon-emoji {

@@ -13,7 +13,9 @@
       @dragover.prevent="$emit('drag-over', { id, ev: $event })"
       @drop.prevent="$emit('drop', { id, ev: $event })"
     >
-      <span class="dock-icon" aria-hidden="true">{{ emoji }}</span>
+      <!-- Use SVG icon if available, otherwise fall back to emoji -->
+      <img v-if="icon" :src="icon" :alt="title" class="dock-icon-svg" aria-hidden="true">
+      <span v-else class="dock-icon-emoji" aria-hidden="true">{{ emoji }}</span>
       <!-- Optional minimized count badge (shown when 2+ minimized windows exist) -->
       <span v-if="minimizedCount && minimizedCount > 1" class="count-badge" aria-hidden="true">{{ minimizedCount }}</span>
       <!-- Legacy running indicator kept for compatibility; can be removed when Dock shows minimized-only -->
@@ -26,10 +28,11 @@
 <script setup lang="ts">
 defineOptions({ name: 'OsDockItem' })
 
-const { id, title, emoji, running = false, minimized = false, minimizedCount = 0 } = defineProps<{
+const { id, title, icon, emoji, running = false, minimized = false, minimizedCount = 0 } = defineProps<{
   id: string
   title: string
-  emoji: string
+  icon?: string
+  emoji?: string
   running?: boolean
   minimized?: boolean
   minimizedCount?: number
@@ -64,7 +67,12 @@ defineEmits<{
   transform: translateY(-2px);
 }
 
-.dock-icon {
+.dock-icon-svg {
+  width: 26px;
+  height: 26px;
+}
+
+.dock-icon-emoji {
   font-size: 26px;
   line-height: 1;
 }
