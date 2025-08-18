@@ -79,8 +79,24 @@ function startDrag(e: MouseEvent) {
   function onMouseMove(e: MouseEvent) {
     const deltaX = e.clientX - startX
     const deltaY = e.clientY - startY
-    currentX.value = Math.max(0, origX + deltaX)
-    currentY.value = Math.max(0, origY + deltaY)
+    
+    // Get viewport dimensions
+    const viewportWidth = window.innerWidth
+    const viewportHeight = window.innerHeight
+    
+    // Icon dimensions (88px width + 16px margin, similar for height)
+    const iconWidth = 88
+    const iconHeight = 80 // Approximate height including label
+    const menuBarHeight = 40 // OS menu bar height
+    const desktopPadding = 8 // Desktop padding to match OS store
+    
+    // Calculate new position with bounds checking
+    const newX = origX + deltaX
+    const newY = origY + deltaY
+    
+    // Constrain to viewport bounds with padding
+    currentX.value = Math.max(0, Math.min(newX, viewportWidth - iconWidth - desktopPadding))
+    currentY.value = Math.max(0, Math.min(newY, viewportHeight - menuBarHeight - iconHeight))
   }
   
   function onMouseUp() {

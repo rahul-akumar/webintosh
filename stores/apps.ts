@@ -5,12 +5,15 @@ import { useOSStore } from './os';
 const PINS_KEY = 'webintosh:dock:v1:pins';
 const MIN_ORDER_KEY = 'webintosh:dock:v1:minOrder';
 const ICON_POSITIONS_KEY = 'webintosh:desktop:v1:iconPositions';
+const ICON_LAYOUT_KEY = 'webintosh:desktop:v1:iconLayout';
 
 export interface AppsState {
   registry: Record<AppId, AppDescriptor>;
   pinned: AppId[];
   minimizedOrder: AppId[];
   iconPositions: Record<AppId, { x: number; y: number }>;
+  iconLayoutDirection: 'left' | 'right';
+  iconSortBy: 'name' | 'type' | 'none';
 }
 
 export const useAppsStore = defineStore('apps', {
@@ -18,7 +21,9 @@ export const useAppsStore = defineStore('apps', {
     registry: {},
     pinned: [],
     minimizedOrder: [],
-    iconPositions: {}
+    iconPositions: {},
+    iconLayoutDirection: 'left',
+    iconSortBy: 'none'
   }),
 
   getters: {
@@ -100,6 +105,39 @@ export const useAppsStore = defineStore('apps', {
       }
     },
 
+    loadIconLayout() {
+      if (typeof localStorage === 'undefined') return;
+      try {
+        const raw = localStorage.getItem(ICON_LAYOUT_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (typeof parsed === 'object' && parsed !== null) {
+            if (parsed.direction === 'left' || parsed.direction === 'right') {
+              this.iconLayoutDirection = parsed.direction;
+            }
+            if (parsed.sortBy === 'name' || parsed.sortBy === 'type' || parsed.sortBy === 'none') {
+              this.iconSortBy = parsed.sortBy;
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Failed to load icon layout:', e);
+      }
+    },
+
+    saveIconLayout() {
+      if (typeof localStorage === 'undefined') return;
+      try {
+        const layout = {
+          direction: this.iconLayoutDirection,
+          sortBy: this.iconSortBy
+        };
+        localStorage.setItem(ICON_LAYOUT_KEY, JSON.stringify(layout));
+      } catch (e) {
+        console.error('Failed to save icon layout:', e);
+      }
+    },
+
     setIconPosition(appId: AppId, x: number, y: number) {
       this.iconPositions[appId] = { x, y };
       // Save immediately to localStorage
@@ -110,6 +148,51 @@ export const useAppsStore = defineStore('apps', {
           console.error('Failed to save icon positions:', e);
         }
       }
+    },
+
+    setIconLayoutDirection(direction: 'left' | 'right') {
+      this.iconLayoutDirection = direction;
+      this.saveIconLayout();
+      // Clear positions to force re-layout
+      this.cleanUpIcons();
+    },
+
+    setIconSortBy(sortBy: 'name' | 'type' | 'none') {
+      this.iconSortBy = sortBy;
+      this.saveIconLayout();
+      // Clear positions to force re-layout with new sorting
+      this.cleanUpIcons();
+    },
+
+    cleanUpIcons() {
+      // Clear all custom positions to restore grid layout
+      this.iconPositions = {};
+      if (typeof localStorage !== 'undefined') {
+        try {
+          localStorage.setItem(ICON_POSITIONS_KEY, JSON.stringify({}));
+        } catch (e) {
+          console.error('Failed to clear icon positions:', e);
+        }
+      }
+    },
+
+    getSortedAppList(): AppDescriptor[] {
+      const apps = Object.values(this.registry);
+      
+      if (this.iconSortBy === 'name') {
+        return apps.sort((a, b) => a.title.localeCompare(b.title));
+      } else if (this.iconSortBy === 'type') {
+        return apps.sort((a, b) => {
+          // Sort by kind first, then by name
+          if (a.kind !== b.kind) {
+            return (a.kind || '').localeCompare(b.kind || '');
+          }
+          return a.title.localeCompare(b.title);
+        });
+      }
+      
+      // Default: no sorting, use registration order
+      return apps;
     },
 
     // ----- Dock (minimized apps) ordering persistence -----

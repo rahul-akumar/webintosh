@@ -162,6 +162,37 @@ export function registerDefaultCommands(): void {
     // Fallback: show a simple window until the Shortcuts app is implemented (Phase 5)
     os.openWindow({ title: 'Shortcuts' })
   })
+
+  // Desktop commands
+  register('desktop.changeWallpaper', () => {
+    const os = useOSStore()
+    // For now, prompt for URL. In a real implementation, this would open a file picker
+    const url = prompt('Enter wallpaper URL (or leave empty for default):')
+    if (url !== null) {
+      os.setWallpaper(url || null)
+    }
+  })
+
+  register('desktop.cleanUpIcons', () => {
+    const apps = useAppsStore()
+    apps.cleanUpIcons()
+  })
+
+  register('desktop.sortIcons', (args?: unknown) => {
+    const apps = useAppsStore()
+    const sortBy = getArg<'name' | 'type'>(args, 'sortBy')
+    if (sortBy === 'name' || sortBy === 'type') {
+      apps.setIconSortBy(sortBy)
+    }
+  })
+
+  register('desktop.setIconDirection', (args?: unknown) => {
+    const apps = useAppsStore()
+    const direction = getArg<'left' | 'right'>(args, 'direction')
+    if (direction === 'left' || direction === 'right') {
+      apps.setIconLayoutDirection(direction)
+    }
+  })
 }
 
 /**

@@ -8,7 +8,7 @@
       <OsDock />
       <OsContextMenu
         v-if="store.menu.openType === 'context' && store.menu.contextTemplate && store.menu.contextPos"
-        :entries="store.menu.contextTemplate.sections[0]?.entries ?? []"
+        :sections="store.menu.contextTemplate.sections"
         :origin="store.menu.contextPos"
         :z="3000"
         @request-close="store.closeMenu()"
@@ -33,8 +33,9 @@ onMounted(() => {
   // Load persisted session first
   store.loadSession()
   
-  // Load icon positions early
+  // Load icon positions and layout early
   apps.loadIconPositions()
+  apps.loadIconLayout()
 
   // Do not auto-open any window on fresh sessions
 

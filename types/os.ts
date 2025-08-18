@@ -79,4 +79,8 @@ export interface OSState {
    * Distance in px from an edge to trigger snap.
    */
   snapThreshold: number;
+  /**
+   * Desktop wallpaper URL or null for default background
+   */
+  wallpaper?: string | null;
 }

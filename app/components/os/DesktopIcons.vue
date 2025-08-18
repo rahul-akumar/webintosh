@@ -29,15 +29,25 @@ const apps = useAppsStore()
 const os = useOSStore()
 
 const appList = computed<AppDescriptor[]>(() => {
-  return Object.values(apps.registry)
+  return apps.getSortedAppList()
 })
 
 function getX(appId: AppId, index: number): number {
   const pos = apps.iconPositions[appId]
   if (pos) return pos.x
-  // Default grid position
+  
+  // Default grid position based on layout direction
   const col = index % 8
-  return 20 + (col * 100)
+  const iconWidth = 100
+  
+  if (apps.iconLayoutDirection === 'right') {
+    // Start from right edge
+    const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1280
+    return viewportWidth - iconWidth - (col * iconWidth)
+  } else {
+    // Start from left edge (default)
+    return 20 + (col * iconWidth)
+  }
 }
 
 function getY(appId: AppId, index: number): number {

@@ -53,7 +53,8 @@ export const useOSStore = defineStore('os', {
     clock: '',
     menuBarHeight: 40,
     desktopPadding: 8,
-    snapThreshold: 16
+    snapThreshold: 16,
+    wallpaper: null
   }),
 
   getters: {
@@ -99,7 +100,8 @@ export const useOSStore = defineStore('os', {
           lastNormalRect: w.lastNormalRect ?? null
         })),
         nextWindowId: this.nextWindowId,
-        nextZ: this.nextZ
+        nextZ: this.nextZ,
+        wallpaper: this.wallpaper
       }
       try {
         localStorage.setItem('webintosh:session:v1', JSON.stringify(snapshot))
@@ -117,6 +119,9 @@ export const useOSStore = defineStore('os', {
         }
         if (typeof parsed?.nextWindowId === 'number') this.nextWindowId = parsed.nextWindowId
         if (typeof parsed?.nextZ === 'number') this.nextZ = parsed.nextZ
+        if (typeof parsed?.wallpaper === 'string' || parsed?.wallpaper === null) {
+          this.wallpaper = parsed.wallpaper
+        }
 
         // Ensure we have a sane focused window after loading
         this.focusTopMost()
@@ -459,6 +464,12 @@ export const useOSStore = defineStore('os', {
       this.menu.contextPos = null
       this.menu.contextTemplate = null
     },
+
+    // ---------- Wallpaper ----------
+    setWallpaper(url: string | null) {
+      this.wallpaper = url
+      this.saveSession()
+    }
 
   }
 })

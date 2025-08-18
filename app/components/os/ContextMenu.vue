@@ -9,7 +9,7 @@
       <!-- Stop propagation so clicks inside the menu do not close it -->
       <div class="cm-root" @click.stop>
         <MenuDropdown
-          :entries="entries"
+          :entries="allEntries"
           :origin="origin"
           :z="z"
           @executed="onExecuted"
@@ -20,14 +20,14 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue'
-import type { MenuEntry } from '../../../types/menu'
+import { onMounted, onUnmounted, computed } from 'vue'
+import type { MenuEntry, MenuSection } from '../../../types/menu'
 import MenuDropdown from './MenuDropdown.vue'
 
 defineOptions({ name: 'OsContextMenu' })
 
 const props = defineProps<{
-  entries: MenuEntry[]
+  sections: MenuSection[]
   origin: { x: number; y: number }
   z?: number
   closeOnExecute?: boolean
@@ -37,6 +37,19 @@ const emit = defineEmits<{
   (e: 'executed', payload: { id: string }): void
   (e: 'request-close'): void
 }>()
+
+// Combine all section entries into a flat array with separators
+const allEntries = computed<MenuEntry[]>(() => {
+  const entries: MenuEntry[] = []
+  props.sections.forEach((section, index) => {
+    if (index > 0) {
+      // Add separator between sections
+      entries.push({ id: `separator-${index}`, label: '---', role: 'separator' } as MenuEntry)
+    }
+    entries.push(...section.entries)
+  })
+  return entries
+})
 
 function onBackdropClick() {
   emit('request-close')
