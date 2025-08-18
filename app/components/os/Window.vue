@@ -9,7 +9,14 @@
       <div class="controls">
         <button class="ctrl close" v-if="win.closable" @click.stop="store.closeWindow(win.id)" aria-label="Close"></button>
         <button class="ctrl min" v-if="win.minimizable !== false" @click.stop="store.toggleMinimize(win.id)" aria-label="Minimize"></button>
-        <button class="ctrl max" v-if="win.resizable !== false" @click.stop="store.toggleMaximize(win.id)" aria-label="Maximize"></button>
+        <button 
+          class="ctrl max" 
+          :class="{ disabled: win.maximizable === false }"
+          v-if="win.resizable !== false" 
+          @click.stop="handleMaximize" 
+          aria-label="Maximize"
+          :disabled="win.maximizable === false"
+        ></button>
       </div>
       <div class="title">{{ win.title }}</div>
     </div>
@@ -77,7 +84,17 @@ function onStartResize(edge: 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw', 
 }
 
 function onTitlebarDblClick() {
-  store.toggleMaximize(props.win.id)
+  // Only maximize if the window is maximizable
+  if (props.win.maximizable !== false) {
+    store.toggleMaximize(props.win.id)
+  }
+}
+
+function handleMaximize() {
+  // Only maximize if the window is maximizable
+  if (props.win.maximizable !== false) {
+    store.toggleMaximize(props.win.id)
+  }
 }
 
 function onFocus() {
@@ -134,6 +151,14 @@ function onFocus() {
 .ctrl.min   { background: #ffbd44; }
 .ctrl.max   { background: #00ca4e; }
 .ctrl:hover { filter: brightness(0.95) }
+.ctrl.disabled { 
+  background: #c8c8c8; 
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.ctrl.disabled:hover { 
+  filter: none; 
+}
 
 .title {
   font-size: 13px;

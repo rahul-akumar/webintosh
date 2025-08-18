@@ -24,6 +24,7 @@ export interface OSWindowModel {
   // Window Management v1 flags
   resizable?: boolean;      // default true for app windows
   minimizable?: boolean;    // default true for app windows
+  maximizable?: boolean;    // default true for app windows
   maximized?: boolean;      // runtime
   minimized?: boolean;      // runtime
   closable?: boolean;       // default true

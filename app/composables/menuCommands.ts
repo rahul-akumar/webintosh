@@ -165,7 +165,30 @@ export function registerDefaultCommands(): void {
 
   register('system.showAbout', () => {
     const apps = useAppsStore()
-    apps.launchOrFocus('about')
+    const os = useOSStore()
+    
+    // Check if About window already exists
+    const existing = os.windows.filter((w) => w.appId === 'about')
+    if (existing.length > 0) {
+      // Focus existing window
+      const topmost = existing.sort((a, b) => b.zIndex - a.zIndex)[0]
+      if (topmost.minimized) {
+        os.restoreWindow(topmost.id)
+      } else {
+        os.bringToFront(topmost.id)
+      }
+      return
+    }
+    
+    // Open new About window with maximizable disabled
+    const d = apps.registry['about']
+    os.openWindow({
+      appId: 'about',
+      title: d?.title ?? 'About',
+      kind: 'system',
+      rect: d?.defaultRect ?? { x: 100, y: 100, width: 400, height: 420 },
+      maximizable: false
+    })
   })
 
   // Desktop commands

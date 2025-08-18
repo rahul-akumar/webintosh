@@ -193,6 +193,7 @@ export const useOSStore = defineStore('os', {
         appId: partial?.appId,
         resizable: partial?.resizable ?? true,
         minimizable: partial?.minimizable ?? true,
+        maximizable: partial?.maximizable ?? true,
         closable: partial?.closable ?? true,
         maximized: false,
         minimized: false
