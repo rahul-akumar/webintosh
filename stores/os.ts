@@ -94,6 +94,7 @@ export const useOSStore = defineStore('os', {
           appId: w.appId ?? null,
           resizable: w.resizable ?? true,
           minimizable: w.minimizable ?? true,
+          maximizable: w.maximizable ?? true,
           closable: w.closable ?? true,
           maximized: !!w.maximized,
           minimized: !!w.minimized,

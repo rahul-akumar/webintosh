@@ -49,7 +49,8 @@ onMounted(() => {
       title: 'About Webintosh', 
       emoji: 'ℹ️', 
       kind: 'system',
-      defaultRect: { x: 100, y: 80, width: 400, height: 500 }
+      defaultRect: { x: 100, y: 80, width: 400, height: 500 },
+      showOnDesktop: false
     }
   ])
   // Load Dock minimized ordering (Dock now shows minimized apps only)
