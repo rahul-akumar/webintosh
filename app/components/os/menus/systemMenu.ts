@@ -5,7 +5,9 @@ export function createSystemMenuTemplate(): MenuTemplate {
   return Menu.template('system', 'Webintosh', [
     // App/System menu
     Menu.section('webintosh', 'Webintosh', [
-      Menu.item('webintosh.about', 'About', { enabled: false }),
+      Menu.item('webintosh.about', 'About', { 
+        command: 'system.showAbout'
+      }),
       Menu.item('webintosh.preferences', 'Preferences…', { enabled: false })
     ]),
 

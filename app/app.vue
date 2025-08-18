@@ -43,7 +43,8 @@ onMounted(() => {
   apps.registerApps([
     { id: 'finder', title: 'Finder', emoji: '🗂️', kind: 'system' },
     { id: 'textedit', title: 'TextEdit', emoji: '📝', kind: 'app' },
-    { id: 'shortcuts', title: 'Shortcuts', emoji: '⌨️', kind: 'system' }
+    { id: 'shortcuts', title: 'Shortcuts', emoji: '⌨️', kind: 'system', showOnDesktop: false },
+    { id: 'about', title: 'About', emoji: '🖥️', kind: 'system', showOnDesktop: false, defaultRect: { x: 100, y: 100, width: 400, height: 420 } }
   ])
   // Load Dock minimized ordering (Dock now shows minimized apps only)
   apps.loadMinOrder()

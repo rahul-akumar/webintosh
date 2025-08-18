@@ -163,6 +163,11 @@ export function registerDefaultCommands(): void {
     os.openWindow({ title: 'Shortcuts' })
   })
 
+  register('system.showAbout', () => {
+    const apps = useAppsStore()
+    apps.launchOrFocus('about')
+  })
+
   // Desktop commands
   register('desktop.changeWallpaper', () => {
     const os = useOSStore()

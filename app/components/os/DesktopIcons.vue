@@ -29,7 +29,7 @@ const apps = useAppsStore()
 const os = useOSStore()
 
 const appList = computed<AppDescriptor[]>(() => {
-  return apps.getSortedAppList()
+  return apps.getSortedAppList().filter(app => app.showOnDesktop !== false)
 })
 
 function getX(appId: AppId, index: number): number {

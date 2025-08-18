@@ -8,6 +8,7 @@ export interface AppDescriptor {
   emoji?: string;
   kind?: 'system' | 'app';
   defaultRect?: OSWindowRect;
+  showOnDesktop?: boolean;  // defaults to true if not specified
 }
 
 export interface LaunchOptions {
