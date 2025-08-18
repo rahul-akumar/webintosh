@@ -44,7 +44,13 @@ onMounted(() => {
     { id: 'finder', title: 'Finder', emoji: '🗂️', kind: 'system' },
     { id: 'textedit', title: 'TextEdit', emoji: '📝', kind: 'app' },
     { id: 'shortcuts', title: 'Shortcuts', emoji: '⌨️', kind: 'system', showOnDesktop: false },
-    { id: 'about', title: 'About', emoji: '🖥️', kind: 'system', showOnDesktop: false, defaultRect: { x: 100, y: 100, width: 400, height: 420 } }
+    { 
+      id: 'about', 
+      title: 'About Webintosh', 
+      emoji: 'ℹ️', 
+      kind: 'system',
+      defaultRect: { x: 100, y: 80, width: 400, height: 500 }
+    }
   ])
   // Load Dock minimized ordering (Dock now shows minimized apps only)
   apps.loadMinOrder()

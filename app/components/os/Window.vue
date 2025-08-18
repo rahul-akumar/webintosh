@@ -34,10 +34,11 @@
     <div class="content">
       <slot>
         <!-- Default content for known app windows -->
-        <template v-if="win.kind === 'app'">
-          <FinderApp v-if="win.appId === 'finder'" />
-          <TextEditApp v-else-if="win.appId === 'textedit'" />
-          <ShortcutsApp v-else-if="win.appId === 'shortcuts'" />
+        <template v-if="win.kind === 'app' || win.kind === 'system'">
+          <AppsFinder v-if="win.appId === 'finder'" />
+          <AppsTextEdit v-else-if="win.appId === 'textedit'" />
+          <AppsShortcuts v-else-if="win.appId === 'shortcuts'" />
+          <AppsAbout v-else-if="win.appId === 'about'" />
         </template>
 
         <!-- Placeholder content -->
@@ -168,7 +169,7 @@ function onFocus() {
 }
 
 .content {
-  padding: 10px;
+  padding: 0px;
   font-size: 14px;
   color: #222;
   background: #fff;
