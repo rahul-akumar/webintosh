@@ -14,8 +14,8 @@
       @drop.prevent="$emit('drop', { id, ev: $event })"
     >
       <!-- Use SVG icon if available, otherwise fall back to emoji -->
-      <img v-if="icon" :src="icon" :alt="title" class="dock-icon-svg" aria-hidden="true">
-      <span v-else class="dock-icon-emoji" aria-hidden="true">{{ emoji }}</span>
+      <img v-if="iconUrl && !iconError" :src="iconUrl" :alt="title" class="dock-icon-svg" aria-hidden="true" @error="iconError = true">
+      <span v-else class="dock-icon-emoji" aria-hidden="true">{{ emoji || '🗂️' }}</span>
       <!-- Optional minimized count badge (shown when 2+ minimized windows exist) -->
       <span v-if="minimizedCount && minimizedCount > 1" class="count-badge" aria-hidden="true">{{ minimizedCount }}</span>
       <!-- Legacy running indicator kept for compatibility; can be removed when Dock shows minimized-only -->
@@ -26,6 +26,9 @@
 </template>
 
 <script setup lang="ts">
+import { ref, computed } from 'vue'
+import { useAssetUrl } from '../../composables/useAssetUrl'
+
 defineOptions({ name: 'OsDockItem' })
 
 const { id, title, icon, emoji, running = false, minimized = false, minimizedCount = 0 } = defineProps<{
@@ -37,6 +40,9 @@ const { id, title, icon, emoji, running = false, minimized = false, minimizedCou
   minimized?: boolean
   minimizedCount?: number
 }>()
+
+const iconError = ref(false)
+const iconUrl = computed(() => useAssetUrl(icon))
 
 defineEmits<{
   (e: 'launch' | 'context', ev?: MouseEvent): void
