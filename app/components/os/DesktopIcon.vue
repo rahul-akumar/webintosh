@@ -11,8 +11,8 @@
       @contextmenu.prevent.stop="$emit('context', $event)"
     >
       <!-- Use SVG icon if available, otherwise fall back to emoji -->
-      <img v-if="icon" :src="icon" :alt="title" class="icon-svg" aria-hidden="true">
-      <span v-else class="icon-emoji" aria-hidden="true">{{ emoji }}</span>
+      <img v-if="iconUrl && !iconError" :src="iconUrl" :alt="title" class="icon-svg" aria-hidden="true" @error="iconError = true">
+      <span v-else class="icon-emoji" aria-hidden="true">{{ emoji || '🗂️' }}</span>
       <span class="icon-label">{{ title }}</span>
     </button>
   </div>
@@ -20,6 +20,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { useAssetUrl } from '../../composables/useAssetUrl'
 
 defineOptions({ name: 'OsDesktopIcon' })
 
@@ -40,6 +41,8 @@ const emit = defineEmits<{
 const isDragging = ref(false)
 const currentX = ref(props.x ?? 0)
 const currentY = ref(props.y ?? 0)
+const iconError = ref(false)
+const iconUrl = computed(() => useAssetUrl(props.icon))
 
 // Update local position when props change
 watch(() => props.x, (newX) => {
