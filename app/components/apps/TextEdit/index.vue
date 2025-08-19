@@ -178,15 +178,18 @@
         </div>
         <div class="modal-body">
           <label for="filename">Save as:</label>
-          <input 
-            id="filename"
-            v-model="saveFilename"
-            type="text"
-            placeholder="Untitled.md"
-            @keyup.enter="saveDocument"
-            @keyup.escape="closeSaveModal"
-            ref="saveInput"
-          />
+          <div class="filename-input-wrapper">
+            <input 
+              id="filename"
+              v-model="saveFilename"
+              type="text"
+              placeholder="Untitled"
+              @keyup.enter="saveDocument"
+              @keyup.escape="closeSaveModal"
+              ref="saveInput"
+            />
+            <span class="filename-extension">.md</span>
+          </div>
         </div>
         <div class="modal-footer">
           <button class="modal-button cancel" @click="closeSaveModal">Cancel</button>
@@ -619,6 +622,33 @@ onUnmounted(() => {
 .modal-body input:focus {
   border-color: #007AFF;
   box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+}
+
+.filename-input-wrapper {
+  display: flex;
+  align-items: center;
+  border: 1px solid #d1d1d1;
+  border-radius: 4px;
+  padding: 8px 12px;
+  background: white;
+}
+
+.filename-input-wrapper input {
+  border: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  font-size: 14px;
+}
+
+.filename-input-wrapper input:focus {
+  outline: none;
+}
+
+.filename-extension {
+  margin-left: 8px;
+  font-size: 14px;
+  color: #666;
 }
 
 .modal-footer {

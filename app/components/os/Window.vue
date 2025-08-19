@@ -127,12 +127,12 @@ function onFocus() {
   height: 32px;
   display: flex;
   align-items: center;
-  gap: 8px;
   padding: 0 8px;
   background: #f8f8f8;
   border-bottom: 1px solid #ececec;
   cursor: grab;
   user-select: none;
+  position: relative; /* For absolute positioning of title */
 }
 .titlebar:active {
   cursor: grabbing;
@@ -142,6 +142,7 @@ function onFocus() {
   display: flex;
   gap: 6px;
   align-items: center;
+  z-index: 1; /* Ensure controls stay above title */
 }
 .ctrl {
   width: 12px;
@@ -168,7 +169,10 @@ function onFocus() {
   font-size: 13px;
   color: #333;
   font-weight: 600;
-  margin-left: 6px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none; /* Allow clicking through title for dragging */
 }
 
 .content {
