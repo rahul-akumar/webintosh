@@ -226,8 +226,8 @@ const dynamicWallpapers = [
 ]
 
 const liveWallpapers = [
-  { id: 'particle', name: 'Particle Flow', value: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
-  { id: 'waves', name: 'Ocean Waves', value: 'linear-gradient(to right, #4facfe 0%, #00f2fe 100%)' }
+  { id: 'particle', name: 'Old Signal', value: 'url("/wallpapers/old-signal.jpg") center/cover no-repeat' },
+  { id: 'waves', name: 'Ocean Waves', value: 'url("/wallpapers/end-of-daylight.mp4") center/cover no-repeat' }
 ]
 
 const solidColors = [
