@@ -17,6 +17,9 @@ jobs:
     steps:
       - name: Checkout PR
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v4
@@ -36,6 +39,8 @@ jobs:
         run: |
           # Set base URL for PR preview
           export NUXT_APP_BASE_URL=/webintosh/pr-${{ github.event.pull_request.number }}/
+          echo "Building from commit: ${{ github.event.pull_request.head.sha }}"
+          echo "Branch: ${{ github.event.pull_request.head.ref }}"
           pnpm run generate
         env:
           NITRO_PRESET: static
