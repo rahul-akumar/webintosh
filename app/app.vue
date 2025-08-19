@@ -52,6 +52,14 @@ onMounted(() => {
       kind: 'system',
       defaultRect: { x: 100, y: 80, width: 400, height: 500 },
       showOnDesktop: false
+    },
+    {
+      id: 'settings',
+      title: 'System Settings',
+      icon: 'icons/system/settings.svg',
+      emoji: '⚙️',
+      kind: 'system',
+      defaultRect: { x: 100, y: 80, width: 900, height: 600 }
     }
   ])
   // Load Dock minimized ordering (Dock now shows minimized apps only)

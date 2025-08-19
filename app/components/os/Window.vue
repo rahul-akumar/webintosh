@@ -39,6 +39,7 @@
           <AppsTextEdit v-else-if="win.appId === 'textedit'" />
           <AppsShortcuts v-else-if="win.appId === 'shortcuts'" />
           <AppsAbout v-else-if="win.appId === 'about'" />
+          <AppsSettings v-else-if="win.appId === 'settings'" />
         </template>
 
         <!-- Placeholder content -->
@@ -51,7 +52,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, type CSSProperties } from 'vue'
+import { computed, type CSSProperties, provide } from 'vue'
 import type { OSWindowModel } from '../../../types/os'
 import { useOSStore } from '../../../stores/os'
 
@@ -62,6 +63,8 @@ const props = defineProps<{
 }>()
 
 const store = useOSStore()
+
+provide('window', props.win)
 
 const styleObject = computed<CSSProperties>(() => ({
   position: 'absolute',

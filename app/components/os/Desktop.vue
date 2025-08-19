@@ -24,11 +24,18 @@ const apps = useAppsStore()
 
 const desktopStyle = computed(() => {
   if (store.wallpaper) {
+    // Check if wallpaper is already a complete CSS value (url() or gradient)
+    if (store.wallpaper.startsWith('url(') || store.wallpaper.includes('gradient')) {
+      return {
+        background: store.wallpaper,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }
+    }
+    // For solid colors (hex, rgb, etc)
     return {
-      backgroundImage: `url(${store.wallpaper})`,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-      backgroundRepeat: 'no-repeat'
+      background: store.wallpaper
     }
   }
   return {}
