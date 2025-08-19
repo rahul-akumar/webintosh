@@ -22,6 +22,9 @@ export function getAppMenuTemplate(appId: string, appTitle?: string): MenuTempla
       return createFinderMenuTemplate()
     case 'textedit':
       return createTextEditMenuTemplate()
+    case 'about':
+      // About app shows the desktop menubar itself
+      return createSystemMenuTemplate()
     default: {
       const base = createSystemMenuTemplate()
       return {
