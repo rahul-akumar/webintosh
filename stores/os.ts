@@ -170,7 +170,13 @@ export const useOSStore = defineStore('os', {
     // ---------- Clock ----------
     tickClock() {
       const d = new Date()
-      this.clock = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+      const day = days[d.getDay()]
+      const date = d.getDate()
+      const month = months[d.getMonth()]
+      const time = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })
+      this.clock = `${day} ${date} ${month} ${time}`
     },
 
     // ---------- Windows ----------

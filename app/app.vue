@@ -11,6 +11,7 @@
         :sections="store.menu.contextTemplate.sections"
         :origin="store.menu.contextPos"
         :z="3000"
+        @executed="store.closeMenu()"
         @request-close="store.closeMenu()"
       />
     </main>
@@ -84,6 +85,9 @@ body {
   background: #f5f6f8;
   color: #111;
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+button {
+  border: none;
 }
 .os-root {
   min-height: 100vh;

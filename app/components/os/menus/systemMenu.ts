@@ -1,14 +1,29 @@
 // System Menu Template (Phase 2)
 import { Menu, type MenuTemplate } from '../../../../types/menu'
+import { useAppsStore } from '../../../../stores/apps'
 
 export function createSystemMenuTemplate(): MenuTemplate {
-  return Menu.template('system', 'Webintosh', [
-    // App/System menu
-    Menu.section('webintosh', 'Webintosh', [
-      Menu.item('webintosh.about', 'About', { 
+  // Get all apps for the submenu
+  const appsStore = useAppsStore()
+  const appItems = Object.values(appsStore.registry).map(app => 
+    Menu.item(`system.app.${app.id}`, app.title, {
+      command: 'app.launch',
+      args: { appId: app.id }
+    })
+  )
+
+  return Menu.template('system', '', [
+    // System menu with logo (empty title since logo is shown)
+    Menu.section('system', '', [
+      Menu.item('system.about', 'About Webintosh', { 
         command: 'system.showAbout'
       }),
-      Menu.item('webintosh.preferences', 'Preferences…', { enabled: false })
+      Menu.item('system.settings', 'System Settings...', { 
+        command: 'app.launch',
+        args: { appId: 'settings' }
+      }),
+      Menu.sep('system.sep1'),
+      ...appItems
     ]),
 
     // File

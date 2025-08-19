@@ -1,9 +1,9 @@
 <template>
   <header class="menu-bar" @click="store.closeMenu()">
     <div ref="menuLeftEl" class="menu-left" role="menubar">
-      <!-- Left-most title: System or Active App -->
+      <!-- System logo button with icon -->
       <button
-        class="menu-title"
+        class="menu-logo"
         role="menuitem"
         aria-haspopup="true"
         :data-index="0"
@@ -11,10 +11,14 @@
         @click.stop="openSection(0, $event)"
         @mouseenter="onHoverSection(0, $event)"
       >
-        {{ activeTemplate.title }}
+        <img v-if="logoUrl" :src="logoUrl" alt="Logo" class="logo-icon" @error="logoUrl = null">
+        <span v-else class="logo-fallback">🍎</span>
       </button>
 
-      <!-- Dynamic top-level sections (excluding the first, which is opened by the title button) -->
+      <!-- App name after logo -->
+      <span class="app-name">{{ activeAppName }}</span>
+
+      <!-- Dynamic top-level sections (excluding the first, which is opened by the logo button) -->
       <button
         v-for="(section, i) in activeTemplate.sections.slice(1)"
         :key="section.id"
@@ -59,6 +63,7 @@ defineOptions({ name: 'OsMenuBar' })
 const store = useOSStore()
 const apps = useAppsStore()
 const menuLeftEl = ref<HTMLElement | null>(null)
+const logoUrl = ref<string | null>("/icons/system/apple.png")
 
 // Clock tick (unchanged behavior)
 let t: number | undefined
@@ -70,12 +75,22 @@ onUnmounted(() => {
   if (t) window.clearInterval(t)
 })
 
-// Resolve active template by focus: desktop -> system; window -> app menu
+// Resolve active template - default to system menu when no windows are open
 const activeTemplate = computed(() => {
   const appId = store.activeAppId
-  if (!appId) return getSystemMenuTemplate()
+  if (!appId) {
+    // Default to system menu when no app is focused
+    return getSystemMenuTemplate()
+  }
   const title = apps.registry[appId]?.title
   return getAppMenuTemplate(appId, title)
+})
+
+// Get the active app name for display
+const activeAppName = computed(() => {
+  const appId = store.activeAppId
+  if (!appId) return 'Webintosh'
+  return apps.registry[appId]?.title ?? 'App'
 })
 
 const isMenubarOpen = computed(() => store.menu.openType === 'menubar')
@@ -178,16 +193,32 @@ function onNavRight() {
   align-items: center;
 }
 
-.menu-title {
-  border: none;
+.menu-logo {
+  border: none !important;
   background: transparent;
   font-weight: 600;
   cursor: pointer;
   padding: 4px 8px;
   border-radius: 6px;
 }
-.menu-title:hover {
+.menu-logo:hover {
   background: rgba(0, 0, 0, 0.06);
+}
+
+.logo-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 4px;
+}
+
+.logo-fallback {
+  font-size: 16px;
+  margin-right: 4px;
+}
+
+.app-name {
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .menu-item {

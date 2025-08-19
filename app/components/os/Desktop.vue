@@ -119,7 +119,7 @@ function onDesktopContextmenu(e: MouseEvent) {
 <style scoped>
 .desktop {
   position: relative;
-  width: 100%;
+  width: 100vw;
   height: calc(100vh - 40px); /* keep in sync with menu bar height */
   background: #f5f6f8;
 }
