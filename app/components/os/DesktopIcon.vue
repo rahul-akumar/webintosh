@@ -224,9 +224,11 @@ function startDrag(e: MouseEvent) {
   width: 100%;
   font-size: 12px;
   line-height: 1.15;
-  color: #111;
+  color: white;
+  text-shadow: rgba(0, 0, 0, 0.9) 0px 1px 0px, rgba(0, 0, 0, 0.9) 0px 1px 3px, rgba(0, 0, 0, 0.6) 0px 2px 3px;
   white-space: normal;
   word-wrap: break-word;
+  letter-spacing: 0.1rem;
 }
 
 .icon-size-small .icon-label {
