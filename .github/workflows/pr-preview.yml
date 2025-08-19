@@ -80,7 +80,10 @@ jobs:
 
       - name: Deploy PR preview
         run: |
-          # Create PR preview directory
+          # Remove old PR preview directory to ensure clean deployment
+          rm -rf gh-pages/pr-${{ github.event.pull_request.number }}
+          
+          # Create fresh PR preview directory
           mkdir -p gh-pages/pr-${{ github.event.pull_request.number }}
           
           # Copy built files to PR directory
