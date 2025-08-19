@@ -172,7 +172,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, reactive } from 'vue'
 
 defineOptions({ name: 'TextEditApp' })
 
@@ -180,13 +180,65 @@ const editor = ref<HTMLElement>()
 const selectedFont = ref("-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif")
 const selectedSize = ref("3")
 
+// Reactive state for tracking active formats
+const activeFormats = reactive({
+  bold: false,
+  italic: false,
+  underline: false,
+  strikeThrough: false,
+  justifyLeft: false,
+  justifyCenter: false,
+  justifyRight: false,
+  justifyFull: false,
+  insertUnorderedList: false,
+  insertOrderedList: false
+})
+
 const format = (command: string, value?: string) => {
   document.execCommand(command, false, value)
   editor.value?.focus()
+  // Update active states after formatting
+  updateActiveFormats()
 }
 
 const isFormatActive = (command: string) => {
-  return document.queryCommandState(command)
+  return activeFormats[command as keyof typeof activeFormats] || false
+}
+
+const updateActiveFormats = () => {
+  // Update text formatting states
+  activeFormats.bold = document.queryCommandState('bold')
+  activeFormats.italic = document.queryCommandState('italic')
+  activeFormats.underline = document.queryCommandState('underline')
+  activeFormats.strikeThrough = document.queryCommandState('strikeThrough')
+  
+  // Update alignment states
+  activeFormats.justifyLeft = document.queryCommandState('justifyLeft')
+  activeFormats.justifyCenter = document.queryCommandState('justifyCenter')
+  activeFormats.justifyRight = document.queryCommandState('justifyRight')
+  activeFormats.justifyFull = document.queryCommandState('justifyFull')
+  
+  // Update list states
+  activeFormats.insertUnorderedList = document.queryCommandState('insertUnorderedList')
+  activeFormats.insertOrderedList = document.queryCommandState('insertOrderedList')
+  
+  // Update font selectors with current values
+  const fontName = document.queryCommandValue('fontName')
+  if (fontName) {
+    // Remove quotes from font name for comparison
+    const cleanFontName = fontName.replace(/['"]/g, '')
+    const matchingOption = Array.from(document.querySelectorAll('.font-selector option')).find(
+      option => option.getAttribute('value')?.includes(cleanFontName)
+    )
+    if (matchingOption) {
+      selectedFont.value = matchingOption.getAttribute('value') || selectedFont.value
+    }
+  }
+  
+  const fontSize = document.queryCommandValue('fontSize')
+  if (fontSize) {
+    selectedSize.value = fontSize
+  }
 }
 
 const changeFont = () => {
@@ -202,6 +254,8 @@ const onInput = () => {
   if (editor.value && editor.value.innerHTML === '<br>') {
     editor.value.innerHTML = '<p>Start typing...</p>'
   }
+  // Update active formats on input
+  updateActiveFormats()
 }
 
 const handleKeyDown = (e: KeyboardEvent) => {
@@ -233,12 +287,18 @@ const handlePaste = (e: ClipboardEvent) => {
   }
 }
 
+// Handle selection changes
+const handleSelectionChange = () => {
+  updateActiveFormats()
+}
+
 onMounted(() => {
   // Focus editor and clear placeholder on first click
   editor.value?.addEventListener('focus', function handleFocus() {
     if (editor.value?.innerHTML === '<p>Start typing...</p>') {
       editor.value.innerHTML = ''
     }
+    updateActiveFormats()
   })
 
   editor.value?.addEventListener('blur', function handleBlur() {
@@ -246,6 +306,21 @@ onMounted(() => {
       editor.value.innerHTML = '<p>Start typing...</p>'
     }
   })
+  
+  // Add selection change listener to update toolbar states
+  document.addEventListener('selectionchange', handleSelectionChange)
+  
+  // Add click listener to editor to update states
+  editor.value?.addEventListener('click', updateActiveFormats)
+  editor.value?.addEventListener('keyup', updateActiveFormats)
+  
+  // Set initial alignment state
+  updateActiveFormats()
+})
+
+onUnmounted(() => {
+  // Clean up event listeners
+  document.removeEventListener('selectionchange', handleSelectionChange)
 })
 </script>
 
