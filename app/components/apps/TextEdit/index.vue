@@ -165,14 +165,42 @@
       @keydown="handleKeyDown"
       @paste="handlePaste"
       spellcheck="true"
+      data-placeholder="Start typing..."
     >
-      <p>Start typing...</p>
+    </div>
+
+    <!-- Save Modal -->
+    <div v-if="showSaveModal" class="modal-overlay" @click.self="closeSaveModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h3>Save File</h3>
+          <button class="modal-close" @click="closeSaveModal">×</button>
+        </div>
+        <div class="modal-body">
+          <label for="filename">Save as:</label>
+          <input 
+            id="filename"
+            v-model="saveFilename"
+            type="text"
+            placeholder="Untitled.md"
+            @keyup.enter="saveDocument"
+            @keyup.escape="closeSaveModal"
+            ref="saveInput"
+          />
+        </div>
+        <div class="modal-footer">
+          <button class="modal-button cancel" @click="closeSaveModal">Cancel</button>
+          <button class="modal-button save" @click="saveDocument">Save</button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, reactive } from 'vue'
+import { ref, onMounted, onUnmounted, reactive, watch, nextTick } from 'vue'
+import { useOSStore } from '../../../../stores/os'
+import { register } from '../../../composables/menuCommands'
 
 defineOptions({ name: 'TextEditApp' })
 
@@ -192,6 +220,28 @@ const activeFormats = reactive({
   justifyFull: false,
   insertUnorderedList: false,
   insertOrderedList: false
+})
+
+const documentTitle = ref('Untitled')
+const showSaveModal = ref(false)
+const saveFilename = ref('')
+const saveInput = ref<HTMLInputElement>()
+
+// Get current window ID from props or context
+const props = defineProps<{
+  windowId?: number
+}>()
+
+const osStore = useOSStore()
+
+// Update window title when document title changes
+watch(documentTitle, (newTitle) => {
+  if (props.windowId) {
+    const window = osStore.windows.find(w => w.id === props.windowId)
+    if (window) {
+      window.title = newTitle
+    }
+  }
 })
 
 const format = (command: string, value?: string) => {
@@ -250,10 +300,6 @@ const changeFontSize = () => {
 }
 
 const onInput = () => {
-  // Handle empty editor
-  if (editor.value && editor.value.innerHTML === '<br>') {
-    editor.value.innerHTML = '<p>Start typing...</p>'
-  }
   // Update active formats on input
   updateActiveFormats()
 }
@@ -292,20 +338,38 @@ const handleSelectionChange = () => {
   updateActiveFormats()
 }
 
-onMounted(() => {
-  // Focus editor and clear placeholder on first click
-  editor.value?.addEventListener('focus', function handleFocus() {
-    if (editor.value?.innerHTML === '<p>Start typing...</p>') {
-      editor.value.innerHTML = ''
-    }
-    updateActiveFormats()
-  })
+const handleSaveCommand = () => {
+  openSaveModal()
+}
 
-  editor.value?.addEventListener('blur', function handleBlur() {
-    if (editor.value?.innerHTML === '') {
-      editor.value.innerHTML = '<p>Start typing...</p>'
-    }
+const openSaveModal = () => {
+  showSaveModal.value = true
+  saveFilename.value = documentTitle.value === 'Untitled' ? '' : documentTitle.value
+  nextTick(() => {
+    saveInput.value?.focus()
+    saveInput.value?.select()
   })
+}
+
+const closeSaveModal = () => {
+  showSaveModal.value = false
+  saveFilename.value = ''
+}
+
+const saveDocument = () => {
+  const filename = saveFilename.value.trim() || 'Untitled.md'
+  // Remove extension for title display
+  const titleWithoutExt = filename.replace(/\.(md|txt|rtf|html)$/i, '')
+  documentTitle.value = titleWithoutExt
+  closeSaveModal()
+  
+  // Here you could implement actual save logic
+  // For now, we just update the title
+}
+
+onMounted(() => {
+  // Register save command for this TextEdit instance
+  register('textedit.save', handleSaveCommand)
   
   // Add selection change listener to update toolbar states
   document.addEventListener('selectionchange', handleSelectionChange)
@@ -330,6 +394,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   background: white;
+  position: relative; /* Make this the containing block for absolute positioned modal */
 }
 
 .toolbar {
@@ -425,6 +490,7 @@ onUnmounted(() => {
   background: white;
   overflow-y: auto;
   word-wrap: break-word;
+  position: relative;
 }
 
 .editor:focus {
@@ -457,11 +523,11 @@ onUnmounted(() => {
 }
 
 /* Placeholder styling */
-.editor:empty:before,
-.editor p:only-child:empty:before {
-  content: attr(placeholder);
+.editor:empty:before {
+  content: attr(data-placeholder);
   color: #999;
   pointer-events: none;
+  position: absolute;
 }
 
 /* Print styles */
@@ -474,5 +540,120 @@ onUnmounted(() => {
     border: none;
     padding: 0;
   }
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: absolute; /* Changed from fixed to absolute */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000; /* Reduced from 10000 since it's now within the window */
+}
+
+.modal {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  width: 400px;
+  max-width: 90%; /* Changed from 90vw to 90% to be relative to container */
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-close:hover {
+  color: #333;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.modal-body label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #333;
+}
+
+.modal-body input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d1d1;
+  border-radius: 4px;
+  font-size: 14px;
+  outline: none;
+}
+
+.modal-body input:focus {
+  border-color: #007AFF;
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 16px 20px;
+  border-top: 1px solid #e5e5e5;
+}
+
+.modal-button {
+  padding: 6px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  border: 1px solid #d1d1d1;
+  background: white;
+  color: #333;
+}
+
+.modal-button:hover {
+  background: #f5f5f5;
+}
+
+.modal-button.save {
+  background: #007AFF;
+  color: white;
+  border-color: #007AFF;
+}
+
+.modal-button.save:hover {
+  background: #0051D5;
+}
+
+.modal-button.cancel {
+  background: #f5f5f5;
 }
 </style>

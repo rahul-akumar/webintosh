@@ -21,6 +21,12 @@ export function createTextEditMenuTemplate(): MenuTemplate {
         command: 'app.newWindow',
         args: { appId: 'textedit' }
       }),
+      Menu.sep('file.sep1'),
+      Menu.item('file.save', 'Save', {
+        command: 'textedit.save',
+        accel: { key: 'S', alt: true }
+      }),
+      Menu.sep('file.sep2'),
       Menu.item('file.shortcuts', 'Shortcuts', {
         command: 'system.showShortcuts',
         accel: { key: '/', alt: true }

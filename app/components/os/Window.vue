@@ -36,7 +36,7 @@
         <!-- Default content for known app windows -->
         <template v-if="win.kind === 'app' || win.kind === 'system'">
           <AppsFinder v-if="win.appId === 'finder'" />
-          <AppsTextEdit v-else-if="win.appId === 'textedit'" />
+          <AppsTextEdit v-else-if="win.appId === 'textedit'" :window-id="win.id" />
           <AppsShortcuts v-else-if="win.appId === 'shortcuts'" />
           <AppsAbout v-else-if="win.appId === 'about'" />
           <AppsSettings v-else-if="win.appId === 'settings'" />
@@ -183,6 +183,7 @@ function onFocus() {
 /* Resize handles */
 .resize-handle {
   position: absolute;
+  z-index: 10; /* Ensure resize handles are above content */
 }
 .handle-n  { top: -4px; left: 8px; right: 8px; height: 8px; cursor: n-resize; }
 .handle-s  { bottom: -4px; left: 8px; right: 8px; height: 8px; cursor: s-resize; }
