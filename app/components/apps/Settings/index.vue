@@ -227,7 +227,7 @@ const dynamicWallpapers = [
 const liveWallpapers = [
   { id: 'particle', name: 'Old Signal', value: 'url("wallpapers/old-signal.jpg") center/cover no-repeat' },
   { id: 'waves', name: 'Ocean Waves', value: 'url("/wallpapers/end-of-daylight.mp4") center/cover no-repeat' },
-  { id: 'ROG', name: 'ROG', value: 'url("wallpapers/rog.gif") center/cover no-repeat' },
+  { id: 'ROG', name: 'ROG', value: 'url("wallpapers/ROG.gif") center/cover no-repeat' },
 
 ]
 
