@@ -62,3 +62,11 @@ description: Add configurable desktop icon sizes with Small, Medium, and Large o
 - Select desired size option
 - Icons immediately resize without page refresh
 - Setting persists across browser sessions
+
+## Fixed
+
+### Context Menu Tick Updates
+- Fixed issue where checkmarks in context menu submenus only appeared after closing and reopening
+- Context menu now reactively updates when icon settings change
+- Checkmarks appear immediately when selecting icon direction or size options
+- Implemented reactive menu template with Vue watchers for real-time updates

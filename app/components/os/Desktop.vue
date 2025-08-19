@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { useOSStore } from '../../../stores/os'
 import { useAppsStore } from '../../../stores/apps'
 import { Menu } from '../../../types/menu'
@@ -34,15 +34,9 @@ const desktopStyle = computed(() => {
   return {}
 })
 
-function onDesktopClick() {
-  // Close any menus and clear focused window when clicking the desktop
-  store.closeMenu()
-  store.setFocused(null)
-}
-
-function onDesktopContextmenu(e: MouseEvent) {
-  // Build desktop context menu with all options
-  const ctx = Menu.template('desktop-context', 'Webintosh', [
+// Reactive context menu template that updates when state changes
+const contextMenuTemplate = computed(() => 
+  Menu.template('desktop-context', 'Webintosh', [
     Menu.section('wallpaper', 'Wallpaper', [
       Menu.item('ctx.changeWallpaper', 'Change Wallpaper...', { 
         command: 'desktop.changeWallpaper' 
@@ -63,32 +57,55 @@ function onDesktopContextmenu(e: MouseEvent) {
         })
       ]),
       Menu.submenu('ctx.iconDirection', 'Icon Direction', [
-        Menu.item('ctx.dir.left', apps.iconLayoutDirection === 'left' ? '✓ Start from Left' : 'Start from Left', { 
+        Menu.item('ctx.dir.left', 'Start from Left', { 
           command: 'desktop.setIconDirection',
-          args: { direction: 'left' }
+          args: { direction: 'left' },
+          checked: apps.iconLayoutDirection === 'left'
         }),
-        Menu.item('ctx.dir.right', apps.iconLayoutDirection === 'right' ? '✓ Start from Right' : 'Start from Right', { 
+        Menu.item('ctx.dir.right', 'Start from Right', { 
           command: 'desktop.setIconDirection',
-          args: { direction: 'right' }
+          args: { direction: 'right' },
+          checked: apps.iconLayoutDirection === 'right'
         })
       ]),
       Menu.submenu('ctx.iconSize', 'Icon Size', [
-        Menu.item('ctx.size.small', apps.iconSize === 'small' ? '✓ Small' : 'Small', { 
+        Menu.item('ctx.size.small', 'Small', { 
           command: 'desktop.setIconSize',
-          args: { size: 'small' }
+          args: { size: 'small' },
+          checked: apps.iconSize === 'small'
         }),
-        Menu.item('ctx.size.medium', apps.iconSize === 'medium' ? '✓ Medium' : 'Medium', { 
+        Menu.item('ctx.size.medium', 'Medium', { 
           command: 'desktop.setIconSize',
-          args: { size: 'medium' }
+          args: { size: 'medium' },
+          checked: apps.iconSize === 'medium'
         }),
-        Menu.item('ctx.size.large', apps.iconSize === 'large' ? '✓ Large' : 'Large', { 
+        Menu.item('ctx.size.large', 'Large', { 
           command: 'desktop.setIconSize',
-          args: { size: 'large' }
+          args: { size: 'large' },
+          checked: apps.iconSize === 'large'
         })
       ])
     ])
   ])
-  store.openContext(e.clientX, e.clientY, ctx)
+)
+
+// Watch for changes in icon settings and update the context menu if it's open
+watch([() => apps.iconLayoutDirection, () => apps.iconSize], () => {
+  // If the desktop context menu is currently open, update it with the new template
+  if (store.menu.openType === 'context' && store.menu.contextTemplate?.id === 'desktop-context') {
+    store.menu.contextTemplate = contextMenuTemplate.value
+  }
+})
+
+function onDesktopClick() {
+  // Close any menus and clear focused window when clicking the desktop
+  store.closeMenu()
+  store.setFocused(null)
+}
+
+function onDesktopContextmenu(e: MouseEvent) {
+  // Open context menu with the reactive template
+  store.openContext(e.clientX, e.clientY, contextMenuTemplate.value)
 }
 </script>
 
