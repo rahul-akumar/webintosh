@@ -174,6 +174,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, inject } from 'vue'
 import { useOSStore } from '../../../../stores/os'
+import { useAssetUrl } from '../../../../app/composables/useAssetUrl'
 import type { OSWindowModel } from '../../../../types/os'
 
 defineOptions({ name: 'SettingsApp' })
@@ -214,9 +215,10 @@ const previewStyle = computed(() => {
 
 // Wallpaper options data
 const staticWallpapers = [
-  { id: 'mac', name: 'mac', value: 'url("wallpapers/mac.jpg") center/cover no-repeat' },
-  { id: 'windows', name: 'windows', value: 'url("wallpapers/windows.jpg") center/cover no-repeat' },
+  { id: 'mac', name: 'mac', value: `url("${useAssetUrl('wallpapers/mac.jpg')}")` },
+  { id: 'windows', name: 'windows', value: `url("${useAssetUrl('wallpapers/windows.jpg')}")` },
   { id: 'catalina', name: 'Catalina', value: 'url(https://wallpapercave.com/wp/wp5559260.jpg)' },
+  { id: 'old-signal', name: 'old signal', value: `url("${useAssetUrl('wallpapers/old-signal.jpg')}")` },
 ]
 
 const dynamicWallpapers = [
@@ -225,10 +227,8 @@ const dynamicWallpapers = [
 ]
 
 const liveWallpapers = [
-  { id: 'particle', name: 'Old Signal', value: 'url("wallpapers/old-signal.jpg") center/cover no-repeat' },
-  { id: 'waves', name: 'Ocean Waves', value: 'url("/wallpapers/end-of-daylight.mp4") center/cover no-repeat' },
-  { id: 'ROG', name: 'ROG', value: 'url("wallpapers/ROG.gif") center/cover no-repeat' },
-
+  { id: 'ocean-waves', name: 'Ocean Waves', value: `url("${useAssetUrl('wallpapers/end-of-daylight.mp4')}") center/cover no-repeat` },
+  { id: 'ROG', name: 'ROG', value: `url("${useAssetUrl('wallpapers/ROG.gif')}") center/cover no-repeat` },
 ]
 
 const solidColors = [
