@@ -4,8 +4,8 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
 
   app: {
-    // Required for GitHub Project Pages at https://rahul-akumar.github.io/webintosh/
-    baseURL: '/webintosh/'
+    // Dynamic base URL: uses environment variable for PR previews, defaults to /webintosh/ for production
+    baseURL: process.env.NUXT_APP_BASE_URL || '/webintosh/'
   },
 
   nitro: {
