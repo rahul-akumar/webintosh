@@ -214,8 +214,8 @@ const previewStyle = computed(() => {
 
 // Wallpaper options data
 const staticWallpapers = [
-  { id: 'mac', name: 'mac', value: 'url("/wallpapers/mac.jpg") center/cover no-repeat' },
-  { id: 'windows', name: 'windows', value: 'url("/wallpapers/windows.jpg") center/cover no-repeat' },
+  { id: 'mac', name: 'mac', value: 'url("wallpapers/mac.jpg") center/cover no-repeat' },
+  { id: 'windows', name: 'windows', value: 'url("wallpapers/windows.jpg") center/cover no-repeat' },
   { id: 'catalina', name: 'Catalina', value: 'url(https://wallpapercave.com/wp/wp5559260.jpg)' },
 ]
 
@@ -225,9 +225,9 @@ const dynamicWallpapers = [
 ]
 
 const liveWallpapers = [
-  { id: 'particle', name: 'Old Signal', value: 'url("/wallpapers/old-signal.jpg") center/cover no-repeat' },
+  { id: 'particle', name: 'Old Signal', value: 'url("wallpapers/old-signal.jpg") center/cover no-repeat' },
   { id: 'waves', name: 'Ocean Waves', value: 'url("/wallpapers/end-of-daylight.mp4") center/cover no-repeat' },
-  { id: 'ROG', name: 'ROG', value: 'url("/wallpapers/rog.gif") center/cover no-repeat' },
+  { id: 'ROG', name: 'ROG', value: 'url("wallpapers/rog.gif") center/cover no-repeat' },
 
 ]
 
