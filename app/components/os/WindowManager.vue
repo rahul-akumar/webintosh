@@ -17,10 +17,12 @@ import { onMounted, onUnmounted } from 'vue'
 import { useOSStore } from '../../../stores/os'
 import OsWindow from './Window.vue'
 import { execute, registerDefaultCommands } from '../../composables/menuCommands'
+import { useKeyboardShortcuts } from '../../composables/useKeyboardShortcuts'
 
 defineOptions({ name: 'OsWindowManager' })
 
 const store = useOSStore()
+const { isModifierPressed } = useKeyboardShortcuts()
 
 function onMove(e: MouseEvent) {
   // Support both dragging and resizing depending on store.drag.resizing
@@ -57,8 +59,10 @@ function onKeyDown(e: KeyboardEvent) {
     return
   }
 
-  // Alt-based accelerators (avoid browser conflicts)
-  if (e.altKey && !e.metaKey && !e.ctrlKey) {
+  // Platform-aware modifier key shortcuts
+  // Mac: Ctrl+key (Cmd is reserved for browser)
+  // Windows/Linux: Alt+key (Ctrl often conflicts with browser)
+  if (isModifierPressed(e)) {
     const k = e.key.toLowerCase()
     switch (k) {
       case 'n': {

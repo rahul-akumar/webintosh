@@ -98,18 +98,40 @@ export interface MenuTemplate {
  */
 
 /**
- * Returns a human-readable string for an accelerator (e.g., 'Alt+N', 'Alt+Shift+N').
- * This is purely for display; actual binding is handled in the keyboard layer.
+ * Returns a human-readable string for an accelerator.
+ * Platform-aware: Shows Ctrl on Mac, Alt on Windows/Linux
  */
 export function formatAccelerator(a?: Accelerator): string {
   if (!a) return ''
+  
+  // Detect platform
+  const isMac = typeof navigator !== 'undefined' && 
+    (navigator.platform.toLowerCase().includes('mac') || 
+     navigator.userAgent.toLowerCase().includes('mac'))
+  
   const parts: string[] = []
-  if (a.ctrl) parts.push('Ctrl')
-  if (a.meta) parts.push('Meta')
-  if (a.alt) parts.push('Alt')
-  if (a.shift) parts.push('Shift')
-  parts.push(a.key.toUpperCase())
-  return parts.join('+')
+  
+  // For our shortcuts, we use platform-specific modifiers
+  // Mac: Ctrl (⌃) to avoid Cmd conflicts
+  // Windows/Linux: Alt to avoid Ctrl conflicts
+  if (a.alt) {
+    if (isMac) {
+      parts.push('⌃') // Use Ctrl symbol on Mac when Alt is specified
+    } else {
+      parts.push('Alt')
+    }
+  }
+  
+  // Handle other modifiers if explicitly set
+  if (a.ctrl && !a.alt) parts.push(isMac ? '⌃' : 'Ctrl')
+  if (a.meta) parts.push(isMac ? '⌘' : 'Meta')
+  if (a.shift) parts.push(isMac ? '⇧' : 'Shift')
+  
+  // Format the key
+  const key = a.key === '`' ? '`' : a.key.toUpperCase()
+  parts.push(key)
+  
+  return isMac && parts.length > 1 ? parts.join('') : parts.join('+')
 }
 
 /**

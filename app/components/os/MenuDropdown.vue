@@ -30,7 +30,7 @@
             <span class="label">{{ entry.label }}</span>
           </div>
           <div class="menu-item-right">
-            <span v-if="entry.accel" class="accel">{{ accelToText(entry.accel) }}</span>
+            <span v-if="entry.accel" class="accel">{{ formatAccelerator(entry.accel) }}</span>
           </div>
         </li>
 
@@ -74,6 +74,7 @@
 import { computed, ref, nextTick, onMounted } from 'vue'
 import type { CSSProperties } from 'vue'
 import type { MenuEntry, MenuItem, Accelerator } from '../../../types/menu'
+import { formatAccelerator } from '../../../types/menu'
 import { execute } from '../../composables/menuCommands'
 
 defineOptions({ name: 'MenuDropdown' })

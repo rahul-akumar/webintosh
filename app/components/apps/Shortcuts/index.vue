@@ -5,23 +5,23 @@
     <div class="shortcuts-section">
       <h3>Window Management</h3>
       <div class="shortcut-item">
-        <span class="keys">Alt + N</span>
+        <span class="keys">{{ formatShortcut('n') }}</span>
         <span class="description">New Window</span>
       </div>
       <div class="shortcut-item">
-        <span class="keys">Alt + W</span>
+        <span class="keys">{{ formatShortcut('w') }}</span>
         <span class="description">Close Window</span>
       </div>
       <div class="shortcut-item">
-        <span class="keys">Alt + M</span>
+        <span class="keys">{{ formatShortcut('m') }}</span>
         <span class="description">Minimize Window</span>
       </div>
       <div class="shortcut-item">
-        <span class="keys">Alt + Z</span>
+        <span class="keys">{{ formatShortcut('z') }}</span>
         <span class="description">Toggle Zoom</span>
       </div>
       <div class="shortcut-item">
-        <span class="keys">Alt + `</span>
+        <span class="keys">{{ formatShortcut('`') }}</span>
         <span class="description">Cycle Windows</span>
       </div>
     </div>
@@ -29,7 +29,7 @@
     <div class="shortcuts-section">
       <h3>System</h3>
       <div class="shortcut-item">
-        <span class="keys">Alt + /</span>
+        <span class="keys">{{ formatShortcut('/') }}</span>
         <span class="description">Show Shortcuts</span>
       </div>
     </div>
@@ -43,13 +43,24 @@
     </div>
 
     <div class="note">
-      <p><strong>Note:</strong> We use Alt instead of Cmd/Ctrl to avoid browser conflicts</p>
+      <p><strong>Note:</strong> 
+        <template v-if="isMac">
+          We use <strong>Ctrl (⌃)</strong> on Mac instead of Cmd (⌘) to avoid browser conflicts.
+        </template>
+        <template v-else>
+          We use <strong>Alt</strong> instead of Ctrl to avoid browser conflicts.
+        </template>
+      </p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useKeyboardShortcuts } from '../../../composables/useKeyboardShortcuts'
+
 defineOptions({ name: 'ShortcutsApp' })
+
+const { isMac, formatShortcut } = useKeyboardShortcuts()
 </script>
 
 <style scoped>
