@@ -1,7 +1,18 @@
 <template>
   <div class="shortcuts-app">
     <h2>Keyboard Shortcuts</h2>
-    
+
+    <div class="note">
+      <p><strong>Note:</strong> 
+        <template v-if="isMac">
+          We use <strong>Ctrl (⌃)</strong> on Mac instead of Cmd (⌘) to avoid browser conflicts.
+        </template>
+        <template v-else>
+          We use <strong>Alt</strong> instead of Ctrl to avoid browser conflicts.
+        </template>
+      </p>
+    </div>
+
     <div class="shortcuts-section">
       <h3>Window Management</h3>
       <div class="shortcut-item">
@@ -40,17 +51,6 @@
         <span class="keys">Esc</span>
         <span class="description">Cancel drag/resize, Close menus</span>
       </div>
-    </div>
-
-    <div class="note">
-      <p><strong>Note:</strong> 
-        <template v-if="isMac">
-          We use <strong>Ctrl (⌃)</strong> on Mac instead of Cmd (⌘) to avoid browser conflicts.
-        </template>
-        <template v-else>
-          We use <strong>Alt</strong> instead of Ctrl to avoid browser conflicts.
-        </template>
-      </p>
     </div>
   </div>
 </template>
