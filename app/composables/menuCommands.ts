@@ -221,6 +221,14 @@ export function registerDefaultCommands(): void {
       apps.setIconLayoutDirection(direction)
     }
   })
+
+  register('desktop.setIconSize', (args?: unknown) => {
+    const apps = useAppsStore()
+    const size = getArg<'small' | 'medium' | 'large'>(args, 'size')
+    if (size === 'small' || size === 'medium' || size === 'large') {
+      apps.setIconSize(size)
+    }
+  })
 }
 
 /**

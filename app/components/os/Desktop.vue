@@ -71,6 +71,20 @@ function onDesktopContextmenu(e: MouseEvent) {
           command: 'desktop.setIconDirection',
           args: { direction: 'right' }
         })
+      ]),
+      Menu.submenu('ctx.iconSize', 'Icon Size', [
+        Menu.item('ctx.size.small', apps.iconSize === 'small' ? '✓ Small' : 'Small', { 
+          command: 'desktop.setIconSize',
+          args: { size: 'small' }
+        }),
+        Menu.item('ctx.size.medium', apps.iconSize === 'medium' ? '✓ Medium' : 'Medium', { 
+          command: 'desktop.setIconSize',
+          args: { size: 'medium' }
+        }),
+        Menu.item('ctx.size.large', apps.iconSize === 'large' ? '✓ Large' : 'Large', { 
+          command: 'desktop.setIconSize',
+          args: { size: 'large' }
+        })
       ])
     ])
   ])

@@ -1,6 +1,7 @@
 <template>
   <div 
     class="desktop-icon"
+    :class="`icon-size-${appsStore.iconSize}`"
     :style="positionStyle"
     @mousedown="startDrag"
   >
@@ -21,6 +22,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useAssetUrl } from '../../composables/useAssetUrl'
+import { useAppsStore } from '../../../stores/apps'
 
 defineOptions({ name: 'OsDesktopIcon' })
 
@@ -38,6 +40,7 @@ const emit = defineEmits<{
   (e: 'move', data: { x: number; y: number }): void
 }>()
 
+const appsStore = useAppsStore()
 const isDragging = ref(false)
 const currentX = ref(props.x ?? 0)
 const currentY = ref(props.y ?? 0)
@@ -90,9 +93,13 @@ function startDrag(e: MouseEvent) {
     const viewportWidth = window.innerWidth
     const viewportHeight = window.innerHeight
     
-    // Icon dimensions (88px width + 16px margin, similar for height)
-    const iconWidth = 88
-    const iconHeight = 80 // Approximate height including label
+    // Icon dimensions based on size setting
+    const iconSizes = {
+      small: { width: 72, height: 68 },
+      medium: { width: 88, height: 80 },
+      large: { width: 104, height: 92 }
+    }
+    const { width: iconWidth, height: iconHeight } = iconSizes[appsStore.iconSize]
     const menuBarHeight = 40 // OS menu bar height
     const desktopPadding = 8 // Desktop padding to match OS store
     
@@ -128,13 +135,44 @@ function startDrag(e: MouseEvent) {
   user-select: none;
 }
 
+/* Small size */
+.desktop-icon.icon-size-small {
+  width: 72px;
+  margin: 6px;
+}
+
+.desktop-icon.icon-size-small .icon-button {
+  width: 72px;
+  padding: 6px 4px;
+}
+
+/* Medium size (default) */
+.desktop-icon.icon-size-medium {
+  width: 88px;
+  margin: 8px;
+}
+
+.desktop-icon.icon-size-medium .icon-button {
+  width: 88px;
+  padding: 8px 6px;
+}
+
+/* Large size */
+.desktop-icon.icon-size-large {
+  width: 104px;
+  margin: 10px;
+}
+
+.desktop-icon.icon-size-large .icon-button {
+  width: 104px;
+  padding: 10px 8px;
+}
+
 .icon-button {
   appearance: none;
   background: transparent;
   border: 0;
   cursor: inherit;
-  width: 88px;
-  padding: 8px 6px;
   border-radius: 10px;
   display: grid;
   place-items: center;
@@ -149,6 +187,7 @@ function startDrag(e: MouseEvent) {
   pointer-events: auto;
 }
 
+/* Icon sizes */
 .icon-svg {
   width: 28px;
   height: 28px;
@@ -159,6 +198,27 @@ function startDrag(e: MouseEvent) {
   line-height: 1;
 }
 
+/* Small icon sizes */
+.icon-size-small .icon-svg {
+  width: 22px;
+  height: 22px;
+}
+
+.icon-size-small .icon-emoji {
+  font-size: 22px;
+}
+
+/* Large icon sizes */
+.icon-size-large .icon-svg {
+  width: 36px;
+  height: 36px;
+}
+
+.icon-size-large .icon-emoji {
+  font-size: 36px;
+}
+
+/* Label sizes */
 .icon-label {
   display: block;
   width: 100%;
@@ -167,5 +227,13 @@ function startDrag(e: MouseEvent) {
   color: #111;
   white-space: normal;
   word-wrap: break-word;
+}
+
+.icon-size-small .icon-label {
+  font-size: 11px;
+}
+
+.icon-size-large .icon-label {
+  font-size: 13px;
 }
 </style>

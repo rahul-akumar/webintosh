@@ -14,6 +14,7 @@ export interface AppsState {
   iconPositions: Record<AppId, { x: number; y: number }>;
   iconLayoutDirection: 'left' | 'right';
   iconSortBy: 'name' | 'type' | 'none';
+  iconSize: 'small' | 'medium' | 'large';
 }
 
 export const useAppsStore = defineStore('apps', {
@@ -23,7 +24,8 @@ export const useAppsStore = defineStore('apps', {
     minimizedOrder: [],
     iconPositions: {},
     iconLayoutDirection: 'left',
-    iconSortBy: 'none'
+    iconSortBy: 'none',
+    iconSize: 'medium'
   }),
 
   getters: {
@@ -118,6 +120,9 @@ export const useAppsStore = defineStore('apps', {
             if (parsed.sortBy === 'name' || parsed.sortBy === 'type' || parsed.sortBy === 'none') {
               this.iconSortBy = parsed.sortBy;
             }
+            if (parsed.size === 'small' || parsed.size === 'medium' || parsed.size === 'large') {
+              this.iconSize = parsed.size;
+            }
           }
         }
       } catch (e) {
@@ -130,7 +135,8 @@ export const useAppsStore = defineStore('apps', {
       try {
         const layout = {
           direction: this.iconLayoutDirection,
-          sortBy: this.iconSortBy
+          sortBy: this.iconSortBy,
+          size: this.iconSize
         };
         localStorage.setItem(ICON_LAYOUT_KEY, JSON.stringify(layout));
       } catch (e) {
@@ -162,6 +168,11 @@ export const useAppsStore = defineStore('apps', {
       this.saveIconLayout();
       // Clear positions to force re-layout with new sorting
       this.cleanUpIcons();
+    },
+
+    setIconSize(size: 'small' | 'medium' | 'large') {
+      this.iconSize = size;
+      this.saveIconLayout();
     },
 
     cleanUpIcons() {
