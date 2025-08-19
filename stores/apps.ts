@@ -326,7 +326,8 @@ export const useAppsStore = defineStore('apps', {
 
       // Launch a new window
       const d = this.registry[id];
-      const title = d?.title ?? 'App';
+      // Use "Untitled" for TextEdit, otherwise use the app's title
+      const title = id === 'textedit' ? 'Untitled' : (d?.title ?? 'App');
       const rect = d?.defaultRect ?? {
         x: 80,
         y: os.menuBarHeight + 24,

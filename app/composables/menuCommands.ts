@@ -102,7 +102,8 @@ export function registerDefaultCommands(): void {
 
     if (appId) {
       const d = apps.registry[appId]
-      const title = d?.title ?? 'App'
+      // Use "Untitled" for TextEdit, otherwise use the app's title
+      const title = appId === 'textedit' ? 'Untitled' : (d?.title ?? 'App')
       const rect = d?.defaultRect ?? {
         x: 80,
         y: os.menuBarHeight + 24,
@@ -132,7 +133,8 @@ export function registerDefaultCommands(): void {
 
     if (appId) {
       const d = apps.registry[appId]
-      const title = d?.title ?? 'Document'
+      // Use "Untitled" for TextEdit, otherwise use "Document" or app's title
+      const title = appId === 'textedit' ? 'Untitled' : (d?.title ?? 'Document')
       const rect = d?.defaultRect ?? {
         x: 96,
         y: os.menuBarHeight + 28,
