@@ -193,11 +193,29 @@ export function registerDefaultCommands(): void {
 
   // Desktop commands
   register('desktop.changeWallpaper', () => {
+    const apps = useAppsStore()
     const os = useOSStore()
-    // For now, prompt for URL. In a real implementation, this would open a file picker
-    const url = prompt('Enter wallpaper URL (or leave empty for default):')
-    if (url !== null) {
-      os.setWallpaper(url || null)
+    
+    // Check if Settings window already exists
+    const existing = os.windows.filter((w) => w.appId === 'settings')
+    if (existing.length > 0) {
+      // Focus existing window
+      const topmost = existing.sort((a, b) => b.zIndex - a.zIndex)[0]
+      if (topmost.minimized) {
+        os.restoreWindow(topmost.id)
+      } else {
+        os.bringToFront(topmost.id)
+      }
+    } else {
+      // Open new Settings window with wallpaper panel selected
+      const d = apps.registry['settings']
+      os.openWindow({
+        appId: 'settings',
+        title: d?.title ?? 'System Settings',
+        kind: 'system',
+        rect: d?.defaultRect ?? { x: 100, y: 80, width: 900, height: 600 },
+        metadata: { initialPanel: 'wallpaper' }
+      })
     }
   })
 

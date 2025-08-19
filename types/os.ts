@@ -31,6 +31,9 @@ export interface OSWindowModel {
 
   // For restore from maximize
   lastNormalRect?: OSWindowRect;
+
+  // Custom metadata for app initialization
+  metadata?: Record<string, any>;
 }
 
 export interface DragState {
