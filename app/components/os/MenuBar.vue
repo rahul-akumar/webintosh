@@ -63,7 +63,7 @@ defineOptions({ name: 'OsMenuBar' })
 const store = useOSStore()
 const apps = useAppsStore()
 const menuLeftEl = ref<HTMLElement | null>(null)
-const logoUrl = ref<string | null>("/icons/system/apple.png")
+const logoUrl = ref<string | null>("icons/system/apple.png")
 
 // Clock tick (unchanged behavior)
 let t: number | undefined
