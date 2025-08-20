@@ -3,41 +3,15 @@
     <!-- Sidebar -->
     <div class="finder-sidebar">
       <div class="sidebar-section">
-        <div class="sidebar-title">Favorites</div>
+        <div class="sidebar-title">Folders</div>
         <button
-          v-for="item in favorites"
-          :key="item.id"
-          @click="selectedFolder = item.id"
-          :class="['sidebar-item', { active: selectedFolder === item.id }]"
+          v-for="folder in folders"
+          :key="folder.id"
+          @click="selectedFolder = folder.id"
+          :class="['sidebar-item', { active: selectedFolder === folder.id }]"
         >
-          <span class="sidebar-icon">{{ item.icon }}</span>
-          <span class="sidebar-label">{{ item.name }}</span>
-        </button>
-      </div>
-      
-      <div class="sidebar-section">
-        <div class="sidebar-title">iCloud</div>
-        <button
-          v-for="item in icloudItems"
-          :key="item.id"
-          @click="selectedFolder = item.id"
-          :class="['sidebar-item', { active: selectedFolder === item.id }]"
-        >
-          <span class="sidebar-icon">{{ item.icon }}</span>
-          <span class="sidebar-label">{{ item.name }}</span>
-        </button>
-      </div>
-      
-      <div class="sidebar-section">
-        <div class="sidebar-title">Locations</div>
-        <button
-          v-for="item in locations"
-          :key="item.id"
-          @click="selectedFolder = item.id"
-          :class="['sidebar-item', { active: selectedFolder === item.id }]"
-        >
-          <span class="sidebar-icon">{{ item.icon }}</span>
-          <span class="sidebar-label">{{ item.name }}</span>
+          <span class="sidebar-icon">{{ folder.icon }}</span>
+          <span class="sidebar-label">{{ folder.name }}</span>
         </button>
       </div>
     </div>
@@ -78,7 +52,15 @@
           @click="selectedFile = file.id"
           @dblclick="openFile(file)"
         >
-          <div class="file-icon">{{ file.icon }}</div>
+          <div class="file-icon">
+            <img 
+              v-if="file.iconPath" 
+              :src="file.iconPath" 
+              :alt="file.name"
+              class="file-icon-img"
+            />
+            <span v-else class="file-icon-emoji">{{ file.iconEmoji || '📄' }}</span>
+          </div>
           <div class="file-name">{{ file.name }}</div>
         </div>
       </div>
@@ -88,68 +70,81 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useAppsStore } from '../../../../stores/apps'
+import { useOSStore } from '../../../../stores/os'
 
 defineOptions({ name: 'FinderApp' })
 
-const selectedFolder = ref('desktop')
+const appsStore = useAppsStore()
+const osStore = useOSStore()
+
+const selectedFolder = ref('documents')
 const selectedFile = ref<string | null>(null)
 
-const favorites = [
-  { id: 'airdrop', name: 'AirDrop', icon: '📡' },
-  { id: 'recents', name: 'Recents', icon: '🕐' },
+// Simplified folder structure - only essential folders
+const folders = [
   { id: 'applications', name: 'Applications', icon: '🚀' },
-  { id: 'desktop', name: 'Desktop', icon: '🖥️' },
   { id: 'documents', name: 'Documents', icon: '📄' },
-  { id: 'downloads', name: 'Downloads', icon: '⬇️' },
+  { id: 'images', name: 'Images', icon: '🖼️' },
+  { id: 'music', name: 'Music', icon: '🎵' },
+  { id: 'videos', name: 'Videos', icon: '🎬' },
+  { id: 'trash', name: 'Trash', icon: '🗑️' },
 ]
 
-const icloudItems = [
-  { id: 'icloud-drive', name: 'iCloud Drive', icon: '☁️' },
-  { id: 'shared', name: 'Shared', icon: '👥' },
-]
-
-const locations = [
-  { id: 'computer', name: 'Webintosh HD', icon: '💾' },
-  { id: 'network', name: 'Network', icon: '🌐' },
-]
+// Get real applications from the apps store
+const getApplicationFiles = () => {
+  return Object.values(appsStore.registry).map(app => ({
+    id: `app-${app.id}`,
+    name: app.title,
+    iconPath: app.icon, // Use the actual SVG/PNG path
+    iconEmoji: app.emoji || '📱', // Keep emoji as fallback
+    type: 'app',
+    appId: app.id // Store the actual app ID for launching
+  }))
+}
 
 const filesData: Record<string, any[]> = {
-  desktop: [
-    { id: '1', name: 'Welcome.txt', icon: '📄', type: 'file' },
-    { id: '2', name: 'Projects', icon: '📁', type: 'folder' },
-    { id: '3', name: 'Screenshot.png', icon: '🖼️', type: 'file' },
-  ],
+  applications: getApplicationFiles(),
   documents: [
-    { id: '4', name: 'Resume.pdf', icon: '📄', type: 'file' },
-    { id: '5', name: 'Notes', icon: '📁', type: 'folder' },
-    { id: '6', name: 'Budget.xlsx', icon: '📊', type: 'file' },
+    { id: 'doc-1', name: 'Welcome.txt', iconEmoji: '📄', type: 'file' },
+    { id: 'doc-2', name: 'Notes.md', iconEmoji: '📝', type: 'file' },
   ],
-  downloads: [
-    { id: '7', name: 'installer.dmg', icon: '💿', type: 'file' },
-    { id: '8', name: 'photo.jpg', icon: '🖼️', type: 'file' },
-    { id: '9', name: 'document.pdf', icon: '📄', type: 'file' },
+  images: [
+    { id: 'img-1', name: 'Screenshot.png', iconEmoji: '🖼️', type: 'file' },
+    { id: 'img-2', name: 'Wallpaper.jpg', iconEmoji: '🖼️', type: 'file' },
   ],
-  applications: [
-    { id: '10', name: 'TextEdit', icon: '📝', type: 'app' },
-    { id: '11', name: 'Settings', icon: '⚙️', type: 'app' },
-    { id: '12', name: 'About', icon: 'ℹ️', type: 'app' },
+  music: [
+    { id: 'music-1', name: 'Playlist.m3u', iconEmoji: '🎵', type: 'file' },
+  ],
+  videos: [
+    { id: 'vid-1', name: 'Demo.mp4', iconEmoji: '🎬', type: 'file' },
+  ],
+  trash: [
+    // Empty trash by default
   ],
 }
 
 const currentFolderName = computed(() => {
-  const folder = [...favorites, ...icloudItems, ...locations].find(
-    item => item.id === selectedFolder.value
-  )
+  const folder = folders.find(item => item.id === selectedFolder.value)
   return folder?.name || 'Finder'
 })
 
 const files = computed(() => {
+  // For applications folder, get fresh list each time to reflect any new apps
+  if (selectedFolder.value === 'applications') {
+    return getApplicationFiles()
+  }
   return filesData[selectedFolder.value] || []
 })
 
 const openFile = (file: any) => {
   console.log('Opening file:', file.name)
-  // Implement file opening logic here
+  
+  // If it's an app, launch it using the apps store
+  if (file.type === 'app' && file.appId) {
+    appsStore.launchOrFocus(file.appId)
+  }
+  // Handle other file types here in the future
 }
 </script>
 
@@ -327,6 +322,12 @@ const openFile = (file: any) => {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.file-icon-img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
 }
 
 .file-name {
