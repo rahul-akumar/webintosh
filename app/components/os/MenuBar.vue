@@ -39,7 +39,7 @@
     </div>
 
     <!-- Dropdown for the active section -->
-    <MenuDropdown
+    <OsMenuDropdown
       v-if="isMenubarOpen && currentEntries.length"
       :entries="currentEntries"
       :origin="dropdownOrigin"
@@ -55,15 +55,15 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useOSStore } from '../../../stores/os'
 import { useAppsStore } from '../../../stores/apps'
-import MenuDropdown from './MenuDropdown.vue'
 import { getSystemMenuTemplate, getAppMenuTemplate } from './menus'
+import { useAssetUrl } from '../../composables/useAssetUrl'
 
 defineOptions({ name: 'OsMenuBar' })
 
 const store = useOSStore()
 const apps = useAppsStore()
 const menuLeftEl = ref<HTMLElement | null>(null)
-const logoUrl = ref<string | null>("/icons/system/apple.png")
+const logoUrl = ref<string | null>(useAssetUrl("/icons/system/apple.png") || null)
 
 // Clock tick (unchanged behavior)
 let t: number | undefined

@@ -127,6 +127,7 @@
 [data-theme="glassmorphic-light"] {
   /* Background Colors */
   --bg-desktop: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --bg-system: rgba(255, 255, 255, 0.7);
   --bg-window: rgba(255, 255, 255, 0.6);
   --bg-window-nav: rgba(255, 255, 255, 0.1);
   --bg-window-header: rgba(255, 255, 255, 0.5);
@@ -162,7 +163,7 @@
   --shadow-button: 0 2px 4px rgba(31, 38, 135, 0.1);
   
   /* Effects */
-  --blur-amount: 0.5rem;
+  --blur-amount: 1rem;
   --opacity-disabled: 0.5;
   --window-border-radius: 12px;
   --button-border-radius: 8px;

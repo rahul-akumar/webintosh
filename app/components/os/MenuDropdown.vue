@@ -247,7 +247,7 @@ function onKeydown(e: KeyboardEvent) {
 <style scoped>
 .menu-dropdown {
   min-width: 220px;
-  background: var(--bg-window);
+  background: var(--bg-system);
   backdrop-filter: blur(var(--blur-amount));
   -webkit-backdrop-filter: blur(var(--blur-amount));
   border: 1px solid var(--border-window);
@@ -269,9 +269,9 @@ function onKeydown(e: KeyboardEvent) {
 }
 
 .menu-item {
-  display: grid;
-  grid-template-columns: 1fr auto;
+  display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
   padding: 8px 10px;
   min-height: 28px;
@@ -302,7 +302,6 @@ function onKeydown(e: KeyboardEvent) {
 .menu-item .menu-item-left {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
   min-width: 0;
   flex: 1 1 auto;
 }
@@ -310,10 +309,8 @@ function onKeydown(e: KeyboardEvent) {
 .menu-item .menu-item-right {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
   margin-left: auto;
   text-align: right;
-  min-width: 80px;
 }
 
 .checkmark {
