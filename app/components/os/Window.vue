@@ -214,7 +214,7 @@ function onFocus() {
   overflow: auto;
   padding: 0;
   color: var(--text-primary);
-  background: var(--bg-window);
+  background: transparent;
 }
 
 /* Resize handles */

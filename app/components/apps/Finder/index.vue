@@ -157,7 +157,7 @@ const openFile = (file: any) => {
 .finder-app {
   display: flex;
   height: 100%;
-  background: var(--bg-window);
+  background: transparent;
   color: var(--text-primary);
 }
 
@@ -232,6 +232,7 @@ const openFile = (file: any) => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  background: var(--bg-window);
 }
 
 /* Toolbar */

@@ -83,7 +83,7 @@ onMounted(() => {
       icon: 'icons/system/about.svg',
       emoji: 'ℹ️',
       kind: 'system',
-      defaultRect: { x: 100, y: 80, width: 400, height: 500 },
+      defaultRect: { x: 100, y: 80, width: 400, height: 600 },
       showOnDesktop: false
     },
     {

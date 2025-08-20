@@ -127,8 +127,9 @@
 [data-theme="glassmorphic-light"] {
   /* Background Colors */
   --bg-desktop: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --bg-window: rgba(255, 255, 255, 0.5);
-  --bg-window-header: rgba(255, 255, 255, 0.8);
+  --bg-window: rgba(255, 255, 255, 0.6);
+  --bg-window-nav: rgba(255, 255, 255, 0.1);
+  --bg-window-header: rgba(255, 255, 255, 0.5);
   --bg-menubar: rgba(255, 255, 255, 0.6);
   --bg-dock: rgba(255, 255, 255, 0.4);
   --bg-context-menu: rgba(255, 255, 255, 0.85);
@@ -161,7 +162,7 @@
   --shadow-button: 0 2px 4px rgba(31, 38, 135, 0.1);
   
   /* Effects */
-  --blur-amount: 12px;
+  --blur-amount: 0.5rem;
   --opacity-disabled: 0.5;
   --window-border-radius: 12px;
   --button-border-radius: 8px;
@@ -173,8 +174,9 @@
 [data-theme="glassmorphic-dark"] {
   /* Background Colors */
   --bg-desktop: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-  --bg-window: rgba(18, 18, 18, 0.6);
+  --bg-window: rgba(18, 18, 18, 0.8);
   --bg-window-header: rgba(28, 28, 28, 0.8);
+  --bg-window-nav: rgba(0, 0, 0, 0.1);
   --bg-menubar: rgba(18, 18, 18, 0.6);
   --bg-dock: rgba(18, 18, 18, 0.4);
   --bg-context-menu: rgba(18, 18, 18, 0.85);

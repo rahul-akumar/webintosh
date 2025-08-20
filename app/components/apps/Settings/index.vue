@@ -394,7 +394,7 @@ const setTheme = (theme: string) => {
 .settings-app {
   display: flex;
   height: 100%;
-  background: var(--bg-window);
+  background: transparent;
   color: var(--text-primary);
   user-select: none;
 }
@@ -402,7 +402,6 @@ const setTheme = (theme: string) => {
 /* Sidebar */
 .settings-sidebar {
   width: 240px;
-  background: transparent;
   border-right: 1px solid var(--border-window);
   display: flex;
   flex-direction: column;

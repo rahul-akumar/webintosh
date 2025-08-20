@@ -158,9 +158,9 @@ const tabs = [
 .about-tabs {
   display: flex;
   background: var(--bg-window-header);
+  justify-content: space-between;
   backdrop-filter: blur(var(--blur-amount));
   -webkit-backdrop-filter: blur(var(--blur-amount));
-  border-bottom: 1px solid var(--border-window-header);
   padding: 0 12px;
 }
 
