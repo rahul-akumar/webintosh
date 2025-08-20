@@ -1,0 +1,342 @@
+/* TypingTest App Styles - Retro 2000s Theme */
+
+.typing-test-app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #008080;
+  padding: 10px;
+  user-select: none;
+  overflow: hidden;
+  font-family: 'MS Sans Serif', 'Tahoma', -apple-system, sans-serif;
+}
+
+/* Stats Bar */
+.typing-test-app .stats-bar {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  padding: 10px;
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  margin-bottom: 10px;
+  box-shadow: inset -1px -1px #000000, inset 1px 1px #dfdfdf;
+}
+
+.typing-test-app .stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 5px 10px;
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+  box-shadow: inset -1px -1px #ffffff, inset 1px 1px #808080;
+}
+
+.typing-test-app .stat-label {
+  font-size: 11px;
+  color: #000000;
+  text-transform: uppercase;
+  font-weight: normal;
+}
+
+.typing-test-app .stat-value {
+  font-size: 20px;
+  font-weight: bold;
+  color: #000080;
+  font-family: 'Courier New', monospace;
+}
+
+/* Test Area */
+.typing-test-app .test-area {
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  padding: 15px;
+  margin-bottom: 10px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: inset -1px -1px #000000, inset 1px 1px #dfdfdf;
+}
+
+.typing-test-app .test-text-container {
+  font-family: 'Courier New', monospace;
+  font-size: 18px;
+  line-height: 1.6;
+  margin-bottom: 15px;
+  padding: 10px;
+  background: #ffffff;
+  border: 2px solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+  min-height: 80px;
+  box-shadow: inset -1px -1px #c0c0c0, inset 1px 1px #000000;
+}
+
+.typing-test-app .test-text-container span {
+  position: relative;
+}
+
+.typing-test-app .test-text-container span.correct {
+  color: #008000;
+  background: #c0ffc0;
+}
+
+.typing-test-app .test-text-container span.incorrect {
+  color: #ffffff;
+  background: #ff0000;
+  text-decoration: none;
+}
+
+.typing-test-app .test-text-container span.current {
+  background: #ffff00;
+  color: #000000;
+  animation: blink-bg 1s infinite;
+}
+
+.typing-test-app .test-text-container span.pending {
+  color: #404040;
+}
+
+@keyframes blink-bg {
+  0%, 50% { background: #ffff00; }
+  51%, 100% { background: #ffffff; }
+}
+
+.typing-test-app .cursor {
+  color: #000000;
+  animation: blink 1s infinite;
+}
+
+.typing-test-app .cursor.end {
+  color: #008000;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.typing-test-app .user-input-display {
+  position: relative;
+  margin-bottom: 15px;
+}
+
+.typing-test-app .hidden-input {
+  position: absolute;
+  left: -9999px;
+  opacity: 0;
+}
+
+.typing-test-app .typed-text {
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  padding: 8px;
+  background: #ffffff;
+  border: 2px solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+  min-height: 35px;
+  color: #000000;
+  box-shadow: inset -1px -1px #c0c0c0, inset 1px 1px #000000;
+}
+
+/* Controls */
+.typing-test-app .controls {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.typing-test-app .control-btn {
+  padding: 8px 16px;
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  color: #000000;
+  font-weight: normal;
+  cursor: pointer;
+  font-family: 'Tahoma', -apple-system, sans-serif;
+  font-size: 11px;
+}
+
+.typing-test-app .control-btn:hover:not(:disabled) {
+  background: #d4d4d4;
+}
+
+.typing-test-app .control-btn:active:not(:disabled) {
+  border-color: #808080 #ffffff #ffffff #808080;
+  box-shadow: inset -1px -1px #ffffff, inset 1px 1px #808080;
+}
+
+.typing-test-app .control-btn.primary {
+  background: #000080;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.typing-test-app .control-btn.primary:hover:not(:disabled) {
+  background: #0000a0;
+}
+
+.typing-test-app .control-btn:disabled {
+  color: #808080;
+  cursor: default;
+  opacity: 0.5;
+}
+
+.typing-test-app .difficulty-select {
+  padding: 6px 10px;
+  background: #ffffff;
+  border: 2px solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+  font-family: 'Tahoma', -apple-system, sans-serif;
+  font-size: 11px;
+  cursor: pointer;
+  box-shadow: inset -1px -1px #c0c0c0, inset 1px 1px #000000;
+  color: #000000;
+}
+
+.typing-test-app .difficulty-select:disabled {
+  color: #808080;
+  cursor: default;
+  opacity: 0.5;
+}
+
+/* Results Modal */
+.typing-test-app .results-modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #c0c0c0;
+  padding: 20px;
+  border: 2px solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  box-shadow: 2px 2px 4px #000000;
+  z-index: 100;
+  text-align: center;
+}
+
+.typing-test-app .results-modal h2 {
+  margin: 0 0 15px 0;
+  color: #000080;
+  font-size: 18px;
+  font-weight: bold;
+  font-family: 'Tahoma', -apple-system, sans-serif;
+}
+
+.typing-test-app .results-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 15px;
+  padding: 10px;
+  background: #ffffff;
+  border: 2px solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+  box-shadow: inset -1px -1px #c0c0c0, inset 1px 1px #000000;
+}
+
+.typing-test-app .result-item {
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+}
+
+.typing-test-app .result-label {
+  font-size: 10px;
+  color: #000000;
+  text-transform: uppercase;
+  font-family: 'Tahoma', -apple-system, sans-serif;
+}
+
+.typing-test-app .result-value {
+  font-size: 18px;
+  font-weight: bold;
+  color: #000080;
+  font-family: 'Courier New', monospace;
+}
+
+/* Keyboard */
+.typing-test-app .keyboard-container {
+  background: #808080;
+  border: 2px solid;
+  border-color: #ffffff #404040 #404040 #ffffff;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  box-shadow: inset -1px -1px #000000, inset 1px 1px #dfdfdf;
+}
+
+.typing-test-app .keyboard-row {
+  display: flex;
+  gap: 3px;
+  justify-content: center;
+}
+
+.typing-test-app .key {
+  background: #e0e0e0;
+  border: 2px solid;
+  border-color: #ffffff #808080 #808080 #ffffff;
+  padding: 0;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Tahoma', -apple-system, sans-serif;
+  font-size: 12px;
+  font-weight: normal;
+  color: #000000;
+  position: relative;
+}
+
+.typing-test-app .key.modifier {
+  background: #c0c0c0;
+  font-size: 10px;
+}
+
+.typing-test-app .key.space {
+  background: #c0c0c0;
+}
+
+.typing-test-app .key.pressed {
+  background: #808080;
+  border-color: #808080 #ffffff #ffffff #808080;
+  box-shadow: inset -1px -1px #ffffff, inset 1px 1px #404040;
+  color: #ffffff;
+}
+
+.typing-test-app .key.next-key {
+  background: #ffff00;
+  border-color: #ffcc00 #cc9900 #cc9900 #ffcc00;
+  animation: pulse-key 1s infinite;
+  font-weight: bold;
+  color: #000000;
+}
+
+@keyframes pulse-key {
+  0%, 100% { background: #ffff00; }
+  50% { background: #ffff80; }
+}
+
+.typing-test-app .key.caps-active {
+  background: #00ff00;
+  border-color: #00cc00 #008800 #008800 #00cc00;
+  color: #000000;
+}
+
+.typing-test-app .shift-label {
+  position: absolute;
+  top: 2px;
+  left: 4px;
+  font-size: 8px;
+  color: #606060;
+}
+
+/* Standalone retro style - no theme integration */

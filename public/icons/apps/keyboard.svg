@@ -1,0 +1,65 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="40" y="140" width="432" height="232" rx="24" fill="url(#grad1)" stroke="#333" stroke-width="2"/>
+  
+  <!-- Key rows -->
+  <!-- Function row -->
+  <rect x="60" y="160" width="28" height="24" rx="4" fill="#4a4a4a"/>
+  <rect x="96" y="160" width="28" height="24" rx="4" fill="#4a4a4a"/>
+  <rect x="132" y="160" width="28" height="24" rx="4" fill="#4a4a4a"/>
+  <rect x="168" y="160" width="28" height="24" rx="4" fill="#4a4a4a"/>
+  <rect x="204" y="160" width="28" height="24" rx="4" fill="#4a4a4a"/>
+  <rect x="240" y="160" width="28" height="24" rx="4" fill="#4a4a4a"/>
+  <rect x="276" y="160" width="28" height="24" rx="4" fill="#4a4a4a"/>
+  <rect x="312" y="160" width="28" height="24" rx="4" fill="#4a4a4a"/>
+  <rect x="348" y="160" width="28" height="24" rx="4" fill="#4a4a4a"/>
+  <rect x="384" y="160" width="28" height="24" rx="4" fill="#4a4a4a"/>
+  <rect x="420" y="160" width="32" height="24" rx="4" fill="#4a4a4a"/>
+  
+  <!-- Number row -->
+  <rect x="60" y="196" width="32" height="32" rx="4" fill="#5a5a5a"/>
+  <rect x="100" y="196" width="32" height="32" rx="4" fill="#5a5a5a"/>
+  <rect x="140" y="196" width="32" height="32" rx="4" fill="#5a5a5a"/>
+  <rect x="180" y="196" width="32" height="32" rx="4" fill="#5a5a5a"/>
+  <rect x="220" y="196" width="32" height="32" rx="4" fill="#5a5a5a"/>
+  <rect x="260" y="196" width="32" height="32" rx="4" fill="#5a5a5a"/>
+  <rect x="300" y="196" width="32" height="32" rx="4" fill="#5a5a5a"/>
+  <rect x="340" y="196" width="32" height="32" rx="4" fill="#5a5a5a"/>
+  <rect x="380" y="196" width="32" height="32" rx="4" fill="#5a5a5a"/>
+  <rect x="420" y="196" width="32" height="32" rx="4" fill="#5a5a5a"/>
+  
+  <!-- QWERTY row -->
+  <rect x="60" y="236" width="48" height="32" rx="4" fill="#4a4a4a"/>
+  <rect x="116" y="236" width="32" height="32" rx="4" fill="#5a5a5a"/>
+  <rect x="156" y="236" width="32" height="32" rx="4" fill="#5a5a5a"/>
+  <rect x="196" y="236" width="32" height="32" rx="4" fill="#5a5a5a"/>
+  <rect x="236" y="236" width="32" height="32" rx="4" fill="#5a5a5a"/>
+  <rect x="276" y="236" width="32" height="32" rx="4" fill="#5a5a5a"/>
+  <rect x="316" y="236" width="32" height="32" rx="4" fill="#5a5a5a"/>
+  <rect x="356" y="236" width="32" height="32" rx="4" fill="#5a5a5a"/>
+  <rect x="396" y="236" width="56" height="32" rx="4" fill="#4a4a4a"/>
+  
+  <!-- ASDF row -->
+  <rect x="60" y="276" width="56" height="32" rx="4" fill="#4a4a4a"/>
+  <rect x="124" y="276" width="32" height="32" rx="4" fill="#5a5a5a"/>
+  <rect x="164" y="276" width="32" height="32" rx="4" fill="#5a5a5a"/>
+  <rect x="204" y="276" width="32" height="32" rx="4" fill="#5a5a5a"/>
+  <rect x="244" y="276" width="32" height="32" rx="4" fill="#5a5a5a"/>
+  <rect x="284" y="276" width="32" height="32" rx="4" fill="#5a5a5a"/>
+  <rect x="324" y="276" width="32" height="32" rx="4" fill="#5a5a5a"/>
+  <rect x="364" y="276" width="32" height="32" rx="4" fill="#5a5a5a"/>
+  <rect x="404" y="276" width="48" height="32" rx="4" fill="#4a4a4a"/>
+  
+  <!-- Space row -->
+  <rect x="60" y="316" width="40" height="32" rx="4" fill="#4a4a4a"/>
+  <rect x="108" y="316" width="40" height="32" rx="4" fill="#4a4a4a"/>
+  <rect x="156" y="316" width="200" height="32" rx="4" fill="#667eea"/>
+  <rect x="364" y="316" width="40" height="32" rx="4" fill="#4a4a4a"/>
+  <rect x="412" y="316" width="40" height="32" rx="4" fill="#4a4a4a"/>
+  
+  <defs>
+    <linearGradient id="grad1" x1="256" y1="140" x2="256" y2="372">
+      <stop offset="0%" stop-color="#2a2a2a"/>
+      <stop offset="100%" stop-color="#1a1a1a"/>
+    </linearGradient>
+  </defs>
+</svg>

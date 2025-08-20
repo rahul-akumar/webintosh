@@ -93,6 +93,14 @@ onMounted(() => {
       emoji: '⚙️',
       kind: 'system',
       defaultRect: { x: 100, y: 80, width: 900, height: 600 }
+    },
+    {
+      id: 'typingtest',
+      title: 'Typing Test',
+      icon: 'icons/apps/typingtest.svg',
+      emoji: '⌨️',
+      kind: 'app',
+      defaultRect: { x: 100, y: 80, width: 900, height: 600 }
     }
   ])
   // Load Dock minimized ordering (Dock now shows minimized apps only)
