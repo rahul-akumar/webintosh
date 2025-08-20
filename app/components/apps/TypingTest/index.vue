@@ -52,8 +52,11 @@
         <button @click="startNewTest" class="control-btn primary">
           {{ !hasStarted ? 'Start Test' : 'New Test' }}
         </button>
-        <button @click="changeText" class="control-btn" :disabled="hasStarted && !isComplete">
+        <button @click="changeText" :disabled="hasStarted && !isComplete" class="control-btn">
           Change Text
+        </button>
+        <button @click="toggleSound" class="control-btn" :class="{ active: soundEnabled }">
+          Sound: {{ soundEnabled ? 'ON' : 'OFF' }}
         </button>
         <select v-model="selectedDifficulty" @change="changeText" class="difficulty-select" :disabled="hasStarted && !isComplete">
           <option value="easy">Easy</option>
@@ -198,10 +201,14 @@ const testPhrases = {
 }
 
 // State
-const selectedDifficulty = ref<'easy' | 'medium' | 'hard'>('easy')
 const testText = ref('')
 const userInput = ref('')
 const currentIndex = ref(0)
+const selectedDifficulty = ref<'easy' | 'medium' | 'hard'>('easy')
+const activeKeys = ref<Set<string>>(new Set())
+const hiddenInput = ref<HTMLInputElement | null>(null)
+const audioContext = ref<AudioContext | null>(null)
+const soundEnabled = ref<boolean>(true)
 const hasStarted = ref(false)
 const isComplete = ref(false)
 const startTime = ref(0)
@@ -209,11 +216,8 @@ const timeElapsed = ref(0)
 const errors = ref(0)
 const totalKeystrokes = ref(0)
 const correctKeystrokes = ref(0)
-const activeKeys = ref(new Set<string>())
 const capsLock = ref(false)
-const hiddenInput = ref<HTMLInputElement>()
 const timer = ref<NodeJS.Timeout | null>(null)
-const audioContext = ref<AudioContext | null>(null)
 
 // Computed
 const wpm = computed(() => {
@@ -328,8 +332,18 @@ function formatTime(seconds: number): string {
   return `${mins}:${secs.toString().padStart(2, '0')}`
 }
 
-function playKeySound(correct: boolean) {
-  if (!audioContext.value) return
+function initAudioContext() {
+  if (!audioContext.value) {
+    audioContext.value = new (window.AudioContext || (window as any).webkitAudioContext)()
+    // Resume context to handle autoplay policies
+    if (audioContext.value.state === 'suspended') {
+      audioContext.value.resume()
+    }
+  }
+}
+
+function playKeySound(isCorrect: boolean) {
+  if (!soundEnabled.value || !audioContext.value) return
   
   const osc = audioContext.value.createOscillator()
   const gain = audioContext.value.createGain()
@@ -337,11 +351,12 @@ function playKeySound(correct: boolean) {
   osc.connect(gain)
   gain.connect(audioContext.value.destination)
   
-  if (correct) {
-    osc.frequency.value = 800
-    gain.gain.value = 0.02
+  // Different frequencies for correct/incorrect
+  if (isCorrect) {
+    osc.frequency.value = 400 // Lower tone for correct
+    gain.gain.value = 0.03
   } else {
-    osc.frequency.value = 300
+    osc.frequency.value = 600 // Higher tone for incorrect
     gain.gain.value = 0.03
   }
   
@@ -350,12 +365,24 @@ function playKeySound(correct: boolean) {
   osc.stop(audioContext.value.currentTime + 0.1)
 }
 
+function toggleSound() {
+  soundEnabled.value = !soundEnabled.value
+  // Initialize audio context on user interaction if not already done
+  if (soundEnabled.value && !audioContext.value) {
+    initAudioContext()
+  }
+}
+
 function handleInput(e: Event) {
   const input = e.target as HTMLInputElement
   const newChar = input.value.slice(-1) || ''
   
   if (!hasStarted.value && newChar) {
     startTest()
+    // Initialize audio context on first keystroke if sound is enabled
+    if (soundEnabled.value && !audioContext.value) {
+      initAudioContext()
+    }
   }
   
   if (currentIndex.value < testText.value.length && newChar) {
@@ -363,23 +390,23 @@ function handleInput(e: Event) {
     const isCorrect = newChar === expectedChar
     
     totalKeystrokes.value++
+    
     if (isCorrect) {
       correctKeystrokes.value++
-      playKeySound(true)
+      currentIndex.value++
+      userInput.value += newChar
     } else {
       errors.value++
-      playKeySound(false)
     }
     
-    userInput.value += newChar
-    currentIndex.value++
+    playKeySound(isCorrect)
     
-    if (currentIndex.value === testText.value.length) {
+    if (currentIndex.value >= testText.value.length) {
       completeTest()
     }
   }
   
-  // Clear the input to handle next character
+  // Clear input for next character
   input.value = ''
 }
 
@@ -449,8 +476,8 @@ function changeText() {
 
 // Lifecycle
 onMounted(() => {
-  // Initialize audio context
-  audioContext.value = new (window.AudioContext || (window as any).webkitAudioContext)()
+  // Don't initialize audio context here - wait for user interaction
+  // This helps with browser autoplay policies
   
   // Set initial text
   changeText()

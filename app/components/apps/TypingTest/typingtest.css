@@ -187,6 +187,13 @@
   opacity: 0.5;
 }
 
+.typing-test-app .control-btn.active {
+  background: #00ff00;
+  border-color: #00cc00 #008800 #008800 #00cc00;
+  color: #000000;
+  font-weight: bold;
+}
+
 .typing-test-app .difficulty-select {
   padding: 6px 10px;
   background: #ffffff;
