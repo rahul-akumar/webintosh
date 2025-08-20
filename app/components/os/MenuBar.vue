@@ -206,9 +206,8 @@ function onNavRight() {
 }
 
 .logo-icon {
-  width: 24px;
-  height: 24px;
-  margin-right: 4px;
+  width: 20px;
+  height: 20px;
 }
 
 .logo-fallback {

@@ -131,7 +131,6 @@ function startDrag(e: MouseEvent) {
   width: 88px;
   margin: 8px;
   justify-content: center;
-  cursor: move;
   user-select: none;
 }
 
