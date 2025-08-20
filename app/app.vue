@@ -74,8 +74,8 @@ onMounted(() => {
 
   // Register core apps
   apps.registerApps([
-    { id: 'finder', title: 'Finder', icon: 'icons/system/finder.svg', emoji: '🗂️', kind: 'system' },
-    { id: 'textedit', title: 'TextEdit', icon: 'icons/apps/textEdit.svg', emoji: '📝', kind: 'app' },
+    { id: 'finder', title: 'Finder', icon: 'icons/system/finder.png', emoji: '🗂️', kind: 'system' },
+    { id: 'textedit', title: 'TextEdit', icon: 'icons/apps/textEdit.png', emoji: '📝', kind: 'app' },
     { id: 'shortcuts', title: 'Shortcuts', icon: 'icons/system/shortcuts.svg', emoji: '⌨️', kind: 'system', showOnDesktop: false },
     { 
       id: 'about', 
@@ -89,15 +89,15 @@ onMounted(() => {
     {
       id: 'settings',
       title: 'System Settings',
-      icon: 'icons/system/settings.svg',
+      icon: 'icons/system/settings.png',
       emoji: '⚙️',
       kind: 'system',
       defaultRect: { x: 100, y: 80, width: 900, height: 600 }
     },
     {
       id: 'typingtest',
-      title: 'Typing Test',
-      icon: 'icons/apps/typingtest.svg',
+      title: 'Typing Test 2000',
+      icon: 'icons/apps/typingtest.png',
       emoji: '⌨️',
       kind: 'app',
       defaultRect: { x: 100, y: 80, width: 900, height: 600 }
