@@ -162,7 +162,7 @@ onUnmounted(() => {
   inset: 0;        /* top:0; right:0; bottom:0; left:0 */
   width: 100%;
   height: 100%;
-  z-index: 2;      /* above desktop background and helper/test UI */
+  z-index: var(--z-windows);
   /* Allow underlying elements (like the test button) to be clickable except on windows */
   pointer-events: none;
 }
@@ -176,9 +176,11 @@ onUnmounted(() => {
   top: 8px;
   right: 8px;
   font-size: 12px;
-  color: #444;
-  background: rgba(255,255,255,0.8);
-  border: 1px solid #e3e3e3;
+  color: var(--text-secondary);
+  background: var(--bg-window);
+  backdrop-filter: blur(var(--blur-amount));
+  -webkit-backdrop-filter: blur(var(--blur-amount));
+  border: 1px solid var(--border-window);
   border-radius: 6px;
   padding: 2px 6px;
   z-index: 10000;

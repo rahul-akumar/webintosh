@@ -63,7 +63,7 @@ defineOptions({ name: 'OsMenuBar' })
 const store = useOSStore()
 const apps = useAppsStore()
 const menuLeftEl = ref<HTMLElement | null>(null)
-const logoUrl = ref<string | null>("icons/system/apple.png")
+const logoUrl = ref<string | null>("/icons/system/apple.png")
 
 // Clock tick (unchanged behavior)
 let t: number | undefined
@@ -173,36 +173,37 @@ function onNavRight() {
 
 <style scoped>
 .menu-bar {
-  position: relative;
-  z-index: 4; /* Above .wm-root (z:2) and Dock (z:3) to ensure dropdown overlays windows */
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 40px; /* keep in sync with store.menuBarHeight */
   padding: 0 12px;
-  border-bottom: 1px solid #e1e1e1;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(6px);
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  height: 40px;
+  background: var(--bg-menubar);
+  backdrop-filter: blur(var(--blur-amount));
+  -webkit-backdrop-filter: blur(var(--blur-amount));
+  border-bottom: 1px solid var(--border-window);
+  color: var(--text-menubar);
   user-select: none;
+  position: relative;
+  z-index: 100;
 }
 
 .menu-left {
   display: flex;
-  gap: 12px;
   align-items: center;
+  gap: 12px;
 }
 
 .menu-logo {
-  border: none !important;
+  border: 0;
   background: transparent;
-  font-weight: 600;
+  color: var(--text-menubar);
   cursor: pointer;
   padding: 4px 8px;
   border-radius: 6px;
 }
 .menu-logo:hover {
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--bg-button-hover);
 }
 
 .logo-icon {
@@ -218,10 +219,11 @@ function onNavRight() {
 .app-name {
   font-size: 14px;
   font-weight: 600;
+  color: var(--text-menubar);
 }
 
 .menu-item {
-  color: #333;
+  color: var(--text-menubar);
   font-size: 14px;
   padding: 4px 6px;
   border-radius: 6px;
@@ -230,11 +232,11 @@ function onNavRight() {
   background: transparent;
 }
 .menu-item:hover {
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--bg-button-hover);
 }
 
 .menu-right .clock {
   font-size: 13px;
-  color: #444;
+  color: var(--text-menubar);
 }
 </style>

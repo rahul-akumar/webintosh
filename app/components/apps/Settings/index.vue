@@ -165,7 +165,86 @@
       <!-- Appearance Panel -->
       <div v-else-if="activePanel === 'appearance'" class="panel">
         <h1 class="panel-title">Appearance</h1>
-        <p class="placeholder-text">Appearance settings will be available in a future update.</p>
+        
+        <div class="appearance-sections">
+          <!-- Theme Selection -->
+          <div class="appearance-section">
+            <h2 class="section-title">Theme</h2>
+            <p class="section-description">Choose between classic and modern styles with light and dark variants</p>
+            
+            <div class="theme-grid">
+              <!-- Glassmorphic Light -->
+              <button
+                @click="setTheme('glassmorphic-light')"
+                :class="['theme-option', { active: currentTheme === 'glassmorphic-light' }]"
+              >
+                <div class="theme-preview glassmorphic-light">
+                  <div class="preview-menubar"></div>
+                  <div class="preview-window"></div>
+                  <div class="preview-dock"></div>
+                </div>
+                <span class="theme-name">Glassmorphic Light</span>
+                <span class="theme-description">Modern translucent design</span>
+              </button>
+
+              <!-- Glassmorphic Dark -->
+              <button
+                @click="setTheme('glassmorphic-dark')"
+                :class="['theme-option', { active: currentTheme === 'glassmorphic-dark' }]"
+              >
+                <div class="theme-preview glassmorphic-dark">
+                  <div class="preview-menubar"></div>
+                  <div class="preview-window"></div>
+                  <div class="preview-dock"></div>
+                </div>
+                <span class="theme-name">Glassmorphic Dark</span>
+                <span class="theme-description">Modern dark translucent</span>
+              </button>
+
+              <!-- Oldschool Light -->
+              <button
+                @click="setTheme('oldschool-light')"
+                :class="['theme-option', { active: currentTheme === 'oldschool-light' }]"
+              >
+                <div class="theme-preview oldschool-light">
+                  <div class="preview-menubar"></div>
+                  <div class="preview-window"></div>
+                  <div class="preview-dock"></div>
+                </div>
+                <span class="theme-name">Classic Light</span>
+                <span class="theme-description">Traditional solid design</span>
+              </button>
+
+              <!-- Oldschool Dark -->
+              <button
+                @click="setTheme('oldschool-dark')"
+                :class="['theme-option', { active: currentTheme === 'oldschool-dark' }]"
+              >
+                <div class="theme-preview oldschool-dark">
+                  <div class="preview-menubar"></div>
+                  <div class="preview-window"></div>
+                  <div class="preview-dock"></div>
+                </div>
+                <span class="theme-name">Classic Dark</span>
+                <span class="theme-description">Traditional dark solid</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Accent Color (Future) -->
+          <div class="appearance-section">
+            <h2 class="section-title">Accent Color</h2>
+            <p class="section-description">Customize system accent colors (coming soon)</p>
+            <div class="color-grid disabled">
+              <div class="color-option" style="background: #007AFF"></div>
+              <div class="color-option" style="background: #AF52DE"></div>
+              <div class="color-option" style="background: #FF3B30"></div>
+              <div class="color-option" style="background: #FF9500"></div>
+              <div class="color-option" style="background: #34C759"></div>
+              <div class="color-option" style="background: #5AC8FA"></div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -186,6 +265,7 @@ const osStore = useOSStore()
 const searchQuery = ref('')
 const activePanel = ref('wallpaper')
 const currentWallpaper = ref('')
+const currentTheme = ref('glassmorphic-light')
 
 // Navigation items
 const navItems = [
@@ -263,6 +343,9 @@ onMounted(() => {
   
   // Load current wallpaper
   currentWallpaper.value = osStore.wallpaper || ''
+  
+  // Load current theme
+  currentTheme.value = osStore.theme || 'glassmorphic-light'
 })
 
 // Set wallpaper
@@ -299,43 +382,51 @@ const handleUrlInput = () => {
     }
   }
 }
+
+// Set theme
+const setTheme = (theme: string) => {
+  currentTheme.value = theme
+  osStore.setTheme(theme)
+}
 </script>
 
 <style scoped>
 .settings-app {
   display: flex;
   height: 100%;
-  background: #f5f5f7;
+  background: var(--bg-window);
+  color: var(--text-primary);
   user-select: none;
 }
 
 /* Sidebar */
 .settings-sidebar {
   width: 240px;
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(20px);
-  border-right: 1px solid rgba(0, 0, 0, 0.1);
+  background: transparent;
+  border-right: 1px solid var(--border-window);
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
 }
 
 .sidebar-header {
   padding: 12px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid var(--border-window);
 }
 
 .search-input {
   width: 100%;
   padding: 6px 10px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 6px;
-  background: white;
+  border: 1px solid var(--border-input);
+  border-radius: var(--button-border-radius);
+  background: var(--bg-input);
+  color: var(--text-primary);
   font-size: 13px;
   outline: none;
 }
 
 .search-input:focus {
-  border-color: #007AFF;
+  border-color: var(--color-primary);
 }
 
 .sidebar-nav {
@@ -349,23 +440,24 @@ const handleUrlInput = () => {
   padding: 8px 12px;
   background: transparent;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--button-border-radius);
   display: flex;
   align-items: center;
   gap: 10px;
   font-size: 13px;
+  color: var(--text-primary);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-fast);
   text-align: left;
 }
 
 .nav-item:hover {
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--bg-button-hover);
 }
 
 .nav-item.active {
-  background: #007AFF;
-  color: white;
+  background: var(--bg-selection);
+  color: var(--text-selection);
 }
 
 .nav-icon {
@@ -377,6 +469,7 @@ const handleUrlInput = () => {
   flex: 1;
   overflow-y: auto;
   padding: 24px;
+  background: var(--bg-window);
 }
 
 .panel {
@@ -388,7 +481,7 @@ const handleUrlInput = () => {
   font-size: 28px;
   font-weight: 600;
   margin-bottom: 24px;
-  color: #1d1d1f;
+  color: var(--text-primary);
 }
 
 /* Wallpaper Panel */
@@ -399,34 +492,35 @@ const handleUrlInput = () => {
 }
 
 .current-wallpaper {
-  background: white;
-  border-radius: 12px;
+  background: var(--bg-window);
+  border: 1px solid var(--border-window);
+  border-radius: var(--window-border-radius);
   padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-button);
 }
 
 .section-title {
   font-size: 16px;
   font-weight: 600;
   margin-bottom: 16px;
-  color: #1d1d1f;
+  color: var(--text-primary);
 }
 
 .wallpaper-preview {
   width: 100%;
   height: 180px;
-  border-radius: 8px;
+  border-radius: var(--button-border-radius);
   background-size: cover;
   background-position: center;
-  background-color: #f0f0f0;
+  background-color: var(--bg-input);
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border-window);
 }
 
 .preview-placeholder {
-  color: #8e8e93;
+  color: var(--text-tertiary);
   font-size: 14px;
 }
 
@@ -437,17 +531,18 @@ const handleUrlInput = () => {
 }
 
 .wallpaper-section {
-  background: white;
-  border-radius: 12px;
+  background: var(--bg-window);
+  border: 1px solid var(--border-window);
+  border-radius: var(--window-border-radius);
   padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-button);
 }
 
 .option-title {
   font-size: 14px;
   font-weight: 600;
   margin-bottom: 12px;
-  color: #1d1d1f;
+  color: var(--text-primary);
 }
 
 .wallpaper-grid {
@@ -458,10 +553,10 @@ const handleUrlInput = () => {
 
 .wallpaper-item {
   aspect-ratio: 16/10;
-  border-radius: 8px;
+  border-radius: var(--button-border-radius);
   border: 2px solid transparent;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-fast);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -473,7 +568,7 @@ const handleUrlInput = () => {
 }
 
 .wallpaper-item:hover {
-  border-color: #007AFF;
+  border-color: var(--color-primary);
   transform: scale(1.05);
 }
 
@@ -519,16 +614,16 @@ const handleUrlInput = () => {
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  background: #007AFF;
+  background: var(--color-primary);
   color: white;
-  border-radius: 6px;
+  border-radius: var(--button-border-radius);
   cursor: pointer;
   font-size: 13px;
-  transition: background 0.2s;
+  transition: background var(--transition-fast);
 }
 
 .upload-button:hover {
-  background: #0051D5;
+  opacity: 0.9;
 }
 
 .upload-icon {
@@ -537,9 +632,100 @@ const handleUrlInput = () => {
 
 /* Placeholder */
 .placeholder-text {
-  color: #8e8e93;
+  color: var(--text-tertiary);
   font-size: 14px;
   text-align: center;
   padding: 40px;
+}
+
+/* Appearance Panel */
+.appearance-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.appearance-section {
+  background: var(--bg-window);
+  border: 1px solid var(--border-window);
+  border-radius: var(--window-border-radius);
+  padding: 20px;
+  box-shadow: var(--shadow-button);
+}
+
+.section-description {
+  color: var(--text-tertiary);
+  font-size: 13px;
+  margin-top: 4px;
+  margin-bottom: 16px;
+}
+
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.theme-option {
+  background: var(--bg-window);
+  border: 2px solid var(--border-window);
+  border-radius: var(--window-border-radius);
+  padding: 12px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.theme-option:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-button);
+}
+
+.theme-option.active {
+  border-color: var(--color-primary);
+  background: var(--bg-selection);
+}
+
+.theme-option.active .theme-name,
+.theme-option.active .theme-description {
+  color: var(--text-selection);
+}
+
+.theme-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.theme-description {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.color-grid {
+  display: flex;
+  gap: 8px;
+}
+
+.color-grid.disabled {
+  opacity: var(--opacity-disabled);
+  pointer-events: none;
+}
+
+.color-option {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.color-option:hover {
+  border-color: currentColor;
+  transform: scale(1.1);
 }
 </style>

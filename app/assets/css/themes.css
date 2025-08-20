@@ -1,0 +1,214 @@
+/* ===========================
+   Webintosh Theme System
+   =========================== */
+
+/* Base Theme Variables */
+:root {
+  /* Colors */
+  --color-primary: #007AFF;
+  --color-secondary: #5856D6;
+  --color-success: #34C759;
+  --color-warning: #FF9500;
+  --color-danger: #FF3B30;
+  
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow: 350ms ease;
+  
+  /* Z-Index Layers */
+  --z-desktop: 1;
+  --z-desktop-icons: 10;
+  --z-windows: 100;
+  --z-window-active: 200;
+  --z-dock: 300;
+  --z-menubar: 400;
+  --z-context-menu: 500;
+  --z-modal: 600;
+  --z-notification: 700;
+  --z-tooltip: 800;
+}
+
+/* ===========================
+   OLDSCHOOL LIGHT THEME
+   =========================== */
+[data-theme="oldschool-light"] {
+  /* Background Colors */
+  --bg-desktop: #5B7C99;
+  --bg-window: #ECECEC;
+  --bg-window-header: linear-gradient(180deg, #FFFFFF 0%, #D8D8D8 100%);
+  --bg-menubar: linear-gradient(180deg, #FFFFFF 0%, #E3E3E3 100%);
+  --bg-dock: rgba(245, 245, 245, 0.95);
+  --bg-context-menu: #FFFFFF;
+  --bg-button: linear-gradient(180deg, #FFFFFF 0%, #E6E6E6 100%);
+  --bg-button-hover: linear-gradient(180deg, #F5F5F5 0%, #D6D6D6 100%);
+  --bg-button-active: linear-gradient(180deg, #D6D6D6 0%, #E6E6E6 100%);
+  --bg-input: #FFFFFF;
+  --bg-selection: #007AFF;
+  
+  /* Text Colors */
+  --text-primary: #000000;
+  --text-secondary: #666666;
+  --text-tertiary: #999999;
+  --text-inverse: #FFFFFF;
+  --text-menubar: #000000;
+  --text-selection: #FFFFFF;
+  
+  /* Border Colors */
+  --border-window: #B3B3B3;
+  --border-window-header: #999999;
+  --border-button: #C0C0C0;
+  --border-input: #C5C5C5;
+  --border-context-menu: #D4D4D4;
+  --border-dock: #CCCCCC;
+  
+  /* Shadows */
+  --shadow-window: 0 22px 70px 4px rgba(0, 0, 0, 0.56);
+  --shadow-dock: 0 10px 40px rgba(0, 0, 0, 0.2);
+  --shadow-context-menu: 0 8px 24px rgba(0, 0, 0, 0.15);
+  --shadow-button: 0 1px 2px rgba(0, 0, 0, 0.1);
+  
+  /* Effects */
+  --blur-amount: 0px;
+  --opacity-disabled: 0.5;
+  --window-border-radius: 6px;
+  --button-border-radius: 4px;
+}
+
+/* ===========================
+   OLDSCHOOL DARK THEME
+   =========================== */
+[data-theme="oldschool-dark"] {
+  /* Background Colors */
+  --bg-desktop: #1E1E1E;
+  --bg-window: #2D2D30;
+  --bg-window-header: linear-gradient(180deg, #3C3C3C 0%, #2D2D30 100%);
+  --bg-menubar: linear-gradient(180deg, #2D2D30 0%, #252526 100%);
+  --bg-dock: rgba(45, 45, 48, 0.95);
+  --bg-context-menu: #2D2D30;
+  --bg-button: linear-gradient(180deg, #3C3C3C 0%, #2D2D30 100%);
+  --bg-button-hover: linear-gradient(180deg, #464647 0%, #3C3C3C 100%);
+  --bg-button-active: linear-gradient(180deg, #2D2D30 0%, #3C3C3C 100%);
+  --bg-input: #1E1E1E;
+  --bg-selection: #0E639C;
+  
+  /* Text Colors */
+  --text-primary: #CCCCCC;
+  --text-secondary: #969696;
+  --text-tertiary: #6A6A6A;
+  --text-inverse: #1E1E1E;
+  --text-menubar: #CCCCCC;
+  --text-selection: #FFFFFF;
+  
+  /* Border Colors */
+  --border-window: #464647;
+  --border-window-header: #515151;
+  --border-button: #464647;
+  --border-input: #3E3E42;
+  --border-context-menu: #464647;
+  --border-dock: #464647;
+  
+  /* Shadows */
+  --shadow-window: 0 22px 70px 4px rgba(0, 0, 0, 0.8);
+  --shadow-dock: 0 10px 40px rgba(0, 0, 0, 0.5);
+  --shadow-context-menu: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-button: 0 1px 2px rgba(0, 0, 0, 0.3);
+  
+  /* Effects */
+  --blur-amount: 0px;
+  --opacity-disabled: 0.4;
+  --window-border-radius: 6px;
+  --button-border-radius: 4px;
+}
+
+/* ===========================
+   GLASSMORPHIC LIGHT THEME
+   =========================== */
+[data-theme="glassmorphic-light"] {
+  /* Background Colors */
+  --bg-desktop: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --bg-window: rgba(255, 255, 255, 0.5);
+  --bg-window-header: rgba(255, 255, 255, 0.8);
+  --bg-menubar: rgba(255, 255, 255, 0.6);
+  --bg-dock: rgba(255, 255, 255, 0.4);
+  --bg-context-menu: rgba(255, 255, 255, 0.85);
+  --bg-button: rgba(255, 255, 255, 0.3);
+  --bg-button-hover: rgba(255, 255, 255, 0.4);
+  --bg-button-active: rgba(255, 255, 255, 0.2);
+  --bg-input: rgba(255, 255, 255, 0.6);
+  --bg-selection: rgba(0, 122, 255, 0.3);
+  
+  /* Text Colors */
+  --text-primary: #1a1a1a;
+  --text-secondary: #4a4a4a;
+  --text-tertiary: #6a6a6a;
+  --text-inverse: #FFFFFF;
+  --text-menubar: #1a1a1a;
+  --text-selection: #000000;
+  
+  /* Border Colors */
+  --border-window: rgba(255, 255, 255, 0.5);
+  --border-window-header: rgba(255, 255, 255, 0.6);
+  --border-button: rgba(255, 255, 255, 0.4);
+  --border-input: rgba(255, 255, 255, 0.5);
+  --border-context-menu: rgba(255, 255, 255, 0.4);
+  --border-dock: rgba(255, 255, 255, 0.3);
+  
+  /* Shadows */
+  --shadow-window: 0 8px 32px rgba(31, 38, 135, 0.37);
+  --shadow-dock: 0 8px 32px rgba(31, 38, 135, 0.2);
+  --shadow-context-menu: 0 4px 16px rgba(31, 38, 135, 0.25);
+  --shadow-button: 0 2px 4px rgba(31, 38, 135, 0.1);
+  
+  /* Effects */
+  --blur-amount: 12px;
+  --opacity-disabled: 0.5;
+  --window-border-radius: 12px;
+  --button-border-radius: 8px;
+}
+
+/* ===========================
+   GLASSMORPHIC DARK THEME
+   =========================== */
+[data-theme="glassmorphic-dark"] {
+  /* Background Colors */
+  --bg-desktop: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  --bg-window: rgba(18, 18, 18, 0.6);
+  --bg-window-header: rgba(28, 28, 28, 0.8);
+  --bg-menubar: rgba(18, 18, 18, 0.6);
+  --bg-dock: rgba(18, 18, 18, 0.4);
+  --bg-context-menu: rgba(18, 18, 18, 0.85);
+  --bg-button: rgba(255, 255, 255, 0.1);
+  --bg-button-hover: rgba(255, 255, 255, 0.15);
+  --bg-button-active: rgba(255, 255, 255, 0.05);
+  --bg-input: rgba(0, 0, 0, 0.3);
+  --bg-selection: rgba(0, 122, 255, 0.4);
+  
+  /* Text Colors */
+  --text-primary: #e0e0e0;
+  --text-secondary: #a0a0a0;
+  --text-tertiary: #707070;
+  --text-inverse: #000000;
+  --text-menubar: #e0e0e0;
+  --text-selection: #FFFFFF;
+  
+  /* Border Colors */
+  --border-window: rgba(255, 255, 255, 0.1);
+  --border-window-header: rgba(255, 255, 255, 0.15);
+  --border-button: rgba(255, 255, 255, 0.2);
+  --border-input: rgba(255, 255, 255, 0.15);
+  --border-context-menu: rgba(255, 255, 255, 0.1);
+  --border-dock: rgba(255, 255, 255, 0.08);
+  
+  /* Shadows */
+  --shadow-window: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --shadow-dock: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --shadow-context-menu: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-button: 0 2px 4px rgba(0, 0, 0, 0.2);
+  
+  /* Effects */
+  --blur-amount: 12px;
+  --opacity-disabled: 0.4;
+  --window-border-radius: 12px;
+  --button-border-radius: 8px;
+}

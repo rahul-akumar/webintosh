@@ -54,7 +54,8 @@ export const useOSStore = defineStore('os', {
     menuBarHeight: 40,
     desktopPadding: 8,
     snapThreshold: 16,
-    wallpaper: null
+    wallpaper: null,
+    theme: 'glassmorphic-light'
   }),
 
   getters: {
@@ -102,7 +103,8 @@ export const useOSStore = defineStore('os', {
         })),
         nextWindowId: this.nextWindowId,
         nextZ: this.nextZ,
-        wallpaper: this.wallpaper
+        wallpaper: this.wallpaper,
+        theme: this.theme
       }
       try {
         localStorage.setItem('webintosh:session:v1', JSON.stringify(snapshot))
@@ -122,6 +124,10 @@ export const useOSStore = defineStore('os', {
         if (typeof parsed?.nextZ === 'number') this.nextZ = parsed.nextZ
         if (typeof parsed?.wallpaper === 'string' || parsed?.wallpaper === null) {
           this.wallpaper = parsed.wallpaper
+        }
+        if (typeof parsed?.theme === 'string') {
+          this.theme = parsed.theme
+          this.applyTheme(parsed.theme)
         }
 
         // Ensure we have a sane focused window after loading
@@ -477,7 +483,24 @@ export const useOSStore = defineStore('os', {
     setWallpaper(url: string | null) {
       this.wallpaper = url
       this.saveSession()
-    }
+    },
 
+    // ---------- Theme ----------
+    setTheme(theme: string) {
+      this.theme = theme
+      this.applyTheme(theme)
+      this.saveSession()
+    },
+
+    applyTheme(theme: string) {
+      if (typeof document !== 'undefined') {
+        document.documentElement.setAttribute('data-theme', theme)
+      }
+    },
+
+    initTheme() {
+      // Apply theme on initialization
+      this.applyTheme(this.theme)
+    }
   }
 })

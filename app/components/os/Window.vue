@@ -1,16 +1,16 @@
 <template>
   <div
     class="os-window"
-    :class="{ 'is-focused': isFocused }"
+    :class="{ 'active': isFocused, 'inactive': !isFocused }"
     :style="styleObject"
     @mousedown.stop="onFocus"
   >
-    <div class="titlebar" @mousedown.stop="onStartDrag" @dblclick.stop="onTitlebarDblClick">
-      <div class="controls">
-        <button class="ctrl close" v-if="win.closable" @click.stop="store.closeWindow(win.id)" aria-label="Close"></button>
-        <button class="ctrl min" v-if="win.minimizable !== false" @click.stop="store.toggleMinimize(win.id)" aria-label="Minimize"></button>
+    <div class="os-window-header" @mousedown.stop="onStartDrag" @dblclick.stop="onTitlebarDblClick">
+      <div class="os-window-controls">
+        <button class="os-window-control close" v-if="win.closable" @click.stop="store.closeWindow(win.id)" aria-label="Close"></button>
+        <button class="os-window-control minimize" v-if="win.minimizable !== false" @click.stop="store.toggleMinimize(win.id)" aria-label="Minimize"></button>
         <button 
-          class="ctrl max" 
+          class="os-window-control maximize" 
           :class="{ disabled: win.maximizable === false }"
           v-if="win.resizable !== false" 
           @click.stop="handleMaximize" 
@@ -18,7 +18,7 @@
           :disabled="win.maximizable === false"
         ></button>
       </div>
-      <div class="title">{{ win.title }}</div>
+      <div class="os-window-title">{{ win.title }}</div>
     </div>
 
     <!-- Resize handles -->
@@ -31,7 +31,7 @@
     <div class="resize-handle handle-se" @mousedown.stop="onStartResize('se', $event)" />
     <div class="resize-handle handle-sw" @mousedown.stop="onStartResize('sw', $event)" />
 
-    <div class="content">
+    <div class="os-window-content">
       <slot>
         <!-- Default content for known app windows -->
         <template v-if="win.kind === 'app' || win.kind === 'system'">
@@ -109,85 +109,118 @@ function onFocus() {
 
 <style scoped>
 .os-window {
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.15);
-  background: #fff;
-  border: 1px solid #e5e5e5;
-  border-radius: 10px;
-  overflow: hidden;
+  background: var(--bg-window);
+  backdrop-filter: blur(var(--blur-amount));
+  -webkit-backdrop-filter: blur(var(--blur-amount));
+  border: 1px solid var(--border-window);
+  border-radius: var(--window-border-radius);
+  box-shadow: var(--shadow-window);
+  position: absolute;
   display: flex;
   flex-direction: column;
-  position: absolute;
-}
-.os-window.is-focused {
-  box-shadow: 0 0 0 2px rgba(51, 132, 255, 0.5), 0 12px 28px rgba(0,0,0,0.18);
-  border-color: #c9defc;
+  overflow: hidden;
 }
 
-.titlebar {
+.os-window.active {
+  z-index: var(--z-window-active);
+}
+
+.os-window.inactive .os-window-control {
+  background: var(--border-window);
+  border-color: var(--border-window);
+}
+
+.os-window.inactive .os-window-title {
+  color: var(--text-secondary);
+}
+
+.os-window-header {
+  background: var(--bg-window-header);
+  backdrop-filter: blur(var(--blur-amount));
+  -webkit-backdrop-filter: blur(var(--blur-amount));
+  border-bottom: 1px solid var(--border-window-header);
   height: 32px;
   display: flex;
   align-items: center;
   padding: 0 8px;
-  background: #f8f8f8;
-  border-bottom: 1px solid #ececec;
-  cursor: grab;
   user-select: none;
-  position: relative; /* For absolute positioning of title */
+  cursor: grab;
+  position: relative;
 }
-.titlebar:active {
+
+.os-window-header:active {
   cursor: grabbing;
 }
 
-.controls {
+.os-window-controls {
   display: flex;
   gap: 6px;
   align-items: center;
-  z-index: 1; /* Ensure controls stay above title */
+  z-index: 1;
 }
-.ctrl {
+
+.os-window-control {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  border: 0;
-  display: inline-block;
+  border: 1px solid rgba(0, 0, 0, 0.12);
   cursor: pointer;
-}
-.ctrl.close { background: #ff605c; }
-.ctrl.min   { background: #ffbd44; }
-.ctrl.max   { background: #00ca4e; }
-.ctrl:hover { filter: brightness(0.95) }
-.ctrl.disabled { 
-  background: #c8c8c8; 
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-.ctrl.disabled:hover { 
-  filter: none; 
+  transition: opacity var(--transition-fast);
 }
 
-.title {
+.os-window-control:hover {
+  opacity: 0.8;
+}
+
+.os-window-control.close {
+  background: #FF5F57;
+}
+
+.os-window-control.minimize {
+  background: #FFBD2E;
+}
+
+.os-window-control.maximize {
+  background: #28CA42;
+}
+
+.os-window-control.disabled {
+  background: var(--border-window);
+  cursor: not-allowed;
+  opacity: var(--opacity-disabled);
+}
+
+.os-window-control.disabled:hover {
+  opacity: var(--opacity-disabled);
+}
+
+.os-window-title {
+  flex: 1;
+  text-align: center;
   font-size: 13px;
-  color: #333;
   font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  pointer-events: none; /* Allow clicking through title for dragging */
+  pointer-events: none;
 }
 
-.content {
-  padding: 0px;
-  font-size: 14px;
-  color: #222;
-  background: #fff;
+.os-window-content {
   flex: 1;
   overflow: auto;
+  padding: 0;
+  color: var(--text-primary);
+  background: var(--bg-window);
 }
 
 /* Resize handles */
 .resize-handle {
   position: absolute;
-  z-index: 10; /* Ensure resize handles are above content */
+  z-index: 10;
 }
 .handle-n  { top: -4px; left: 8px; right: 8px; height: 8px; cursor: n-resize; }
 .handle-s  { bottom: -4px; left: 8px; right: 8px; height: 8px; cursor: s-resize; }

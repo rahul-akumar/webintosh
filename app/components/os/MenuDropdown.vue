@@ -124,7 +124,6 @@ const positionStyle = computed<CSSProperties>(() => {
   return style
 })
 
-
 const childZ = computed(() => (props.z ?? 1000) + 1)
 
 function isVisible(e: MenuEntry): boolean {
@@ -248,11 +247,13 @@ function onKeydown(e: KeyboardEvent) {
 <style scoped>
 .menu-dropdown {
   min-width: 220px;
-  background: #fff;
-  border: 1px solid #e3e3e3;
-  border-radius: 8px;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12);
-  padding: 8px; /* slightly roomier shell to match menubar spacing */
+  background: var(--bg-window);
+  backdrop-filter: blur(var(--blur-amount));
+  -webkit-backdrop-filter: blur(var(--blur-amount));
+  border: 1px solid var(--border-window);
+  border-radius: var(--window-border-radius);
+  box-shadow: var(--shadow-dropdown);
+  padding: 8px;
 }
 
 .menu-list {
@@ -263,8 +264,8 @@ function onKeydown(e: KeyboardEvent) {
 
 .menu-sep {
   height: 1px;
-  margin: 8px 6px; /* wider breathing space between logical groups */
-  background: #ececec;
+  margin: 8px 6px;
+  background: var(--border-window);
 }
 
 .menu-item {
@@ -272,29 +273,30 @@ function onKeydown(e: KeyboardEvent) {
   grid-template-columns: 1fr auto;
   align-items: center;
   gap: 8px;
-  padding: 8px 10px; /* increase horizontal padding for balance with menubar */
-  min-height: 28px;  /* consistent hit target and rhythm */
-  border-radius: 6px;
+  padding: 8px 10px;
+  min-height: 28px;
+  border-radius: var(--button-border-radius);
   font-size: 14px;
-  color: #222;
+  color: var(--text-primary);
   cursor: default;
   user-select: none;
   position: relative;
 }
 
 .menu-item.disabled {
-  color: #aaa;
+  color: var(--text-tertiary);
+  opacity: 0.5;
 }
 
 .menu-item.active:not(.disabled) {
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--bg-button-hover);
 }
 
 /* Visible focus ring for keyboard navigation */
 .menu-item:focus {
-  outline: 2px solid rgba(51, 132, 255, 0.8);
+  outline: 2px solid var(--color-primary);
   outline-offset: 1px;
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--bg-button-hover);
 }
 
 .menu-item .menu-item-left {
@@ -302,38 +304,39 @@ function onKeydown(e: KeyboardEvent) {
   align-items: center;
   gap: 8px;
   min-width: 0;
-  flex: 1 1 auto; /* let label area take remaining space */
+  flex: 1 1 auto;
 }
 
 .menu-item .menu-item-right {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-left: auto;     /* push accelerators to the right edge */
+  margin-left: auto;
   text-align: right;
-  min-width: 80px;       /* keep accel column aligned */
+  min-width: 80px;
 }
 
 .checkmark {
   width: 16px;
   display: inline-block;
   text-align: center;
+  color: var(--text-primary);
 }
 
 .accel {
-  color: #666;
+  color: var(--text-secondary);
   font-size: 12px;
 }
 
 .submenu .submenu-arrow {
-  color: #666;
-  display: inline-flex;       /* ensure vertical centering like accelerators */
+  color: var(--text-secondary);
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 14px;                /* small, consistent icon box */
+  width: 14px;
   height: 14px;
   line-height: 14px;
-  font-size: 12px;            /* slightly smaller than label text */
+  font-size: 12px;
 }
 
 /* When the menu just opened under the cursor, suppress hover highlight briefly */
@@ -352,13 +355,13 @@ function onKeydown(e: KeyboardEvent) {
   top: 0;
   bottom: 0;
   left: 100%;
-  width: 8px;            /* extend hover area into the gap */
+  width: 8px;
   background: transparent;
 }
 
 .submenu .submenu-panel {
   position: absolute;
   top: 0;
-  left: 100%;            /* no gap; panel touches the parent item */
+  left: 100%;
 }
 </style>
