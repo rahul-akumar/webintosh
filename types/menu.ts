@@ -14,9 +14,17 @@ export type CommandId =
   | 'os.maximizeFocused'
   | 'os.restoreWindowById'
   | 'view.toggleZoom'
+  | 'app.launch'
   | 'app.newWindow'
   | 'app.newDocument'
+  | 'textedit.save'
   | 'system.showShortcuts'
+  | 'system.showAbout'
+  | 'desktop.changeWallpaper'
+  | 'desktop.cleanUpIcons'
+  | 'desktop.sortIcons'
+  | 'desktop.setIconDirection'
+  | 'desktop.setIconSize'
 
 /**
  * Keyboard accelerator description.

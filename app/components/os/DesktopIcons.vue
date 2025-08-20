@@ -17,7 +17,6 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import OsDesktopIcon from './DesktopIcon.vue'
 import { useAppsStore } from '../../../stores/apps'
 import { useOSStore } from '../../../stores/os'
 import { execute } from '../../composables/menuCommands'

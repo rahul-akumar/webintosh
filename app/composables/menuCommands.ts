@@ -91,6 +91,16 @@ export function registerDefaultCommands(): void {
   })
 
   // App-level commands
+  // Launch or focus an app by its ID
+  register('app.launch', (args?: unknown) => {
+    const apps = useAppsStore()
+    const appId = getArg<string>(args, 'appId')
+    
+    if (appId && apps.registry[appId]) {
+      apps.launchOrFocus(appId)
+    }
+  })
+
   // New Window: ALWAYS open a new window for the target app (do not reuse/focus existing)
   register('app.newWindow', (args?: unknown) => {
     const apps = useAppsStore()
@@ -173,7 +183,7 @@ export function registerDefaultCommands(): void {
     const existing = os.windows.filter((w) => w.appId === 'about')
     if (existing.length > 0) {
       // Focus existing window
-      const topmost = existing.sort((a, b) => b.zIndex - a.zIndex)[0]
+      const topmost = existing.sort((a, b) => b.zIndex - a.zIndex)[0]!
       if (topmost.minimized) {
         os.restoreWindow(topmost.id)
       } else {
@@ -202,7 +212,7 @@ export function registerDefaultCommands(): void {
     const existing = os.windows.filter((w) => w.appId === 'settings')
     if (existing.length > 0) {
       // Focus existing window
-      const topmost = existing.sort((a, b) => b.zIndex - a.zIndex)[0]
+      const topmost = existing.sort((a, b) => b.zIndex - a.zIndex)[0]!
       if (topmost.minimized) {
         os.restoreWindow(topmost.id)
       } else {

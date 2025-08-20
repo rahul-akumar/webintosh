@@ -14,7 +14,6 @@ import { computed, watch } from 'vue'
 import { useOSStore } from '../../../stores/os'
 import { useAppsStore } from '../../../stores/apps'
 import { Menu } from '../../../types/menu'
-import OsDesktopIcons from './DesktopIcons.vue'
 
 defineOptions({ name: 'OsDesktop' })
 

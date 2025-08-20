@@ -63,7 +63,7 @@ watch(() => props.y, (newY) => {
 const positionStyle = computed(() => {
   if (props.x !== undefined && props.y !== undefined) {
     return {
-      position: 'absolute',
+      position: 'absolute' as const,
       left: `${currentX.value}px`,
       top: `${currentY.value}px`,
       opacity: isDragging.value ? 0.6 : 1,

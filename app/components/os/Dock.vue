@@ -43,7 +43,7 @@ type DockItem = {
   minimizedCount: number
 }
 
-const items = computed<DockItem[]>(() => {
+const items = computed(() => {
   // Collect minimized windows per app
   const byApp = new Map<AppId, { count: number }>()
   for (const w of os.windows) {
@@ -71,9 +71,9 @@ const items = computed<DockItem[]>(() => {
         icon: d.icon,
         emoji: d.emoji ?? '🗂️',
         minimizedCount: count
-      }
+      } as DockItem
     })
-    .filter((x: DockItem | null): x is DockItem => x !== null)
+    .filter((x): x is DockItem => x !== null)
 })
 
 function onLaunchId(id: AppId) {

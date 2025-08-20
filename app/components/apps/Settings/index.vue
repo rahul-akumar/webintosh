@@ -259,7 +259,7 @@ import type { OSWindowModel } from '../../../../types/os'
 defineOptions({ name: 'SettingsApp' })
 
 // Inject the window model if available
-const winModel = inject<OSWindowModel>('window', null)
+const winModel = inject<OSWindowModel | null>('window', null)
 
 const osStore = useOSStore()
 const searchQuery = ref('')

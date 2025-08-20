@@ -321,7 +321,7 @@ function getCharClass(index: number) {
 
 function getNextKey(): string {
   if (currentIndex.value < testText.value.length) {
-    return testText.value[currentIndex.value].toLowerCase()
+    return testText.value[currentIndex.value]?.toLowerCase() ?? ''
   }
   return ''
 }
@@ -472,7 +472,7 @@ function startNewTest() {
 function changeText() {
   const phrases = testPhrases[selectedDifficulty.value]
   const randomIndex = Math.floor(Math.random() * phrases.length)
-  testText.value = phrases[randomIndex]
+  testText.value = phrases[randomIndex] ?? ''
   startNewTest()
 }
 

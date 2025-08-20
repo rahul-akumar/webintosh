@@ -86,7 +86,31 @@ import { ref } from 'vue'
 
 defineOptions({ name: 'AboutApp' })
 
-const config = {
+interface InfoItem {
+  label: string
+  value: string
+  url?: string
+}
+
+interface AppConfig {
+  app: {
+    name: string
+    version: string
+    tagline: string
+    description: string
+    icon: string
+  }
+  info: Record<string, InfoItem>
+  features: string[]
+  changelog: Array<{
+    version: string
+    date: string
+    changes: string[]
+  }>
+  credits: string
+}
+
+const config: AppConfig = {
   app: {
     name: "Webintosh",
     version: "0.1.2",
