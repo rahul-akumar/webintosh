@@ -393,11 +393,13 @@ function handleInput(e: Event) {
     
     if (isCorrect) {
       correctKeystrokes.value++
-      currentIndex.value++
-      userInput.value += newChar
     } else {
       errors.value++
     }
+    
+    // Always advance and add character (correct or incorrect)
+    currentIndex.value++
+    userInput.value += newChar
     
     playKeySound(isCorrect)
     
