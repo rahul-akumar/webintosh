@@ -91,7 +91,7 @@
     </div>
 
     <!-- Keyboard Visualization -->
-    <div class="keyboard-container">
+    <div class="keyboard-container" v-if="showKeyboard">
       <!-- Number Row -->
       <div class="keyboard-row">
         <div 
@@ -173,7 +173,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, defineProps } from 'vue'
+import { useOSStore } from '../../../../stores/os'
+import { registerTypingTestCommands } from './typingTestCommands'
 
 // Test phrases by difficulty
 const testPhrases = {
@@ -200,6 +202,13 @@ const testPhrases = {
   ]
 }
 
+// Props for window integration
+const props = defineProps<{
+  windowId?: number
+}>()
+
+const osStore = useOSStore()
+
 // State
 const testText = ref('')
 const userInput = ref('')
@@ -218,6 +227,8 @@ const totalKeystrokes = ref(0)
 const correctKeystrokes = ref(0)
 const capsLock = ref(false)
 const timer = ref<NodeJS.Timeout | null>(null)
+const showKeyboard = ref(true)  // Add this for menu toggle
+const showStats = ref(false)    // Add this for stats display
 
 // Computed
 const wpm = computed(() => {
@@ -478,6 +489,21 @@ function changeText() {
 
 // Lifecycle
 onMounted(() => {
+  // The menu is automatically set when this app is focused
+  // No need to manually set it - the MenuBar component handles this
+  
+  // Register menu command handlers
+  registerTypingTestCommands({
+    startNewTest,
+    changeText,
+    toggleSound,
+    selectedDifficulty,
+    hasStarted,
+    isComplete,
+    showKeyboard,
+    showStats
+  })
+  
   // Don't initialize audio context here - wait for user interaction
   // This helps with browser autoplay policies
   
@@ -499,6 +525,8 @@ onUnmounted(() => {
   if (audioContext.value) {
     audioContext.value.close()
   }
+  
+  // Menu cleanup is not needed - the OS handles this automatically
 })
 
 // Keep input focused

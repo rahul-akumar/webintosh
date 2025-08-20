@@ -3,6 +3,7 @@ import type { MenuTemplate } from '../../../../types/menu'
 import { createSystemMenuTemplate } from './systemMenu'
 import { createFinderMenuTemplate } from '../../apps/Finder/finderMenu'
 import { createTextEditMenuTemplate } from '../../apps/TextEdit/textEditMenu'
+import { createTypingTestMenuTemplate } from '../../apps/TypingTest/typingTestMenu'
 import { createDockMenuForApp } from './dockMenu'
 
 /**
@@ -22,6 +23,8 @@ export function getAppMenuTemplate(appId: string, appTitle?: string): MenuTempla
       return createFinderMenuTemplate()
     case 'textedit':
       return createTextEditMenuTemplate()
+    case 'typingtest':
+      return createTypingTestMenuTemplate()
     case 'about':
       // About app shows the desktop menubar itself
       return createSystemMenuTemplate()
@@ -39,7 +42,7 @@ export function getAppMenuTemplate(appId: string, appTitle?: string): MenuTempla
 /**
  * Optional helper: list of known app ids with first-party menus.
  */
-export const KnownMenuApps = new Set<string>(['finder', 'textedit'])
+export const KnownMenuApps = new Set<string>(['finder', 'textedit', 'typingtest'])
 
 // Re-export Dock context menu builder
 export { createDockMenuForApp }
