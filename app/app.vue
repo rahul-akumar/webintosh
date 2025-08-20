@@ -1,7 +1,16 @@
 <template>
   <div class="os-root">
+    <!-- Wallpaper layer - full viewport background -->
+    <div 
+      class="os-wallpaper"
+      :class="{ 'has-wallpaper': !!store.wallpaper }"
+      :style="wallpaperStyle"
+    />
+    
+    <!-- MenuBar positioned over wallpaper -->
     <OsMenuBar />
 
+    <!-- Desktop area with apps and windows -->
     <main class="os-desktop-area">
       <OsDesktop />
       <OsWindowManager />
@@ -21,7 +30,7 @@
 <script setup lang="ts">
 import { useOSStore } from '../stores/os'
 import { useAppsStore } from '../stores/apps'
-import { onMounted } from 'vue'
+import { onMounted, computed } from 'vue'
 import { registerDefaultCommands } from './composables/menuCommands'
 import OsContextMenu from './components/os/ContextMenu.vue'
 
@@ -30,9 +39,32 @@ defineOptions({ name: 'AppRoot' })
 const store = useOSStore()
 const apps = useAppsStore()
 
+// Wallpaper style computed property
+const wallpaperStyle = computed(() => {
+  if (store.wallpaper) {
+    // Check if wallpaper is already a complete CSS value (url() or gradient)
+    if (store.wallpaper.startsWith('url(') || store.wallpaper.includes('gradient')) {
+      return {
+        background: store.wallpaper,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }
+    }
+    // For solid colors (hex, rgb, etc)
+    return {
+      background: store.wallpaper
+    }
+  }
+  return {}
+})
+
 onMounted(() => {
   // Load persisted session first
   store.loadSession()
+  
+  // Initialize theme system
+  store.initTheme()
   
   // Load icon positions and layout early
   apps.loadIconPositions()
@@ -90,17 +122,34 @@ button {
   border: none;
 }
 .os-root {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
 }
 
-/* Keep in sync with store.menuBarHeight (40px) */
+/* Wallpaper layer - full viewport background */
+.os-wallpaper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  background: var(--bg-desktop);
+}
+
+/* MenuBar now positioned over the wallpaper */
+.os-menubar {
+  position: relative;
+  z-index: 100;
+}
+
+/* Desktop area positioned below menubar but above wallpaper */
 .os-desktop-area {
   position: relative;
   height: calc(100vh - 40px);
   user-select: none;
-  overflow: hidden; /* Clip window shadows/edges to viewport to avoid 1-2px scrollbars */
+  overflow: hidden;
+  z-index: 1;
 }
-
 </style>

@@ -1,7 +1,6 @@
 <template>
   <div
-    class="desktop"
-    :style="desktopStyle"
+    class="os-desktop"
     @click="onDesktopClick"
     @contextmenu.prevent="onDesktopContextmenu"
   >
@@ -21,25 +20,6 @@ defineOptions({ name: 'OsDesktop' })
 
 const store = useOSStore()
 const apps = useAppsStore()
-
-const desktopStyle = computed(() => {
-  if (store.wallpaper) {
-    // Check if wallpaper is already a complete CSS value (url() or gradient)
-    if (store.wallpaper.startsWith('url(') || store.wallpaper.includes('gradient')) {
-      return {
-        background: store.wallpaper,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-      }
-    }
-    // For solid colors (hex, rgb, etc)
-    return {
-      background: store.wallpaper
-    }
-  }
-  return {}
-})
 
 // Reactive context menu template that updates when state changes
 const contextMenuTemplate = computed(() => 
@@ -117,10 +97,11 @@ function onDesktopContextmenu(e: MouseEvent) {
 </script>
 
 <style scoped>
-.desktop {
+.os-desktop {
   position: relative;
-  width: 100vw;
-  height: calc(100vh - 40px); /* keep in sync with menu bar height */
-  background: #f5f6f8;
+  width: 100%;
+  height: 100%;
+  /* Transparent to show wallpaper layer behind */
+  background: transparent;
 }
 </style>

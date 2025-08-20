@@ -161,22 +161,21 @@ function onDropList(ev: DragEvent) {
 </script>
 
 <style scoped>
-/* Dock container */
 .os-dock {
-  position: absolute;
+  position: fixed;
+  bottom: 10px;
   left: 50%;
-  bottom: 12px;
   transform: translateX(-50%);
-  z-index: 3; /* above windows overlay (z-index: 2) */
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(8px);
-  border: 1px solid #e3e3e3;
-  border-radius: 14px;
-  padding: 8px 10px;
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.12);
+  z-index: var(--z-dock);
+  padding: 8px 12px;
+  background: var(--bg-dock);
+  backdrop-filter: blur(var(--blur-amount));
+  -webkit-backdrop-filter: blur(var(--blur-amount));
+  border: 1px solid var(--border-dock);
+  border-radius: 16px;
+  box-shadow: var(--shadow-dock);
 }
 
-/* Items */
 .dock-list {
   display: flex;
   align-items: center;
@@ -200,10 +199,10 @@ function onDropList(ev: DragEvent) {
   border-radius: 10px;
   display: grid;
   place-items: center;
-  transition: transform 0.12s ease, background-color 0.12s ease;
+  transition: transform var(--transition-fast), background-color var(--transition-fast);
 }
 .dock-button:hover {
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--bg-button-hover);
   transform: translateY(-2px);
 }
 

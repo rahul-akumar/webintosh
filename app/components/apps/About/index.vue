@@ -133,7 +133,7 @@ const config = {
       ]
     }
   ],
-  credits: "Built with Nuxt 4, Vue 3, and TypeScript. © 2025 Webintosh Project"
+  credits: "Built with Nuxt 4, Vue 3, and TypeScript. 2025 Webintosh Project"
 }
 
 const activeTab = ref('general')
@@ -147,20 +147,21 @@ const tabs = [
 </script>
 
 <style scoped>
-@import "tailwindcss";
-
 .about-app {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: #f6f6f7;
+  background: var(--bg-window);
+  color: var(--text-primary);
 }
 
 .about-tabs {
-    display: flex;
-    background: theme('colors.gray.100');
-    border-bottom: 1px solid #d2d2d7;
-    padding: 0 12px;
+  display: flex;
+  background: var(--bg-window-header);
+  backdrop-filter: blur(var(--blur-amount));
+  -webkit-backdrop-filter: blur(var(--blur-amount));
+  border-bottom: 1px solid var(--border-window-header);
+  padding: 0 12px;
 }
 
 .tab {
@@ -168,15 +169,20 @@ const tabs = [
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
-  color: #86868b;
+  color: var(--text-secondary);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.tab:hover {
+  color: var(--text-primary);
 }
 
 .tab.active {
-  color: #007aff;
-  border-bottom-color: #007aff;
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
 }
 
 .about-content {
@@ -204,24 +210,24 @@ const tabs = [
   font-size: 28px;
   font-weight: 600;
   margin: 8px 0;
-  color: #1d1d1f;
+  color: var(--text-primary);
 }
 
 .about-version {
   font-size: 14px;
-  color: #86868b;
+  color: var(--text-secondary);
   margin: 4px 0;
 }
 
 .about-tagline {
   font-size: 14px;
-  color: #86868b;
+  color: var(--text-secondary);
   font-style: italic;
 }
 
 .about-description {
   font-size: 14px;
-  color: #1d1d1f;
+  color: var(--text-primary);
   line-height: 1.6;
   margin-bottom: 24px;
 }
@@ -236,28 +242,34 @@ const tabs = [
   display: flex;
   justify-content: space-between;
   padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 6px;
+  background: var(--bg-button);
+  border: 1px solid var(--border-button);
+  border-radius: var(--button-border-radius);
 }
 
 .info-label {
-  color: #86868b;
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
 .info-value {
-  color: #1d1d1f;
+  color: var(--text-primary);
 }
 
 .info-link {
-  color: #007aff;
+  color: var(--color-primary);
   text-decoration: none;
+  transition: opacity var(--transition-fast);
+}
+
+.info-link:hover {
+  opacity: 0.8;
 }
 
 .tab-title {
   font-size: 20px;
   font-weight: 600;
-  color: #1d1d1f;
+  color: var(--text-primary);
   margin-bottom: 20px;
 }
 
@@ -268,8 +280,8 @@ const tabs = [
 
 .features-list li {
   padding: 10px 0;
-  color: #1d1d1f;
-  border-bottom: 1px solid #e5e5e5;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-window);
 }
 
 .changelog {
@@ -280,8 +292,9 @@ const tabs = [
 
 .release {
   padding: 16px;
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 8px;
+  background: var(--bg-button);
+  border: 1px solid var(--border-button);
+  border-radius: var(--button-border-radius);
 }
 
 .release-header {
@@ -293,12 +306,12 @@ const tabs = [
 .release-version {
   font-size: 16px;
   font-weight: 600;
-  color: #007aff;
+  color: var(--color-primary);
 }
 
 .release-date {
   font-size: 12px;
-  color: #86868b;
+  color: var(--text-tertiary);
 }
 
 .release-changes {
@@ -308,6 +321,6 @@ const tabs = [
 
 .release-changes li {
   padding: 4px 0;
-  color: #1d1d1f;
+  color: var(--text-primary);
 }
 </style>

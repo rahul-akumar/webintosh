@@ -87,4 +87,8 @@ export interface OSState {
    * Desktop wallpaper URL or null for default background
    */
   wallpaper?: string | null;
+  /**
+   * Current theme name (e.g., 'glassmorphic-light', 'oldschool-dark')
+   */
+  theme: string;
 }

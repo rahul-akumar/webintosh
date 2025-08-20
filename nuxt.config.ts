@@ -13,6 +13,10 @@ export default defineNuxtConfig({
     preset: 'github-pages'
   },
 
+  css: [
+    './app/assets/css/main.css'
+  ],
+
   modules: [
     '@nuxt/eslint',
     '@nuxt/image',
