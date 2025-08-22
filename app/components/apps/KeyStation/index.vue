@@ -16,6 +16,17 @@
           </select>
         </div>
 
+        <!-- Oscillator Type -->
+        <div class="control-group">
+          <label>Oscillator</label>
+          <select v-model="selectedOscillatorType" @change="updateOscillatorType">
+            <option value="sine">Sine</option>
+            <option value="triangle">Triangle</option>
+            <option value="sawtooth">Sawtooth</option>
+            <option value="square">Square</option>
+          </select>
+        </div>
+
         <!-- Volume Control -->
         <div class="control-group">
           <label>Volume</label>
@@ -82,6 +93,7 @@
     <div class="display-panel">
       <div class="waveform-display" ref="waveformDisplay">
         <canvas ref="waveformCanvas"></canvas>
+        <div class="oscillator-type-indicator">{{ selectedOscillatorType.toUpperCase() }}</div>
       </div>
       <div class="info-display">
         <span v-if="currentNote">{{ currentNote }}</span>
@@ -124,6 +136,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { register } from '../../../composables/menuCommands'
 
 // Audio Context
 const audioContext = ref<AudioContext | null>(null)
@@ -139,6 +152,7 @@ const reverb = ref(20)
 const delay = ref(0)
 const currentOctave = ref(4)
 const selectedInstrument = ref('piano')
+const selectedOscillatorType = ref<OscillatorType>('sine')
 const sustainOn = ref(false)
 const activeKeys = ref(new Set<string>())
 const currentNote = ref('')
@@ -337,7 +351,7 @@ const playNote = (note: any) => {
   const oscillator = audioContext.value.createOscillator()
   const noteGain = audioContext.value.createGain()
   
-  oscillator.type = settings.waveform
+  oscillator.type = selectedOscillatorType.value
   oscillator.frequency.setValueAtTime(frequency, audioContext.value.currentTime)
   
   // ADSR envelope
@@ -434,9 +448,33 @@ const drawWaveform = () => {
     
     ctx.fillStyle = 'rgba(20, 20, 30, 0.2)'
     ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+    let strokeColor = '#00ffcc'
+    let lineWidth = 2
+
+    switch (selectedOscillatorType.value) {
+      case 'sine':
+        strokeColor = '#ff00cc'
+        lineWidth = 2.5
+        break
+      case 'square':
+        strokeColor = '#00ffcc'
+        lineWidth = 2
+        break
+      case 'sawtooth':
+        strokeColor = '#00ccff'
+        lineWidth = 1.5
+        break
+      case 'triangle':
+        strokeColor = '#cc00ff'
+        lineWidth = 3
+        break
+    }
     
-    ctx.lineWidth = 2
-    ctx.strokeStyle = '#00ffcc'
+    ctx.lineWidth = lineWidth
+    ctx.strokeStyle = strokeColor
+    ctx.shadowBlur = 10
+    ctx.shadowColor = strokeColor
     ctx.beginPath()
     
     const sliceWidth = canvas.width / 2 / bufferLength
@@ -474,6 +512,10 @@ const changeOctave = (direction: number) => {
 
 const changeInstrument = () => {
   // Instrument change will apply to next notes played
+}
+
+const updateOscillatorType = () => {
+  // Oscillator type change will apply to next notes played
 }
 
 const toggleSustain = () => {
@@ -554,6 +596,9 @@ onMounted(() => {
   initAudio()
   window.addEventListener('keydown', handleKeyDown)
   window.addEventListener('keyup', handleKeyUp)
+  
+  // Register menu command handlers
+  registerMenuCommands()
 })
 
 onUnmounted(() => {
@@ -573,6 +618,167 @@ onUnmounted(() => {
     audioContext.value.close()
   }
 })
+
+// Register menu command handlers
+const registerMenuCommands = () => {
+  // File menu commands
+  register('keystation.newSession', () => {
+    // Clear all recordings and reset state
+    recordedNotes.value = []
+    isRecording.value = false
+    currentNote.value = ''
+    activeKeys.value.clear()
+    // Stop all active notes
+    activeOscillators.forEach(({ oscillator, gainNode }, key) => {
+      const settings = getInstrumentSettings(selectedInstrument.value)
+      const now = audioContext.value?.currentTime || 0
+      gainNode.gain.cancelScheduledValues(now)
+      gainNode.gain.setValueAtTime(gainNode.gain.value, now)
+      gainNode.gain.linearRampToValueAtTime(0, now + settings.release)
+      oscillator.stop(now + settings.release)
+      activeKeys.value.delete(key)
+    })
+    activeOscillators.clear()
+    currentNote.value = ''
+  })
+  
+  register('keystation.startRecording', () => {
+    if (!isRecording.value) {
+      toggleRecording()
+    }
+  })
+  
+  register('keystation.stopRecording', () => {
+    if (isRecording.value) {
+      toggleRecording()
+    }
+  })
+  
+  register('keystation.playRecording', () => {
+    playRecording()
+  })
+  
+  register('keystation.clearRecording', () => {
+    recordedNotes.value = []
+  })
+  
+  // Edit menu commands
+  register('keystation.clearAll', () => {
+    recordedNotes.value = []
+    currentNote.value = ''
+    activeKeys.value.clear()
+  })
+  
+  // Instrument menu commands
+  register('keystation.setInstrument', (args?: unknown) => {
+    const instrument = getArg<string>(args, 'instrument')
+    if (instrument && ['piano', 'synth', 'organ', 'strings', 'brass', 'flute'].includes(instrument)) {
+      selectedInstrument.value = instrument
+    }
+  })
+  
+  register('keystation.setOscillator', (args?: unknown) => {
+    const type = getArg<string>(args, 'type')
+    if (type && ['sine', 'triangle', 'sawtooth', 'square'].includes(type)) {
+      selectedOscillatorType.value = type as OscillatorType
+    }
+  })
+  
+  // Effects menu commands
+  register('keystation.setReverb', (args?: unknown) => {
+    const level = getArg<number>(args, 'level')
+    if (typeof level === 'number') {
+      reverb.value = level
+    }
+  })
+  
+  register('keystation.setDelay', (args?: unknown) => {
+    const level = getArg<number>(args, 'level')
+    if (typeof level === 'number') {
+      delay.value = level
+      if (delayGainNode.value) {
+        delayGainNode.value.gain.value = level / 100 * 0.5
+      }
+    }
+  })
+  
+  register('keystation.toggleSustain', () => {
+    toggleSustain()
+  })
+  
+  // Octave menu commands
+  register('keystation.setOctave', (args?: unknown) => {
+    const octave = getArg<number>(args, 'octave')
+    if (typeof octave === 'number' && octave >= 1 && octave <= 7) {
+      currentOctave.value = octave
+    }
+  })
+  
+  register('keystation.octaveUp', () => {
+    changeOctave(1)
+  })
+  
+  register('keystation.octaveDown', () => {
+    changeOctave(-1)
+  })
+  
+  // Audio menu commands
+  register('keystation.setVolume', (args?: unknown) => {
+    const level = getArg<number>(args, 'level')
+    if (typeof level === 'number') {
+      volume.value = level
+      updateVolume()
+    }
+  })
+  
+  register('keystation.volumeUp', () => {
+    volume.value = Math.min(100, volume.value + 10)
+    updateVolume()
+  })
+  
+  register('keystation.volumeDown', () => {
+    volume.value = Math.max(0, volume.value - 10)
+    updateVolume()
+  })
+  
+  register('keystation.resetAudio', () => {
+    // Close existing context
+    if (audioContext.value) {
+      audioContext.value.close()
+    }
+    // Reinitialize audio
+    initAudio()
+  })
+  
+  // View menu commands
+  register('keystation.toggleWaveform', () => {
+    // Toggle waveform display visibility (would need to add a ref for this)
+    console.log('Toggle waveform display')
+  })
+  
+  register('keystation.toggleKeyLabels', () => {
+    // Toggle key labels visibility (would need to add a ref for this)
+    console.log('Toggle key labels')
+  })
+  
+  register('keystation.toggleOctaveLabels', () => {
+    // Toggle octave labels visibility (would need to add a ref for this)
+    console.log('Toggle octave labels')
+  })
+  
+  // Help menu commands
+  register('keystation.showKeyboardGuide', () => {
+    alert('Keyboard Layout:\n\nWhite Keys: A S D F G H J K L\nBlack Keys: W E T Y U\nSustain: Space\n\nOctave Up: ]\nOctave Down: [')
+  })
+}
+
+// Helper to safely extract a property from a generic args object
+function getArg<T>(args: unknown, key: string): T | undefined {
+  if (args && typeof args === 'object' && key in (args as Record<string, unknown>)) {
+    return (args as Record<string, unknown>)[key] as T
+  }
+  return undefined
+}
 </script>
 
 <style scoped>
