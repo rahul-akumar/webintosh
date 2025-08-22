@@ -32,7 +32,6 @@ import { useOSStore } from '../stores/os'
 import { useAppsStore } from '../stores/apps'
 import { onMounted, computed } from 'vue'
 import { registerDefaultCommands } from './composables/menuCommands'
-import OsContextMenu from './components/os/ContextMenu.vue'
 
 defineOptions({ name: 'AppRoot' })
 
@@ -76,7 +75,7 @@ onMounted(() => {
   apps.registerApps([
     { id: 'finder', title: 'Finder', icon: 'icons/system/finder.png', emoji: '🗂️', kind: 'system' },
     { id: 'textedit', title: 'TextEdit', icon: 'icons/apps/textEdit.png', emoji: '📝', kind: 'app' },
-    { id: 'shortcuts', title: 'Shortcuts', icon: 'icons/system/shortcuts.svg', emoji: '⌨️', kind: 'system', showOnDesktop: false },
+    { id: 'shortcuts', title: 'Shortcuts', icon: 'icons/system/shortcuts.png', emoji: '⌨️', kind: 'system', showOnDesktop: false },
     { 
       id: 'about', 
       title: 'About Webintosh', 
@@ -99,6 +98,14 @@ onMounted(() => {
       title: 'Typing Test 2000',
       icon: 'icons/apps/typingtest.png',
       emoji: '⌨️',
+      kind: 'app',
+      defaultRect: { x: 100, y: 80, width: 900, height: 620 }
+    },
+    {
+      id: 'keystation',
+      title: 'KeyStation',
+      icon: 'icons/apps/keystation.png',
+      emoji: '🎹',
       kind: 'app',
       defaultRect: { x: 100, y: 80, width: 900, height: 600 }
     }

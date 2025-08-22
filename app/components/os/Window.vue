@@ -41,6 +41,7 @@
           <AppsAbout v-else-if="win.appId === 'about'" />
           <AppsSettings v-else-if="win.appId === 'settings'" />
           <AppsTypingTest v-else-if="win.appId === 'typingtest'" />
+          <AppsKeyStation v-else-if="win.appId === 'keystation'" />
         </template>
 
         <!-- Placeholder content -->
@@ -56,7 +57,6 @@
 import { computed, type CSSProperties, provide } from 'vue'
 import type { OSWindowModel } from '../../../types/os'
 import { useOSStore } from '../../../stores/os'
-import AppsTypingTest from '../apps/TypingTest/index.vue'
 
 defineOptions({ name: 'OsWindow' })
 
