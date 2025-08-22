@@ -96,7 +96,7 @@ onMounted(() => {
     {
       id: 'typingtest',
       title: 'Typing Test 2000',
-      icon: 'icons/apps/typingtest.png',
+      icon: 'icons/apps/typingTest.png',
       emoji: '⌨️',
       kind: 'app',
       defaultRect: { x: 100, y: 80, width: 900, height: 620 }
@@ -104,7 +104,7 @@ onMounted(() => {
     {
       id: 'keystation',
       title: 'KeyStation',
-      icon: 'icons/apps/keystation.png',
+      icon: 'icons/apps/keyStation.png',
       emoji: '🎹',
       kind: 'app',
       defaultRect: { x: 100, y: 80, width: 900, height: 600 }
