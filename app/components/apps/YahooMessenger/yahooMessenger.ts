@@ -97,9 +97,51 @@ export const getTimeAgo = (timestamp: Timestamp | null): string => {
 };
 
 export const playMessageSound = () => {
-  const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZijYIG2m98OScTgwOUqzn4');
-  audio.volume = 0.3;
-  audio.play().catch(() => {});
+  try {
+    // Create a simple notification sound using Web Audio API
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    
+    if (!AudioContextClass) {
+      console.warn('Web Audio API not supported');
+      return;
+    }
+    
+    const audioContext = new AudioContextClass();
+    
+    // Resume context if it's suspended (required for some browsers)
+    if (audioContext.state === 'suspended') {
+      audioContext.resume();
+    }
+    
+    // Create oscillator for the beep
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    // Set the frequency for a pleasant notification sound (two-tone beep)
+    oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+    oscillator.frequency.setValueAtTime(800, audioContext.currentTime + 0.05);
+    oscillator.type = 'sine';
+    
+    // Set volume and envelope
+    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.01);
+    gainNode.gain.linearRampToValueAtTime(0.15, audioContext.currentTime + 0.05);
+    gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.15);
+    
+    // Play the sound
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.15);
+    
+    // Clean up after playing
+    setTimeout(() => {
+      audioContext.close();
+    }, 200);
+  } catch (error) {
+    console.error('Failed to play message sound:', error);
+  }
 };
 
 // Firebase Auth Functions
