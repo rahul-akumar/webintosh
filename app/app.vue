@@ -23,6 +23,7 @@
         @executed="store.closeMenu()"
         @request-close="store.closeMenu()"
       />
+      <OsNotifications />
     </main>
   </div>
 </template>
@@ -32,6 +33,7 @@ import { useOSStore } from '../stores/os'
 import { useAppsStore } from '../stores/apps'
 import { onMounted, computed } from 'vue'
 import { registerDefaultCommands } from './composables/menuCommands'
+import { useGlobalChat } from './composables/useGlobalChat'
 
 defineOptions({ name: 'AppRoot' })
 
@@ -59,11 +61,20 @@ const wallpaperStyle = computed(() => {
 })
 
 onMounted(() => {
-  // Load persisted session first
+  // Register menu commands
+  registerDefaultCommands()
+  
+  // Initialize OS Store
   store.loadSession()
   
-  // Initialize theme system
+  // Apply saved theme
   store.initTheme()
+  
+  // Start global chat notifications
+  const { initializeGlobalListeners } = useGlobalChat()
+  initializeGlobalListeners()
+
+  // Load persisted session first
   
   // Load icon positions and layout early
   apps.loadIconPositions()
@@ -106,6 +117,14 @@ onMounted(() => {
       title: 'KeyStation',
       icon: 'icons/apps/keyStation.png',
       emoji: '🎹',
+      kind: 'app',
+      defaultRect: { x: 100, y: 80, width: 960, height: 600 }
+    },
+    {
+      id: 'yahoomessenger',
+      title: 'Yahoo! Messenger',
+      icon: 'icons/apps/yahooMessenger.png',
+      emoji: 'Yahoo!',
       kind: 'app',
       defaultRect: { x: 100, y: 80, width: 960, height: 600 }
     }

@@ -5,6 +5,7 @@ import { createFinderMenuTemplate } from '../../apps/Finder/finderMenu'
 import { createTextEditMenuTemplate } from '../../apps/TextEdit/textEditMenu'
 import { createTypingTestMenuTemplate } from '../../apps/TypingTest/typingTestMenu'
 import { createKeyStationMenuTemplate } from '../../apps/KeyStation/keyStationMenu'
+import { createYahooMessengerMenuTemplate } from '../../apps/YahooMessenger/yahooMessengerMenu'
 import { createDockMenuForApp } from './dockMenu'
 
 /**
@@ -28,6 +29,8 @@ export function getAppMenuTemplate(appId: string, appTitle?: string): MenuTempla
       return createTypingTestMenuTemplate()
     case 'keystation':
       return createKeyStationMenuTemplate()
+    case 'yahoomessenger':
+      return createYahooMessengerMenuTemplate()
     case 'about':
       // About app shows the desktop menubar itself
       return createSystemMenuTemplate()
@@ -45,7 +48,7 @@ export function getAppMenuTemplate(appId: string, appTitle?: string): MenuTempla
 /**
  * Optional helper: list of known app ids with first-party menus.
  */
-export const KnownMenuApps = new Set<string>(['finder', 'textedit', 'typingtest', 'keystation'])
+export const KnownMenuApps = new Set<string>(['finder', 'textedit', 'typingtest', 'keystation', 'yahoomessenger'])
 
 // Re-export Dock context menu builder
 export { createDockMenuForApp }
