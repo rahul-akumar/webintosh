@@ -136,14 +136,24 @@ export const sendChannelMessage = async (
   text: string,
   type: 'message' | 'buzz' = 'message'
 ) => {
-  await addDoc(collection(db, 'messages'), {
+  const messageData = {
     text: text.trim(),
     userId: user.uid,
     userName: user.displayName || 'Anonymous',
     timestamp: serverTimestamp(),
     channelId,
     type
-  });
+  };
+  
+  console.log('Sending channel message:', messageData);
+  
+  try {
+    const docRef = await addDoc(collection(db, 'messages'), messageData);
+    console.log('Message sent with ID:', docRef.id);
+  } catch (error) {
+    console.error('Error sending message:', error);
+    throw error;
+  }
 };
 
 export const sendDirectMessage = async (

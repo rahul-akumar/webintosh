@@ -330,19 +330,33 @@ const loadChannelMessages = (channelId: string) => {
   if (messagesUnsubscribe) messagesUnsubscribe();
   
   loading.value = true;
+  // Remove orderBy initially to avoid issues with null timestamps
   const q = query(
     collection(db, 'messages'),
     where('channelId', '==', channelId),
-    orderBy('timestamp', 'asc'),
     limit(100)
   );
 
   messagesUnsubscribe = onSnapshot(q, 
     (snapshot) => {
-      currentMessages.value = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      } as Message));
+      console.log(`Received ${snapshot.docs.length} messages for channel ${channelId}`);
+      const messages = snapshot.docs.map(doc => {
+        const data = doc.data();
+        console.log('Message data:', data);
+        return {
+          id: doc.id,
+          ...data
+        } as Message;
+      });
+      
+      // Sort messages client-side
+      messages.sort((a, b) => {
+        const timeA = a.timestamp?.toMillis() || 0;
+        const timeB = b.timestamp?.toMillis() || 0;
+        return timeA - timeB;
+      });
+      
+      currentMessages.value = messages;
       loading.value = false;
       scrollToBottom();
     },
@@ -351,6 +365,8 @@ const loadChannelMessages = (channelId: string) => {
       loading.value = false;
       if (error.code === 'permission-denied') {
         alert('Permission denied. Please check Firebase security rules.');
+      } else if (error.code === 'failed-precondition') {
+        alert('Firebase index required. Check console for index creation link.');
       }
     }
   );
@@ -360,21 +376,36 @@ const loadDirectMessages = (conversationId: string) => {
   if (messagesUnsubscribe) messagesUnsubscribe();
   
   loading.value = true;
+  // Remove orderBy initially to avoid issues with null timestamps
   const q = query(
     collection(db, 'messages'),
     where('conversationId', '==', conversationId),
-    orderBy('timestamp', 'asc'),
     limit(100)
   );
 
-  messagesUnsubscribe = onSnapshot(q, (snapshot) => {
-    currentMessages.value = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    } as Message));
-    loading.value = false;
-    scrollToBottom();
-  });
+  messagesUnsubscribe = onSnapshot(q, 
+    (snapshot) => {
+      const messages = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as Message));
+      
+      // Sort messages client-side
+      messages.sort((a, b) => {
+        const timeA = a.timestamp?.toMillis() || 0;
+        const timeB = b.timestamp?.toMillis() || 0;
+        return timeA - timeB;
+      });
+      
+      currentMessages.value = messages;
+      loading.value = false;
+      scrollToBottom();
+    },
+    (error) => {
+      console.error('Error loading direct messages:', error);
+      loading.value = false;
+    }
+  );
 };
 
 const sendMessage = async () => {
@@ -383,13 +414,21 @@ const sendMessage = async () => {
   const text = messageText.value.trim();
   messageText.value = '';
   
-  if (selectedChannel.value) {
-    await sendChannelMessage(currentUser.value, selectedChannel.value.id, text);
-  } else if (selectedDM.value) {
-    await sendDirectMessage(currentUser.value, selectedDM.value.id, text);
+  try {
+    if (selectedChannel.value) {
+      console.log('Sending to channel:', selectedChannel.value.id);
+      await sendChannelMessage(currentUser.value, selectedChannel.value.id, text);
+    } else if (selectedDM.value) {
+      console.log('Sending DM to:', selectedDM.value.id);
+      await sendDirectMessage(currentUser.value, selectedDM.value.id, text);
+    }
+    
+    playMessageSound();
+  } catch (error) {
+    console.error('Failed to send message:', error);
+    alert('Failed to send message. Check console for details.');
+    messageText.value = text; // Restore message on error
   }
-  
-  playMessageSound();
 };
 
 const sendBuzz = async () => {
