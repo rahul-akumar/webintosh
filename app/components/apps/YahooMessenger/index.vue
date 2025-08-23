@@ -64,6 +64,7 @@
           >
             <span class="channel-icon">#</span>
             <span class="channel-name">{{ channel.name }}</span>
+            <span v-if="(unreadCounts[channel.id] ?? 0) > 0" class="unread-badge">{{ unreadCounts[channel.id] }}</span>
           </div>
         </div>
 
@@ -234,6 +235,12 @@ import {
   createDirectMessage,
   updateUserPresence
 } from './yahooMessenger';
+import { useNotifications } from '~/composables/useNotifications';
+import { useGlobalChat } from '~/composables/useGlobalChat';
+import { clearChannelMessages } from '~/composables/clearChatData';
+import { createYahooMessengerMenuTemplate } from './yahooMessengerMenu';
+import { useMenuCommand } from '~/composables/menuCommands';
+import { useOSStore } from '../../../../stores/os';
 
 // State
 const currentUser = ref<User | null>(null);
@@ -249,6 +256,13 @@ const loading = ref(false);
 const showNewDMModal = ref(false);
 const messagesContainer = ref<HTMLElement>();
 const channels = defaultChannels;
+const unreadCounts = ref<Record<string, number>>({});
+const lastReadTimestamps = ref<Record<string, number>>({});
+
+// Notifications
+const { notifyMessage } = useNotifications();
+const { setAppOpen } = useGlobalChat();
+const lastMessageIds = new Set<string>();
 
 // Subscriptions
 let messagesUnsubscribe: (() => void) | null = null;
@@ -297,6 +311,10 @@ const logout = async () => {
 const selectChannel = (channel: Channel) => {
   selectedChannel.value = channel;
   selectedDM.value = null;
+  // Clear unread count for this channel
+  unreadCounts.value[channel.id] = 0;
+  // Update last read timestamp to current time
+  lastReadTimestamps.value[channel.id] = Date.now();
   loadChannelMessages(channel.id);
 };
 
@@ -356,6 +374,32 @@ const loadChannelMessages = (channelId: string) => {
         return timeA - timeB;
       });
       
+      // Check for new messages from other users
+      if (!loading.value && currentUser.value) {
+        messages.forEach(msg => {
+          if (!lastMessageIds.has(msg.id) && 
+              msg.userId !== currentUser.value!.uid) {
+            // Only increment unread count if this channel is not currently selected
+            if (selectedChannel.value?.id !== channelId) {
+              if (!unreadCounts.value[channelId]) {
+                unreadCounts.value[channelId] = 0;
+              }
+              const msgTime = msg.timestamp?.toMillis() || Date.now();
+              const lastRead = lastReadTimestamps.value[channelId] || 0;
+              
+              // Only count as unread if message is newer than last read time
+              if (msgTime > lastRead) {
+                unreadCounts.value[channelId]++;
+              }
+            }
+            lastMessageIds.add(msg.id);
+          }
+        });
+      }
+      
+      // Update message IDs set
+      messages.forEach(msg => lastMessageIds.add(msg.id));
+      
       currentMessages.value = messages;
       loading.value = false;
       scrollToBottom();
@@ -396,6 +440,26 @@ const loadDirectMessages = (conversationId: string) => {
         const timeB = b.timestamp?.toMillis() || 0;
         return timeA - timeB;
       });
+      
+      // Check for new DM messages from other users
+      if (!loading.value && currentUser.value) {
+        messages.forEach(msg => {
+          if (!lastMessageIds.has(msg.id) && 
+              msg.userId !== currentUser.value!.uid) {
+            // Show notification for new DM
+            notifyMessage(
+              msg.userName,
+              msg.text,
+              undefined, // No channel for DMs
+              'yahooMessenger'
+            );
+            lastMessageIds.add(msg.id);
+          }
+        });
+      }
+      
+      // Update message IDs set
+      messages.forEach(msg => lastMessageIds.add(msg.id));
       
       currentMessages.value = messages;
       loading.value = false;
@@ -456,6 +520,21 @@ const sendBuzz = async () => {
 
 const insertEmoji = (emoji: string) => {
   messageText.value += emoji;
+};
+
+const clearCurrentChannel = async () => {
+  if (!selectedChannel.value) return;
+  
+  if (confirm(`Clear all messages in #${selectedChannel.value.name}?`)) {
+    try {
+      const count = await clearChannelMessages(selectedChannel.value.id);
+      currentMessages.value = [];
+      alert(`Cleared ${count} messages from #${selectedChannel.value.name}`);
+    } catch (error) {
+      console.error('Failed to clear channel:', error);
+      alert('Failed to clear messages. Check console for details.');
+    }
+  }
 };
 
 const loadOnlineUsers = () => {
@@ -533,19 +612,140 @@ const scrollToBottom = () => {
   });
 };
 
+// Monitor all channels for unread messages
+const monitorAllChannels = () => {
+  channels.forEach(channel => {
+    // Don't monitor the currently selected channel
+    if (selectedChannel.value?.id === channel.id) return;
+    
+    const q = query(
+      collection(db, 'messages'),
+      where('channelId', '==', channel.id),
+      limit(50)
+    );
+    
+    onSnapshot(q, (snapshot) => {
+      if (!currentUser.value) return;
+      
+      const messages = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as Message));
+      
+      // Count unread messages for this channel
+      const lastRead = lastReadTimestamps.value[channel.id] || 0;
+      let unreadCount = 0;
+      
+      messages.forEach(msg => {
+        const msgTime = msg.timestamp?.toMillis() || 0;
+        if (msg.userId !== currentUser.value!.uid && msgTime > lastRead) {
+          unreadCount++;
+        }
+      });
+      
+      unreadCounts.value[channel.id] = unreadCount;
+    });
+  });
+};
+
+// Register menu command handlers
+const registerMenuCommands = () => {
+  const { register } = useMenuCommand();
+  
+  // Conversations menu commands
+  register('yahooMessenger.signOut', () => {
+    logout();
+  });
+  
+  register('yahooMessenger.newMessage', () => {
+    showNewDMModal.value = true;
+  });
+  
+  register('yahooMessenger.joinChannel', () => {
+    if (channels[0]) selectChannel(channels[0]);
+  });
+  
+  register('yahooMessenger.switchChannel', (args: any) => {
+    const channel = channels.find(c => c.id === args.channel);
+    if (channel) selectChannel(channel);
+  });
+  
+  register('yahooMessenger.showDirectMessages', () => {
+    chatMode.value = 'direct';
+  });
+  
+  register('yahooMessenger.clearChat', () => {
+    clearCurrentChannel();
+  });
+  
+  // Status menu commands
+  register('yahooMessenger.setStatus', (args: any) => {
+    // TODO: Implement status changes
+    console.log('Set status to:', args.status);
+  });
+  
+  // Tools menu commands
+  register('yahooMessenger.sendBuzz', () => {
+    sendBuzz();
+  });
+  
+  register('yahooMessenger.insertEmoticon', (args: any) => {
+    insertEmoji(args.emoticon);
+  });
+  
+  register('yahooMessenger.toggleSounds', () => {
+    // TODO: Implement sound toggle
+    console.log('Toggle sounds');
+  });
+  
+  register('yahooMessenger.toggleNotifications', () => {
+    // TODO: Implement notification toggle
+    console.log('Toggle notifications');
+  });
+  
+  // View menu commands
+  register('yahooMessenger.toggleSidebar', () => {
+    // TODO: Implement sidebar toggle
+    console.log('Toggle sidebar');
+  });
+  
+  register('yahooMessenger.toggleOnlineUsers', () => {
+    // TODO: Implement online users toggle
+    console.log('Toggle online users');
+  });
+  
+  // Help menu commands
+  register('yahooMessenger.showAbout', () => {
+    // TODO: Implement about dialog
+    console.log('Show about');
+  });
+};
+
 // Lifecycle
 onMounted(() => {
+  // Register menu commands
+  registerMenuCommands();
+  
+  // Only mark app as open after component is actually mounted
+  nextTick(() => {
+    setAppOpen(true);
+  });
+  
   onAuthStateChanged(auth, (user) => {
     currentUser.value = user;
     if (user) {
       loadOnlineUsers();
       loadDirectMessagesList();
+      monitorAllChannels(); // Start monitoring all channels
       if (channels[0]) selectChannel(channels[0]); // Select general channel by default
     }
   });
 });
 
 onUnmounted(() => {
+  // Mark app as closed when component unmounts
+  setAppOpen(false);
+  
   cleanupSubscriptions();
   
   if (currentUser.value) {
@@ -568,5 +768,5 @@ watch(() => currentUser.value, async (newUser, oldUser) => {
 </script>
 
 <style scoped>
-@import './yahooMessenger.css';
+@import './yahooClassic.css';
 </style>

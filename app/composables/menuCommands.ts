@@ -270,3 +270,13 @@ function getArg<T>(args: unknown, key: string): T | undefined {
   }
   return undefined
 }
+
+/**
+ * Composable for menu command registration
+ */
+export function useMenuCommand() {
+  return {
+    register,
+    execute
+  }
+}

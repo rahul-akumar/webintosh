@@ -271,6 +271,31 @@
   color: white;
 }
 
+.channel-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.unread-badge {
+  margin-left: auto;
+  background: #ff0000;
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 1px 4px;
+  border-radius: 8px;
+  min-width: 16px;
+  text-align: center;
+  margin-right: 2px;
+}
+
+.channel-item.active .unread-badge,
+.channel-item:hover .unread-badge {
+  background: #ffcc00;
+  color: #000;
+}
+
 .channel-name {
   flex: 1;
 }
