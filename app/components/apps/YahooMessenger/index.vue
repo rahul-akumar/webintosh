@@ -227,10 +227,15 @@
   
   const initializeGun = () => {
     // @ts-ignore
-    gun = Gun(['https://gun-manhattan.herokuapp.com/gun'])
+    // Use multiple Gun relay servers for better reliability
+    gun = Gun([
+      'https://gun-manhattan.herokuapp.com/gun',
+      'https://gun-us.herokuapp.com/gun',
+      'https://gunjs.herokuapp.com/gun'
+    ])
     
     // Track online users
-    usersRef = gun.get('yahoomessenger-users')
+    usersRef = gun.get('webintosh-yahoomessenger-users')
     usersRef.map().on((data: any, key: string) => {
       if (data && data.online) {
         if (!onlineUsers.value.includes(data.name)) {
@@ -256,7 +261,9 @@
     }
     
     // Auto-select first channel
-    selectChannel(channels[0])
+    if (channels.length > 0) {
+      selectChannel(channels[0])
+    }
   }
   
   const announcePresence = () => {
@@ -302,7 +309,7 @@
     
     // Subscribe to new channel
     if (gun) {
-      channelRef = gun.get(`yahoomessenger-channel-${channel.id}`)
+      channelRef = gun.get(`webintosh-yahoomessenger-channel-${channel.id}`)
       
       // Load existing messages
       channelRef.map().once((data: any, key: string) => {
@@ -370,29 +377,7 @@
     // Clear input
     messageInput.value = ''
     
-    // Add Rahul's response for #general channel sometimes
-    if (currentChannel.value.id === 'general' && Math.random() > 0.7) {
-      setTimeout(() => {
-        const rahulResponses = [
-          "Hey! That's interesting!",
-          "I agree with that point.",
-          "Thanks for sharing!",
-          "Good to know!",
-          "That makes sense.",
-          "Interesting perspective!"
-        ]
-        
-        const rahulMessage = {
-          text: rahulResponses[Math.floor(Math.random() * rahulResponses.length)],
-          sender: 'Rahul',
-          avatar: '👤',
-          timestamp: Date.now()
-        }
-        
-        const rahulId = `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-        channelRef.get(rahulId).put(rahulMessage)
-      }, 2000 + Math.random() * 3000)
-    }
+    // Removed automated Rahul responses - real chat only
   }
   
   const sendBuzz = () => {
