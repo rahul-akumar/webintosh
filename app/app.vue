@@ -108,6 +108,14 @@ onMounted(() => {
       emoji: '🎹',
       kind: 'app',
       defaultRect: { x: 100, y: 80, width: 960, height: 600 }
+    },
+    {
+      id: 'yahoomessenger',
+      title: 'Yahoo! Messenger',
+      icon: 'icons/apps/yahooMessenger.png',
+      emoji: 'Yahoo!',
+      kind: 'app',
+      defaultRect: { x: 100, y: 80, width: 960, height: 600 }
     }
   ])
   // Load Dock minimized ordering (Dock now shows minimized apps only)

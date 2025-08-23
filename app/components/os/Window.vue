@@ -42,6 +42,7 @@
           <AppsSettings v-else-if="win.appId === 'settings'" />
           <AppsTypingTest v-else-if="win.appId === 'typingtest'" />
           <AppsKeyStation v-else-if="win.appId === 'keystation'" />
+          <AppsYahooMessenger v-else-if="win.appId === 'yahoomessenger'" />
         </template>
 
         <!-- Placeholder content -->
