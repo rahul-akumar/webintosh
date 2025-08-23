@@ -271,9 +271,19 @@ const login = async () => {
   try {
     await loginUser(username.value);
     startPresenceUpdates();
-  } catch (error) {
+  } catch (error: any) {
     console.error('Login error:', error);
-    alert('Failed to sign in. Please try again.');
+    let errorMessage = 'Failed to sign in. ';
+    
+    if (error.code === 'permission-denied') {
+      errorMessage += 'Firebase permissions error. Please check Firestore rules.';
+    } else if (error.code === 'unavailable') {
+      errorMessage += 'Firebase is unavailable. Check your internet connection.';
+    } else {
+      errorMessage += error.message || 'Please try again.';
+    }
+    
+    alert(errorMessage);
   }
 };
 
@@ -327,14 +337,23 @@ const loadChannelMessages = (channelId: string) => {
     limit(100)
   );
 
-  messagesUnsubscribe = onSnapshot(q, (snapshot) => {
-    currentMessages.value = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    } as Message));
-    loading.value = false;
-    scrollToBottom();
-  });
+  messagesUnsubscribe = onSnapshot(q, 
+    (snapshot) => {
+      currentMessages.value = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as Message));
+      loading.value = false;
+      scrollToBottom();
+    },
+    (error) => {
+      console.error('Error loading channel messages:', error);
+      loading.value = false;
+      if (error.code === 'permission-denied') {
+        alert('Permission denied. Please check Firebase security rules.');
+      }
+    }
+  );
 };
 
 const loadDirectMessages = (conversationId: string) => {
