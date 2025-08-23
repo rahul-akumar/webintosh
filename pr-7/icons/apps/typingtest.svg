@@ -1,0 +1,60 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Keyboard base -->
+  <rect x="60" y="200" width="392" height="180" rx="20" fill="url(#keyboardGrad)" stroke="#333" stroke-width="2"/>
+  
+  <!-- Speed indicator (speedometer) -->
+  <circle cx="256" cy="120" r="50" fill="none" stroke="#667eea" stroke-width="8"/>
+  <path d="M256 80 L256 100" stroke="#667eea" stroke-width="4" stroke-linecap="round"/>
+  <path d="M296 120 L276 120" stroke="#667eea" stroke-width="4" stroke-linecap="round"/>
+  <path d="M216 120 L236 120" stroke="#667eea" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Speed needle -->
+  <circle cx="256" cy="120" r="6" fill="#764ba2"/>
+  <path d="M256 120 L280 95" stroke="#764ba2" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Keyboard keys with highlight effect -->
+  <!-- Top row -->
+  <rect x="80" y="220" width="30" height="30" rx="4" fill="#5a5a5a"/>
+  <rect x="120" y="220" width="30" height="30" rx="4" fill="#5a5a5a"/>
+  <rect x="160" y="220" width="30" height="30" rx="4" fill="#667eea" opacity="0.8"/>
+  <rect x="200" y="220" width="30" height="30" rx="4" fill="#5a5a5a"/>
+  <rect x="240" y="220" width="30" height="30" rx="4" fill="#5a5a5a"/>
+  <rect x="280" y="220" width="30" height="30" rx="4" fill="#667eea" opacity="0.8"/>
+  <rect x="320" y="220" width="30" height="30" rx="4" fill="#5a5a5a"/>
+  <rect x="360" y="220" width="30" height="30" rx="4" fill="#5a5a5a"/>
+  <rect x="400" y="220" width="30" height="30" rx="4" fill="#5a5a5a"/>
+  
+  <!-- Middle row -->
+  <rect x="90" y="260" width="30" height="30" rx="4" fill="#5a5a5a"/>
+  <rect x="130" y="260" width="30" height="30" rx="4" fill="#667eea" opacity="0.8"/>
+  <rect x="170" y="260" width="30" height="30" rx="4" fill="#5a5a5a"/>
+  <rect x="210" y="260" width="30" height="30" rx="4" fill="#5a5a5a"/>
+  <rect x="250" y="260" width="30" height="30" rx="4" fill="#667eea" opacity="0.8"/>
+  <rect x="290" y="260" width="30" height="30" rx="4" fill="#5a5a5a"/>
+  <rect x="330" y="260" width="30" height="30" rx="4" fill="#5a5a5a"/>
+  <rect x="370" y="260" width="30" height="30" rx="4" fill="#667eea" opacity="0.8"/>
+  <rect x="410" y="260" width="30" height="30" rx="4" fill="#5a5a5a"/>
+  
+  <!-- Bottom row -->
+  <rect x="100" y="300" width="30" height="30" rx="4" fill="#5a5a5a"/>
+  <rect x="140" y="300" width="30" height="30" rx="4" fill="#5a5a5a"/>
+  <rect x="180" y="300" width="30" height="30" rx="4" fill="#667eea" opacity="0.8"/>
+  <rect x="220" y="300" width="30" height="30" rx="4" fill="#5a5a5a"/>
+  <rect x="260" y="300" width="30" height="30" rx="4" fill="#5a5a5a"/>
+  <rect x="300" y="300" width="30" height="30" rx="4" fill="#5a5a5a"/>
+  <rect x="340" y="300" width="30" height="30" rx="4" fill="#667eea" opacity="0.8"/>
+  <rect x="380" y="300" width="30" height="30" rx="4" fill="#5a5a5a"/>
+  
+  <!-- Space bar -->
+  <rect x="150" y="340" width="212" height="25" rx="4" fill="#764ba2" opacity="0.9"/>
+  
+  <!-- WPM text -->
+  <text x="256" y="440" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#667eea" text-anchor="middle">WPM</text>
+  
+  <defs>
+    <linearGradient id="keyboardGrad" x1="256" y1="200" x2="256" y2="380">
+      <stop offset="0%" stop-color="#2a2a2a"/>
+      <stop offset="100%" stop-color="#1a1a1a"/>
+    </linearGradient>
+  </defs>
+</svg>
