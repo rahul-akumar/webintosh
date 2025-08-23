@@ -23,7 +23,7 @@
       <!-- Sidebar -->
       <div class="sidebar">
         <div class="user-info">
-          <div class="user-avatar">{{ getInitials(currentUser.displayName || '') }}</div>
+          <div class="user-avatar" :style="{ background: getUserAvatarColor(currentUser.displayName || '') }">{{ getInitials(currentUser.displayName || '') }}</div>
           <div class="user-details">
             <div class="username">{{ currentUser.displayName }}</div>
             <div class="status-indicator online">Online</div>
@@ -80,7 +80,7 @@
             @click="selectDirectMessage(dm)"
             :class="['dm-item', { active: selectedDM?.id === dm.id }]"
           >
-            <div class="dm-avatar">{{ getInitials(dm.otherUser) }}</div>
+            <div class="dm-avatar" :style="{ background: getUserAvatarColor(dm.otherUser) }">{{ getInitials(dm.otherUser) }}</div>
             <div class="dm-info">
               <div class="dm-name">{{ dm.otherUser }}</div>
               <div class="dm-status" :class="{ online: dm.online }">
@@ -94,7 +94,7 @@
         <div class="online-users">
           <div class="section-header">ONLINE NOW ({{ onlineUsers.length }})</div>
           <div v-for="user in onlineUsers" :key="user.uid" class="online-user">
-            <div class="user-avatar small">{{ getInitials(user.displayName) }}</div>
+            <div class="user-avatar small" :style="{ background: getUserAvatarColor(user.displayName) }">{{ getInitials(user.displayName) }}</div>
             <span class="user-name">{{ user.displayName }}</span>
           </div>
         </div>
@@ -110,7 +110,7 @@
             <span class="chat-description">{{ selectedChannel.description }}</span>
           </template>
           <template v-else-if="chatMode === 'direct' && selectedDM">
-            <div class="dm-header-avatar">{{ getInitials(selectedDM.otherUser) }}</div>
+            <div class="dm-header-avatar" :style="{ background: getUserAvatarColor(selectedDM.otherUser) }">{{ getInitials(selectedDM.otherUser) }}</div>
             <span class="chat-title">{{ selectedDM.otherUser }}</span>
             <span class="chat-status" :class="{ online: selectedDM.online }">
               {{ selectedDM.online ? 'Online' : 'Last seen ' + getTimeAgo(selectedDM.lastSeen || null) }}
@@ -132,7 +132,7 @@
           </div>
           <div v-else>
             <div v-for="message in currentMessages" :key="message.id" class="message">
-              <div class="message-avatar">{{ getInitials(message.userName) }}</div>
+              <div class="message-avatar" :style="{ background: getUserAvatarColor(message.userName) }">{{ getInitials(message.userName) }}</div>
               <div class="message-content">
                 <div class="message-header">
                   <span class="message-author">{{ message.userName }}</span>
@@ -188,7 +188,7 @@
             @click="startDirectMessage(user)"
             class="user-option"
           >
-            <div class="user-avatar">{{ getInitials(user.displayName) }}</div>
+            <div class="user-avatar" :style="{ background: getUserAvatarColor(user.displayName) }">{{ getInitials(user.displayName) }}</div>
             <span>{{ user.displayName }}</span>
           </div>
         </div>
@@ -520,6 +520,41 @@ const sendBuzz = async () => {
 
 const insertEmoji = (emoji: string) => {
   messageText.value += emoji;
+};
+
+// Generate consistent color for user avatars based on username
+const getUserAvatarColor = (name: string | undefined): string => {
+  if (!name) return '#ffd700'; // Default yellow if no name
+  
+  // List of pleasant colors for avatars
+  const colors = [
+    '#FF6B6B', // Red
+    '#4ECDC4', // Teal
+    '#45B7D1', // Sky Blue
+    '#96CEB4', // Sage Green
+    '#FECA57', // Yellow
+    '#48C9B0', // Turquoise
+    '#FD79A8', // Pink
+    '#A29BFE', // Purple
+    '#6C5CE7', // Deep Purple
+    '#00B894', // Mint
+    '#FDCB6E', // Orange
+    '#E17055', // Coral
+    '#74B9FF', // Light Blue
+    '#A8E6CF', // Light Green
+    '#FFB6B9', // Light Pink
+    '#95E1D3', // Aqua
+  ];
+  
+  // Generate a hash from the username
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  
+  // Use the hash to pick a color consistently
+  const index = Math.abs(hash) % colors.length;
+  return colors[index];
 };
 
 const clearCurrentChannel = async () => {
