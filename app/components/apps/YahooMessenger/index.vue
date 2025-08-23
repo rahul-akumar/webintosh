@@ -5,101 +5,134 @@
         <img src="/icons/apps/yahooMessenger.png" alt="Y!" class="ym-logo">
         <span class="ym-title">Yahoo! Messenger</span>
         <div class="ym-status">
-          <span class="status-indicator" :class="{ online: isConnected }"></span>
-          {{ isConnected ? 'Online' : 'Offline' }}
+          <span class="status-indicator online"></span>
+          Online
         </div>
       </div>
   
-      <!-- Connection Panel -->
-      <div class="ym-connection-panel" v-if="!currentChat">
-        <div class="connection-section">
-          <h3>Your ID</h3>
-          <div class="id-display">
-            <input type="text" :value="myPeerId" readonly class="id-input">
-            <button @click="copyId" class="ym-button">Copy</button>
+      <div class="ym-main">
+        <!-- Sidebar -->
+        <div class="ym-sidebar">
+          <!-- User Section -->
+          <div class="user-section">
+            <div class="user-setup" v-if="!userName">
+              <input 
+                v-model="nameInput"
+                @keyup.enter="setUserName"
+                type="text" 
+                placeholder="Enter your name"
+                class="name-input"
+              >
+              <button @click="setUserName" class="set-name-btn">Join</button>
+            </div>
+            <div v-else class="user-item active">
+              <span class="user-avatar">😊</span>
+              <span class="user-name">{{ userName }}</span>
+              <span class="status-dot online"></span>
+            </div>
           </div>
-          <p class="help-text">Share this ID with your friend to connect</p>
-        </div>
-        
-        <div class="divider"></div>
-        
-        <div class="connection-section">
-          <h3>Connect to Friend</h3>
-          <div class="connect-form">
-            <input 
-              v-model="friendId" 
-              type="text" 
-              placeholder="Enter friend's ID"
-              class="friend-input"
-              @keyup.enter="connectToPeer"
-            >
-            <button @click="connectToPeer" class="ym-button primary">Connect</button>
-          </div>
-        </div>
   
-        <!-- Active Chats List -->
-        <div class="active-chats" v-if="activeConnections.length > 0">
-          <h3>Active Chats</h3>
-          <div class="chat-list">
+          <div class="section-divider"></div>
+  
+          <!-- Online Users -->
+          <div class="users-section" v-if="userName">
+            <h4 class="section-title">Online</h4>
+            <div class="user-item">
+              <span class="user-avatar">👤</span>
+              <span class="user-name">Rahul</span>
+              <span class="status-dot online"></span>
+            </div>
             <div 
-              v-for="conn in activeConnections" 
-              :key="conn.peer"
-              @click="selectChat(conn)"
-              class="chat-item"
+              v-for="user in onlineUsers" 
+              :key="user"
+              class="user-item"
+              v-show="user !== userName"
             >
-              <span class="status-indicator online"></span>
-              <span class="chat-name">{{ conn.peer.substring(0, 8) }}...</span>
-              <span v-if="conn.unread" class="unread-badge">{{ conn.unread }}</span>
+              <span class="user-avatar">👥</span>
+              <span class="user-name">{{ user }}</span>
+              <span class="status-dot online"></span>
             </div>
           </div>
-        </div>
-      </div>
   
-      <!-- Chat Window -->
-      <div class="ym-chat-window" v-else>
-        <div class="chat-header">
-          <button @click="currentChat = null" class="back-button">←</button>
-          <span class="chat-buddy">{{ currentChat.peer.substring(0, 8) }}...</span>
-          <span class="typing-indicator" v-if="isTyping">is typing...</span>
-          <button @click="disconnect" class="disconnect-button">×</button>
-        </div>
+          <div class="section-divider" v-if="userName"></div>
   
-        <div class="chat-messages" ref="messagesContainer">
-          <div 
-            v-for="(msg, index) in messages" 
-            :key="index"
-            class="message"
-            :class="{ 'own': msg.sender === 'me', 'buddy': msg.sender === 'buddy' }"
-          >
-            <div class="message-bubble">
-              <span class="message-text">{{ msg.text }}</span>
-              <span class="message-time">{{ formatTime(msg.timestamp) }}</span>
+          <!-- Channels Section -->
+          <div class="channels-section" v-if="userName">
+            <h4 class="section-title">Channels</h4>
+            <div 
+              v-for="channel in channels" 
+              :key="channel.id"
+              @click="selectChannel(channel)"
+              class="channel-item"
+              :class="{ active: currentChannel?.id === channel.id }"
+            >
+              <span class="channel-icon">#</span>
+              <span class="channel-name">{{ channel.name }}</span>
             </div>
           </div>
         </div>
   
-        <div class="chat-input-area">
-          <div class="emoticons">
-            <button 
-              v-for="emoji in emoticons" 
-              :key="emoji"
-              @click="insertEmoticon(emoji)"
-              class="emoji-btn"
-            >
-              {{ emoji }}
-            </button>
-          </div>
-          <div class="input-row">
-            <input 
-              v-model="messageInput"
-              @keyup.enter="sendMessage"
-              @input="handleTyping"
-              type="text"
-              placeholder="Type a message..."
-              class="message-input"
-            >
-            <button @click="sendMessage" class="send-button">Send</button>
-            <button @click="sendBuzz" class="buzz-button">BUZZ!!</button>
+        <!-- Chat Area -->
+        <div class="ym-chat-area">
+          <template v-if="currentChannel && userName">
+            <!-- Chat Header -->
+            <div class="chat-header">
+              <span class="channel-icon">#</span>
+              <span class="channel-title">{{ currentChannel.name }}</span>
+              <span class="channel-topic">{{ currentChannel.topic }}</span>
+            </div>
+  
+            <!-- Messages -->
+            <div class="chat-messages" ref="messagesContainer">
+              <div 
+                v-for="(msg, index) in messages" 
+                :key="index"
+                class="message"
+                :class="{ 'own': msg.sender === userName }"
+              >
+                <div class="message-avatar">{{ msg.avatar }}</div>
+                <div class="message-content">
+                  <div class="message-header">
+                    <span class="message-sender">{{ msg.sender }}</span>
+                    <span class="message-time">{{ formatTime(msg.timestamp) }}</span>
+                  </div>
+                  <div class="message-text">{{ msg.text }}</div>
+                </div>
+              </div>
+            </div>
+  
+            <!-- Input Area -->
+            <div class="chat-input-area">
+              <div class="emoticons">
+                <button 
+                  v-for="emoji in emoticons" 
+                  :key="emoji"
+                  @click="insertEmoticon(emoji)"
+                  class="emoji-btn"
+                >
+                  {{ emoji }}
+                </button>
+              </div>
+              <div class="input-row">
+                <input 
+                  v-model="messageInput"
+                  @keyup.enter="sendMessage"
+                  type="text"
+                  :placeholder="`Message #${currentChannel.name}`"
+                  class="message-input"
+                >
+                <button @click="sendMessage" class="send-button">Send</button>
+                <button @click="sendBuzz" class="buzz-button">BUZZ!!</button>
+              </div>
+            </div>
+          </template>
+  
+          <!-- Welcome Screen -->
+          <div v-else class="welcome-screen">
+            <img src="/icons/apps/yahooMessenger.png" alt="Y!" class="welcome-logo">
+            <h2>Welcome to Yahoo! Messenger</h2>
+            <p v-if="!userName">Enter your name to start chatting</p>
+            <p v-else>Select a channel to start chatting</p>
           </div>
         </div>
       </div>
@@ -115,161 +148,266 @@
   </template>
   
   <script setup lang="ts">
-  import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+  import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
   
   interface Message {
     text: string
-    sender: 'me' | 'buddy'
-    timestamp: Date
+    sender: string
+    avatar: string
+    timestamp: number
+    id?: string
   }
   
-  interface Connection {
-    peer: string
-    conn: any
-    unread: number
+  interface Channel {
+    id: string
+    name: string
+    topic: string
   }
   
   // State
-  const myPeerId = ref('')
-  const friendId = ref('')
-  const isConnected = ref(false)
+  const userName = ref('')
+  const nameInput = ref('')
   const messageInput = ref('')
+  const currentChannel = ref<Channel | null>(null)
   const messages = ref<Message[]>([])
-  const currentChat = ref<Connection | null>(null)
-  const activeConnections = ref<Connection[]>([])
-  const isTyping = ref(false)
+  const onlineUsers = ref<string[]>([])
   const messagesContainer = ref<HTMLElement>()
   const messageSound = ref<HTMLAudioElement>()
   const buzzSound = ref<HTMLAudioElement>()
   
-  // PeerJS instance
-  let peer: any = null
-  let typingTimeout: NodeJS.Timeout
+  // Gun instance
+  let gun: any = null
+  let channelRef: any = null
+  let usersRef: any = null
   
   // Emoticons
   const emoticons = ['😊', '😂', '❤️', '👍', '😎', '🤔', '😭', '🎉']
   
-  // Initialize PeerJS
-  onMounted(async () => {
-    // Load PeerJS library
+  // Channels data
+  const channels: Channel[] = [
+    {
+      id: 'general',
+      name: 'general',
+      topic: 'General discussion and announcements'
+    },
+    {
+      id: 'design',
+      name: 'design',
+      topic: 'Design discussions and feedback'
+    },
+    {
+      id: 'gaming',
+      name: 'gaming',
+      topic: 'Gaming news and discussions'
+    },
+    {
+      id: 'music',
+      name: 'music',
+      topic: 'Share and discuss music'
+    }
+  ]
+  
+  // Initialize Gun.js on mount
+  onMounted(() => {
+    // Load Gun.js library
     const script = document.createElement('script')
-    script.src = 'https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js'
+    script.src = 'https://cdn.jsdelivr.net/npm/gun/gun.js'
     script.onload = () => {
-      initializePeer()
+      initializeGun()
     }
     document.head.appendChild(script)
+  
+    // Check for saved username
+    const savedName = localStorage.getItem('yahoomessenger:username')
+    if (savedName) {
+      userName.value = savedName
+      nameInput.value = savedName
+    }
   })
   
-  const initializePeer = () => {
+  const initializeGun = () => {
     // @ts-ignore
-    peer = new Peer()
+    gun = Gun(['https://gun-manhattan.herokuapp.com/gun'])
     
-    peer.on('open', (id: string) => {
-      myPeerId.value = id
-      isConnected.value = true
-    })
-  
-    peer.on('connection', (conn: any) => {
-      setupConnection(conn)
-    })
-  
-    peer.on('error', (err: any) => {
-      console.error('PeerJS error:', err)
-      isConnected.value = false
-    })
-  }
-  
-  const setupConnection = (conn: any) => {
-    const connection: Connection = {
-      peer: conn.peer,
-      conn: conn,
-      unread: 0
-    }
-  
-    conn.on('open', () => {
-      activeConnections.value.push(connection)
-      playSound('message')
-    })
-  
-    conn.on('data', (data: any) => {
-      if (data.type === 'message') {
-        handleIncomingMessage(connection, data.text)
-      } else if (data.type === 'typing') {
-        if (currentChat.value?.peer === connection.peer) {
-          isTyping.value = true
-          clearTimeout(typingTimeout)
-          typingTimeout = setTimeout(() => {
-            isTyping.value = false
-          }, 1000)
+    // Track online users
+    usersRef = gun.get('yahoomessenger-users')
+    usersRef.map().on((data: any, key: string) => {
+      if (data && data.online) {
+        if (!onlineUsers.value.includes(data.name)) {
+          onlineUsers.value.push(data.name)
         }
-      } else if (data.type === 'buzz') {
-        handleBuzz()
       }
     })
   
-    conn.on('close', () => {
-      activeConnections.value = activeConnections.value.filter(c => c.peer !== connection.peer)
-      if (currentChat.value?.peer === connection.peer) {
-        currentChat.value = null
-      }
-    })
+    // If user already has a name, announce presence
+    if (userName.value) {
+      announcePresence()
+    }
   }
   
-  const connectToPeer = () => {
-    if (!friendId.value || !peer) return
+  const setUserName = () => {
+    if (!nameInput.value.trim()) return
     
-    const conn = peer.connect(friendId.value)
-    setupConnection(conn)
-    friendId.value = ''
+    userName.value = nameInput.value.trim()
+    localStorage.setItem('yahoomessenger:username', userName.value)
+    
+    if (gun && usersRef) {
+      announcePresence()
+    }
+    
+    // Auto-select first channel
+    selectChannel(channels[0])
   }
   
-  const selectChat = (connection: Connection) => {
-    currentChat.value = connection
-    connection.unread = 0
-    messages.value = [] // In real app, you'd store messages per connection
+  const announcePresence = () => {
+    if (!usersRef || !userName.value) return
+    
+    const userRef = usersRef.get(userName.value)
+    userRef.put({
+      name: userName.value,
+      online: true,
+      lastSeen: Date.now()
+    })
+    
+    // Update presence every 30 seconds
+    const presenceInterval = setInterval(() => {
+      if (userName.value) {
+        userRef.put({
+          name: userName.value,
+          online: true,
+          lastSeen: Date.now()
+        })
+      }
+    }, 30000)
+    
+    // Clean up on unmount
+    onUnmounted(() => {
+      clearInterval(presenceInterval)
+      userRef.put({
+        name: userName.value,
+        online: false,
+        lastSeen: Date.now()
+      })
+    })
+  }
+  
+  const selectChannel = (channel: Channel) => {
+    currentChannel.value = channel
+    messages.value = []
+    
+    // Unsubscribe from previous channel
+    if (channelRef) {
+      channelRef.off()
+    }
+    
+    // Subscribe to new channel
+    if (gun) {
+      channelRef = gun.get(`yahoomessenger-channel-${channel.id}`)
+      
+      // Load existing messages
+      channelRef.map().once((data: any, key: string) => {
+        if (data && data.text) {
+          const msg: Message = {
+            id: key,
+            text: data.text,
+            sender: data.sender,
+            avatar: data.avatar || '👤',
+            timestamp: data.timestamp
+          }
+          
+          // Add message if not already present
+          if (!messages.value.find(m => m.id === key)) {
+            messages.value.push(msg)
+            messages.value.sort((a, b) => a.timestamp - b.timestamp)
+            nextTick(() => scrollToBottom())
+          }
+        }
+      })
+      
+      // Listen for new messages
+      channelRef.map().on((data: any, key: string) => {
+        if (data && data.text) {
+          const existingIndex = messages.value.findIndex(m => m.id === key)
+          if (existingIndex === -1) {
+            const msg: Message = {
+              id: key,
+              text: data.text,
+              sender: data.sender,
+              avatar: data.avatar || '👤',
+              timestamp: data.timestamp
+            }
+            messages.value.push(msg)
+            messages.value.sort((a, b) => a.timestamp - b.timestamp)
+            
+            // Play sound for new messages from others
+            if (data.sender !== userName.value) {
+              playSound('message')
+            }
+            
+            nextTick(() => scrollToBottom())
+          }
+        }
+      })
+    }
+    
+    nextTick(() => scrollToBottom())
   }
   
   const sendMessage = () => {
-    if (!messageInput.value || !currentChat.value) return
+    if (!messageInput.value || !currentChannel.value || !channelRef) return
     
-    const message: Message = {
+    const message = {
       text: messageInput.value,
-      sender: 'me',
-      timestamp: new Date()
+      sender: userName.value,
+      avatar: '😊',
+      timestamp: Date.now()
     }
     
-    messages.value.push(message)
-    currentChat.value.conn.send({
-      type: 'message',
-      text: messageInput.value
-    })
+    // Send to Gun
+    const messageId = `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    channelRef.get(messageId).put(message)
     
+    // Clear input
     messageInput.value = ''
-    scrollToBottom()
-  }
-  
-  const handleIncomingMessage = (connection: Connection, text: string) => {
-    if (currentChat.value?.peer === connection.peer) {
-      messages.value.push({
-        text: text,
-        sender: 'buddy',
-        timestamp: new Date()
-      })
-      scrollToBottom()
-    } else {
-      connection.unread++
+    
+    // Add Rahul's response for #general channel sometimes
+    if (currentChannel.value.id === 'general' && Math.random() > 0.7) {
+      setTimeout(() => {
+        const rahulResponses = [
+          "Hey! That's interesting!",
+          "I agree with that point.",
+          "Thanks for sharing!",
+          "Good to know!",
+          "That makes sense.",
+          "Interesting perspective!"
+        ]
+        
+        const rahulMessage = {
+          text: rahulResponses[Math.floor(Math.random() * rahulResponses.length)],
+          sender: 'Rahul',
+          avatar: '👤',
+          timestamp: Date.now()
+        }
+        
+        const rahulId = `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+        channelRef.get(rahulId).put(rahulMessage)
+      }, 2000 + Math.random() * 3000)
     }
-    playSound('message')
-  }
-  
-  const handleTyping = () => {
-    if (!currentChat.value) return
-    currentChat.value.conn.send({ type: 'typing' })
   }
   
   const sendBuzz = () => {
-    if (!currentChat.value) return
-    currentChat.value.conn.send({ type: 'buzz' })
+    if (!currentChannel.value || !channelRef) return
+    
+    const buzzMessage = {
+      text: '🔔 BUZZ!! 🔔',
+      sender: userName.value,
+      avatar: '😊',
+      timestamp: Date.now()
+    }
+    
+    const messageId = `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    channelRef.get(messageId).put(buzzMessage)
+    
     handleBuzz()
   }
   
@@ -289,31 +427,26 @@
     messageInput.value += emoji
   }
   
-  const copyId = () => {
-    navigator.clipboard.writeText(myPeerId.value)
-  }
-  
-  const disconnect = () => {
-    if (currentChat.value) {
-      currentChat.value.conn.close()
-      currentChat.value = null
+  const formatTime = (timestamp: number) => {
+    const date = new Date(timestamp)
+    const now = new Date()
+    const diff = now.getTime() - date.getTime()
+    const hours = Math.floor(diff / 3600000)
+    
+    if (hours < 1) {
+      const mins = Math.floor(diff / 60000)
+      return mins <= 1 ? 'just now' : `${mins}m ago`
+    } else if (hours < 24) {
+      return `${hours}h ago`
+    } else {
+      return date.toLocaleDateString()
     }
   }
   
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-US', { 
-      hour: 'numeric', 
-      minute: '2-digit',
-      hour12: true 
-    })
-  }
-  
   const scrollToBottom = () => {
-    nextTick(() => {
-      if (messagesContainer.value) {
-        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
-      }
-    })
+    if (messagesContainer.value) {
+      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+    }
   }
   
   const playSound = (type: 'message' | 'buzz') => {
@@ -328,9 +461,17 @@
     }
   }
   
+  // Clean up on unmount
   onUnmounted(() => {
-    if (peer) {
-      peer.destroy()
+    if (channelRef) {
+      channelRef.off()
+    }
+    if (usersRef && userName.value) {
+      usersRef.get(userName.value).put({
+        name: userName.value,
+        online: false,
+        lastSeen: Date.now()
+      })
     }
   })
   </script>
@@ -339,11 +480,10 @@
   .yahoo-messenger {
     width: 100%;
     height: 100%;
-    background: linear-gradient(180deg, #6B46C1 0%, #9333EA 100%);
     display: flex;
     flex-direction: column;
     font-family: 'Tahoma', 'Segoe UI', sans-serif;
-    color: #333;
+    background: #f0f0f0;
   }
   
   /* Header */
@@ -380,145 +520,157 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #ccc;
-  }
-  
-  .status-indicator.online {
     background: #4ade80;
     box-shadow: 0 0 4px #4ade80;
   }
   
-  /* Connection Panel */
-  .ym-connection-panel {
+  /* Main Layout */
+  .ym-main {
     flex: 1;
-    background: white;
-    padding: 20px;
-    overflow-y: auto;
-  }
-  
-  .connection-section {
-    margin-bottom: 20px;
-  }
-  
-  .connection-section h3 {
-    margin-bottom: 10px;
-    color: #7C3AED;
-    font-size: 14px;
-  }
-  
-  .id-display {
     display: flex;
-    gap: 10px;
+    overflow: hidden;
   }
   
-  .id-input {
-    flex: 1;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-family: monospace;
-    font-size: 12px;
-    background: #f5f5f5;
-  }
-  
-  .friend-input {
-    flex: 1;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 12px;
-  }
-  
-  .connect-form {
+  /* Sidebar */
+  .ym-sidebar {
+    width: 200px;
+    background: #2c2c2c;
+    color: white;
     display: flex;
-    gap: 10px;
+    flex-direction: column;
+    border-right: 1px solid #404040;
   }
   
-  .help-text {
-    margin-top: 5px;
-    font-size: 11px;
-    color: #666;
+  .user-section {
+    padding: 15px;
   }
   
-  .divider {
-    height: 1px;
-    background: #e5e5e5;
-    margin: 20px 0;
+  .user-setup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
   }
   
-  .ym-button {
-    padding: 8px 16px;
-    background: #f0f0f0;
-    border: 1px solid #ccc;
+  .name-input {
+    padding: 8px;
+    border: 1px solid #555;
     border-radius: 4px;
-    cursor: pointer;
-    font-size: 12px;
-    transition: all 0.2s;
+    background: #1a1a1a;
+    color: white;
+    font-size: 13px;
   }
   
-  .ym-button:hover {
-    background: #e0e0e0;
-  }
-  
-  .ym-button.primary {
+  .set-name-btn {
+    padding: 8px;
     background: #7C3AED;
     color: white;
-    border-color: #7C3AED;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
   }
   
-  .ym-button.primary:hover {
+  .set-name-btn:hover {
     background: #6B46C1;
   }
   
-  /* Active Chats */
-  .active-chats {
-    margin-top: 30px;
-  }
-  
-  .active-chats h3 {
-    margin-bottom: 10px;
-    color: #7C3AED;
-    font-size: 14px;
-  }
-  
-  .chat-list {
-    border: 1px solid #e5e5e5;
-    border-radius: 4px;
-  }
-  
-  .chat-item {
-    padding: 10px;
+  .user-item {
     display: flex;
     align-items: center;
     gap: 8px;
+    padding: 8px;
+    border-radius: 6px;
     cursor: pointer;
     transition: background 0.2s;
-    border-bottom: 1px solid #f0f0f0;
   }
   
-  .chat-item:last-child {
-    border-bottom: none;
+  .user-item:hover {
+    background: #404040;
   }
   
-  .chat-item:hover {
-    background: #f8f8f8;
+  .user-item.active {
+    background: #404040;
   }
   
-  .chat-name {
+  .user-avatar {
+    font-size: 20px;
+  }
+  
+  .user-name {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #4ade80;
+  }
+  
+  .section-divider {
+    height: 1px;
+    background: #404040;
+    margin: 0 15px;
+  }
+  
+  .users-section {
+    padding: 15px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  
+  .channels-section {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+  }
+  
+  .section-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #999;
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  
+  .channel-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 2px;
+  }
+  
+  .channel-item:hover {
+    background: #404040;
+  }
+  
+  .channel-item.active {
+    background: #7C3AED;
+  }
+  
+  .channel-icon {
+    color: #999;
+    font-size: 14px;
+  }
+  
+  .channel-item.active .channel-icon {
+    color: white;
+  }
+  
+  .channel-name {
     flex: 1;
     font-size: 13px;
   }
   
-  .unread-badge {
-    background: #ef4444;
-    color: white;
-    font-size: 10px;
-    padding: 2px 6px;
-    border-radius: 10px;
-  }
-  
-  /* Chat Window */
-  .ym-chat-window {
+  /* Chat Area */
+  .ym-chat-area {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -526,91 +678,104 @@
   }
   
   .chat-header {
-    background: linear-gradient(90deg, #7C3AED, #A855F7);
-    padding: 10px 15px;
+    padding: 15px 20px;
+    border-bottom: 1px solid #e5e5e5;
     display: flex;
     align-items: center;
-    gap: 10px;
-    color: white;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    gap: 8px;
+    background: white;
   }
   
-  .back-button,
-  .disconnect-button {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 18px;
-    cursor: pointer;
-    padding: 0;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .channel-title {
+    font-weight: 600;
+    font-size: 15px;
+    color: #333;
   }
   
-  .chat-buddy {
-    flex: 1;
-    font-weight: bold;
-    font-size: 14px;
-  }
-  
-  .typing-indicator {
-    font-size: 11px;
-    font-style: italic;
-    opacity: 0.8;
+  .channel-topic {
+    color: #666;
+    font-size: 12px;
+    margin-left: auto;
   }
   
   .chat-messages {
     flex: 1;
-    padding: 15px;
+    padding: 20px;
     overflow-y: auto;
     background: #f8f8f8;
   }
   
   .message {
-    margin-bottom: 10px;
     display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
   }
   
   .message.own {
-    justify-content: flex-end;
+    flex-direction: row-reverse;
   }
   
-  .message.buddy {
-    justify-content: flex-start;
-  }
-  
-  .message-bubble {
-    max-width: 70%;
-    padding: 8px 12px;
-    border-radius: 15px;
-    position: relative;
-  }
-  
-  .message.own .message-bubble {
+  .message-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
     background: #7C3AED;
-    color: white;
-    border-bottom-right-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
   }
   
-  .message.buddy .message-bubble {
-    background: white;
-    border: 1px solid #e5e5e5;
-    border-bottom-left-radius: 5px;
+  .message.own .message-avatar {
+    background: #A855F7;
   }
   
-  .message-text {
+  .message-content {
+    flex: 1;
+    max-width: 60%;
+  }
+  
+  .message.own .message-content {
+    align-items: flex-end;
+  }
+  
+  .message-header {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+    margin-bottom: 4px;
+  }
+  
+  .message.own .message-header {
+    flex-direction: row-reverse;
+  }
+  
+  .message-sender {
+    font-weight: 600;
     font-size: 13px;
-    word-wrap: break-word;
+    color: #333;
   }
   
   .message-time {
-    display: block;
-    font-size: 10px;
-    margin-top: 3px;
-    opacity: 0.7;
+    font-size: 11px;
+    color: #999;
+  }
+  
+  .message-text {
+    background: white;
+    padding: 10px 14px;
+    border-radius: 18px;
+    font-size: 14px;
+    color: #333;
+    border: 1px solid #e5e5e5;
+    word-wrap: break-word;
+  }
+  
+  .message.own .message-text {
+    background: #7C3AED;
+    color: white;
+    border: none;
   }
   
   /* Input Area */
@@ -649,7 +814,7 @@
   
   .message-input {
     flex: 1;
-    padding: 8px;
+    padding: 8px 12px;
     border: 1px solid #ddd;
     border-radius: 20px;
     font-size: 13px;
@@ -693,6 +858,33 @@
     transform: scale(1.05);
   }
   
+  /* Welcome Screen */
+  .welcome-screen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+  }
+  
+  .welcome-logo {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+  }
+  
+  .welcome-screen h2 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 10px;
+  }
+  
+  .welcome-screen p {
+    font-size: 14px;
+  }
+  
   /* Buzz shake animation */
   @keyframes buzz-shake {
     0%, 100% { transform: translateX(0); }
@@ -704,3 +896,4 @@
     animation: buzz-shake 0.5s;
   }
   </style>
+  
