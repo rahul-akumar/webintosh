@@ -5,7 +5,17 @@ export default defineNuxtConfig({
 
   app: {
     // Dynamic base URL: uses environment variable for PR previews, defaults to /webintosh/ for production
-    baseURL: process.env.NUXT_APP_BASE_URL || '/webintosh/'
+    baseURL: process.env.NUXT_APP_BASE_URL || '/webintosh/',
+    head: {
+      title: 'Webintosh',
+      meta: [
+        { charset: 'utf-8' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' }
+      ],
+      link: [
+        { rel: 'icon', type: 'image/png', href: '/icons/system/apple.png' }
+      ]
+    }
   },
 
   nitro: {
