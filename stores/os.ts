@@ -116,10 +116,13 @@ export const useOSStore = defineStore('os', {
       try {
         const raw = localStorage.getItem('webintosh:session:v1')
         if (!raw) {
-          // First time - set default wallpaper
+          // First time - set default wallpaper with proper base URL
+          const baseURL = typeof window !== 'undefined' && window.location.pathname.includes('/webintosh/') 
+            ? '/webintosh/' 
+            : '/'
           this.wallpaper = {
             type: 'video',
-            value: '/wallpapers/end-of-daylight.mp4'
+            value: `${baseURL}wallpapers/end-of-daylight.mp4`
           }
           return
         }
@@ -133,10 +136,13 @@ export const useOSStore = defineStore('os', {
         if ('wallpaper' in parsed) {
           this.wallpaper = parsed.wallpaper
         } else {
-          // No wallpaper in saved session - set default
+          // No wallpaper in saved session - set default with proper base URL
+          const baseURL = typeof window !== 'undefined' && window.location.pathname.includes('/webintosh/') 
+            ? '/webintosh/' 
+            : '/'
           this.wallpaper = {
             type: 'video',
-            value: '/wallpapers/end-of-daylight.mp4'
+            value: `${baseURL}wallpapers/end-of-daylight.mp4`
           }
         }
         if (typeof parsed?.theme === 'string') {
