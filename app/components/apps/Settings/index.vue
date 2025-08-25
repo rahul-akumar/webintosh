@@ -373,7 +373,6 @@ const previewStyle = computed(() => {
 const staticWallpapers = [
   { id: 'mac', name: 'mac', type: 'image', value: useAssetUrl('wallpapers/mac.jpg') },
   { id: 'windows', name: 'windows', type: 'image', value: useAssetUrl('wallpapers/windows.jpg') },
-  { id: 'catalina', name: 'Catalina', type: 'image', value: 'https://wallpapercave.com/wp/wp5559260.jpg' },
   { id: 'old-signal', name: 'old signal', type: 'image', value: useAssetUrl('wallpapers/old-signal.jpg') },
 ]
 
@@ -417,19 +416,10 @@ onMounted(() => {
     }
   }
   
-  // Load current wallpaper (handle both legacy and new format)
+  // Load current wallpaper
   const storedWallpaper = osStore.wallpaper
   if (storedWallpaper) {
-    // Try to parse as object if it's a string that looks like JSON
-    if (typeof storedWallpaper === 'string' && storedWallpaper.startsWith('{')) {
-      try {
-        currentWallpaper.value = JSON.parse(storedWallpaper)
-      } catch {
-        currentWallpaper.value = storedWallpaper
-      }
-    } else {
-      currentWallpaper.value = storedWallpaper
-    }
+    currentWallpaper.value = storedWallpaper
   }
   
   // Load current theme
@@ -445,7 +435,7 @@ const setWallpaper = (wallpaperConfig: any) => {
   }
   
   currentWallpaper.value = wallpaperObject
-  osStore.setWallpaper(JSON.stringify(wallpaperObject))
+  osStore.setWallpaper(wallpaperObject)
 }
 
 // Handle file upload

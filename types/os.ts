@@ -84,9 +84,9 @@ export interface OSState {
    */
   snapThreshold: number;
   /**
-   * Desktop wallpaper URL or null for default background
+   * Desktop wallpaper object with type and value or null for default background
    */
-  wallpaper?: string | null;
+  wallpaper?: { type: string; value: string } | null;
   /**
    * Current theme name (e.g., 'glassmorphic-light', 'oldschool-dark')
    */

@@ -59,52 +59,20 @@ const apps = useAppsStore()
 
 // Parse wallpaper data
 const wallpaperData = computed(() => {
-  if (!store.wallpaper) return null
-  
-  // Try to parse as JSON if it's a string that looks like JSON
-  if (typeof store.wallpaper === 'string' && store.wallpaper.startsWith('{')) {
-    try {
-      return JSON.parse(store.wallpaper)
-    } catch {
-      // Fall back to legacy string format
-      return store.wallpaper
-    }
-  }
-  
+  // wallpaper is now always an object or null from the store
   return store.wallpaper
 })
 
 // Determine wallpaper type
 const wallpaperType = computed(() => {
   if (!wallpaperData.value) return null
-  
-  // New object format
-  if (typeof wallpaperData.value === 'object' && wallpaperData.value.type) {
-    return wallpaperData.value.type
-  }
-  
-  // Legacy string format detection
-  const val = String(wallpaperData.value)
-  if (val.includes('.mp4') || val.includes('.webm')) return 'video'
-  if (val.includes('.gif')) return 'gif'
-  if (val.startsWith('url(')) return 'image'
-  if (val.includes('gradient')) return 'gradient'
-  return 'color'
+  return wallpaperData.value.type
 })
 
 // Extract source URL for video/gif
 const wallpaperSrc = computed(() => {
   if (!wallpaperData.value) return ''
-  
-  // New object format
-  if (typeof wallpaperData.value === 'object' && wallpaperData.value.value) {
-    return wallpaperData.value.value
-  }
-  
-  // Extract URL from legacy format
-  const val = String(wallpaperData.value)
-  const match = val.match(/url\("?([^"]+)"?\)/)
-  return match ? match[1] : ''
+  return wallpaperData.value.value
 })
 
 // Wallpaper style computed property for CSS-based wallpapers
@@ -116,37 +84,18 @@ const wallpaperStyle = computed(() => {
   
   if (!wallpaperData.value) return {}
   
-  // New object format
-  if (typeof wallpaperData.value === 'object') {
-    if (wallpaperData.value.type === 'image') {
-      return {
-        backgroundImage: `url(${wallpaperData.value.value})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-      }
-    }
-    if (wallpaperData.value.type === 'gradient' || wallpaperData.value.type === 'color') {
-      return {
-        background: wallpaperData.value.value
-      }
-    }
-  }
-  
-  // Legacy string format
-  const val = String(wallpaperData.value)
-  if (val.startsWith('url(') || val.includes('gradient')) {
+  if (wallpaperData.value.type === 'image') {
     return {
-      background: val,
+      backgroundImage: `url(${wallpaperData.value.value})`,
       backgroundSize: 'cover',
       backgroundPosition: 'center',
       backgroundRepeat: 'no-repeat'
     }
   }
   
-  // Solid colors
+  // Gradient or solid color
   return {
-    background: val
+    background: wallpaperData.value.value
   }
 })
 

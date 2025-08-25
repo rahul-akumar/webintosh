@@ -39,15 +39,17 @@
     </div>
 
     <!-- Dropdown for the active section -->
-    <OsMenuDropdown
-      v-if="isMenubarOpen && currentEntries.length"
-      :entries="currentEntries"
-      :origin="dropdownOrigin"
-      :z="2000"
-      @executed="onExecuted"
-      @navLeft="onNavLeft"
-      @navRight="onNavRight"
-    />
+    <Teleport to="body">
+      <OsMenuDropdown
+        v-if="isMenubarOpen && currentEntries.length"
+        :entries="currentEntries"
+        :origin="dropdownOrigin"
+        :z="2000"
+        @executed="onExecuted"
+        @navLeft="onNavLeft"
+        @navRight="onNavRight"
+      />
+    </Teleport>
   </header>
 </template>
 

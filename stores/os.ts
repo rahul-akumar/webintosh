@@ -54,10 +54,7 @@ export const useOSStore = defineStore('os', {
     menuBarHeight: 40,
     desktopPadding: 8,
     snapThreshold: 16,
-    wallpaper: {
-      type: 'video',
-      value: '/wallpapers/end-of-daylight.mp4'
-    },
+    wallpaper: null,
     theme: 'glassmorphic-light'
   }),
 
@@ -118,15 +115,29 @@ export const useOSStore = defineStore('os', {
       if (typeof localStorage === 'undefined') return
       try {
         const raw = localStorage.getItem('webintosh:session:v1')
-        if (!raw) return
+        if (!raw) {
+          // First time - set default wallpaper
+          this.wallpaper = {
+            type: 'video',
+            value: '/wallpapers/end-of-daylight.mp4'
+          }
+          return
+        }
         const parsed = JSON.parse(raw)
         if (Array.isArray(parsed?.windows)) {
           this.windows = parsed.windows as OSWindowModel[]
         }
         if (typeof parsed?.nextWindowId === 'number') this.nextWindowId = parsed.nextWindowId
         if (typeof parsed?.nextZ === 'number') this.nextZ = parsed.nextZ
-        if (typeof parsed?.wallpaper === 'object' || parsed?.wallpaper === null) {
+        // Always load wallpaper if it exists in the session
+        if ('wallpaper' in parsed) {
           this.wallpaper = parsed.wallpaper
+        } else {
+          // No wallpaper in saved session - set default
+          this.wallpaper = {
+            type: 'video',
+            value: '/wallpapers/end-of-daylight.mp4'
+          }
         }
         if (typeof parsed?.theme === 'string') {
           this.theme = parsed.theme
@@ -483,8 +494,8 @@ export const useOSStore = defineStore('os', {
     },
 
     // ---------- Wallpaper ----------
-    setWallpaper(url: string | null) {
-      this.wallpaper = url
+    setWallpaper(wallpaper: { type: string; value: string } | null) {
+      this.wallpaper = wallpaper
       this.saveSession()
     },
 
