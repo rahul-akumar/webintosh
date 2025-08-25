@@ -1,11 +1,13 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+const baseURL = process.env.NUXT_APP_BASE_URL || '/webintosh/'
+
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
 
   app: {
     // Dynamic base URL: uses environment variable for PR previews, defaults to /webintosh/ for production
-    baseURL: process.env.NUXT_APP_BASE_URL || '/webintosh/',
+    baseURL,
     head: {
       title: 'Webintosh',
       meta: [
@@ -13,7 +15,7 @@ export default defineNuxtConfig({
         { name: 'viewport', content: 'width=device-width, initial-scale=1' }
       ],
       link: [
-        { rel: 'icon', type: 'image/png', href: '/icons/system/apple.png' }
+        { rel: 'icon', type: 'image/png', href: `${baseURL}icons/system/apple.png` }
       ]
     }
   },
