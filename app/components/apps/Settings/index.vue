@@ -34,7 +34,22 @@
           <div class="current-wallpaper">
             <h2 class="section-title">Current Wallpaper</h2>
             <div class="wallpaper-preview" :style="previewStyle">
-              <span v-if="!currentWallpaper" class="preview-placeholder">No wallpaper set</span>
+              <!-- Video preview for video wallpapers -->
+              <video 
+                v-if="currentWallpaperType === 'video'"
+                :src="currentWallpaperSrc"
+                autoplay
+                loop
+                muted
+                class="preview-video"
+              />
+              <!-- Image preview for GIF wallpapers -->
+              <img 
+                v-else-if="currentWallpaperType === 'gif'"
+                :src="currentWallpaperSrc"
+                class="preview-image"
+              />
+              <span v-else-if="!currentWallpaper" class="preview-placeholder">No wallpaper set</span>
             </div>
           </div>
 
@@ -47,9 +62,9 @@
                 <button
                   v-for="wallpaper in staticWallpapers"
                   :key="wallpaper.id"
-                  @click="setWallpaper(wallpaper.value)"
+                  @click="setWallpaper(wallpaper)"
                   class="wallpaper-item"
-                  :style="{ backgroundImage: wallpaper.value }"
+                  :style="{ backgroundImage: wallpaper.type === 'image' ? `url(${wallpaper.value})` : wallpaper.value }"
                   :title="wallpaper.name"
                 >
                   <span class="wallpaper-name">{{ wallpaper.name }}</span>
@@ -64,8 +79,9 @@
                 <button
                   v-for="wallpaper in dynamicWallpapers"
                   :key="wallpaper.id"
-                  @click="setWallpaper(wallpaper.value)"
+                  @click="setWallpaper(wallpaper)"
                   class="wallpaper-item dynamic"
+                  :style="{ background: wallpaper.value }"
                   :title="wallpaper.name"
                 >
                   <span class="wallpaper-icon">🌅</span>
@@ -81,11 +97,27 @@
                 <button
                   v-for="wallpaper in liveWallpapers"
                   :key="wallpaper.id"
-                  @click="setWallpaper(wallpaper.value)"
+                  @click="setWallpaper(wallpaper)"
                   class="wallpaper-item live"
                   :title="wallpaper.name"
                 >
-                  <span class="wallpaper-icon">🎬</span>
+                  <!-- Video thumbnail for video wallpapers -->
+                  <video 
+                    v-if="wallpaper.type === 'video'"
+                    :src="wallpaper.value"
+                    class="wallpaper-thumbnail-video"
+                    muted
+                    loop
+                    @mouseenter="$event.target.play()"
+                    @mouseleave="$event.target.pause()"
+                  />
+                  <!-- GIF thumbnail -->
+                  <img 
+                    v-else-if="wallpaper.type === 'gif'"
+                    :src="wallpaper.value"
+                    class="wallpaper-thumbnail-image"
+                  />
+                  <span class="wallpaper-icon" v-else>🎬</span>
                   <span class="wallpaper-name">{{ wallpaper.name }}</span>
                 </button>
               </div>
@@ -98,7 +130,7 @@
                 <button
                   v-for="color in solidColors"
                   :key="color.id"
-                  @click="setWallpaper(color.value)"
+                  @click="setWallpaper(color)"
                   class="wallpaper-item color"
                   :style="{ background: color.value }"
                   :title="color.name"
@@ -115,7 +147,7 @@
                 <button
                   v-for="gradient in gradients"
                   :key="gradient.id"
-                  @click="setWallpaper(gradient.value)"
+                  @click="setWallpaper(gradient)"
                   class="wallpaper-item gradient"
                   :style="{ background: gradient.value }"
                   :title="gradient.name"
@@ -264,7 +296,7 @@ const winModel = inject<OSWindowModel | null>('window', null)
 const osStore = useOSStore()
 const searchQuery = ref('')
 const activePanel = ref('wallpaper')
-const currentWallpaper = ref('')
+const currentWallpaper = ref<any>(null)
 const currentTheme = ref('glassmorphic-light')
 
 // Navigation items
@@ -284,51 +316,95 @@ const filteredNavItems = computed(() => {
   )
 })
 
+// Computed properties for wallpaper type detection
+const currentWallpaperType = computed(() => {
+  if (!currentWallpaper.value) return null
+  if (typeof currentWallpaper.value === 'object' && currentWallpaper.value.type) {
+    return currentWallpaper.value.type
+  }
+  // Legacy string format detection
+  const val = String(currentWallpaper.value)
+  if (val.includes('.mp4') || val.includes('.webm')) return 'video'
+  if (val.includes('.gif')) return 'gif'
+  if (val.startsWith('url(')) return 'image'
+  if (val.includes('gradient')) return 'gradient'
+  return 'color'
+})
+
+const currentWallpaperSrc = computed(() => {
+  if (!currentWallpaper.value) return ''
+  if (typeof currentWallpaper.value === 'object' && currentWallpaper.value.value) {
+    return currentWallpaper.value.value
+  }
+  // Extract URL from legacy format
+  const val = String(currentWallpaper.value)
+  const match = val.match(/url\("?([^"]+)"?\)/)
+  return match ? match[1] : ''
+})
+
 // Wallpaper preview style
 const previewStyle = computed(() => {
   if (!currentWallpaper.value) return {}
-  if (currentWallpaper.value.startsWith('url(')) {
-    return { backgroundImage: currentWallpaper.value }
+  const type = currentWallpaperType.value
+  
+  // Video and GIF are handled by elements, not CSS
+  if (type === 'video' || type === 'gif') return {}
+  
+  // Handle legacy string format
+  if (typeof currentWallpaper.value === 'string') {
+    if (currentWallpaper.value.startsWith('url(')) {
+      return { backgroundImage: currentWallpaper.value }
+    }
+    return { background: currentWallpaper.value }
   }
-  return { background: currentWallpaper.value }
+  
+  // Handle new object format
+  if (currentWallpaper.value.type === 'image') {
+    return { backgroundImage: `url(${currentWallpaper.value.value})` }
+  }
+  if (currentWallpaper.value.type === 'gradient' || currentWallpaper.value.type === 'color') {
+    return { background: currentWallpaper.value.value }
+  }
+  
+  return {}
 })
 
-// Wallpaper options data
+// Wallpaper options data with proper structure
 const staticWallpapers = [
-  { id: 'mac', name: 'mac', value: `url("${useAssetUrl('wallpapers/mac.jpg')}")` },
-  { id: 'windows', name: 'windows', value: `url("${useAssetUrl('wallpapers/windows.jpg')}")` },
-  { id: 'catalina', name: 'Catalina', value: 'url(https://wallpapercave.com/wp/wp5559260.jpg)' },
-  { id: 'old-signal', name: 'old signal', value: `url("${useAssetUrl('wallpapers/old-signal.jpg')}")` },
+  { id: 'mac', name: 'mac', type: 'image', value: useAssetUrl('wallpapers/mac.jpg') },
+  { id: 'windows', name: 'windows', type: 'image', value: useAssetUrl('wallpapers/windows.jpg') },
+  { id: 'catalina', name: 'Catalina', type: 'image', value: 'https://wallpapercave.com/wp/wp5559260.jpg' },
+  { id: 'old-signal', name: 'old signal', type: 'image', value: useAssetUrl('wallpapers/old-signal.jpg') },
 ]
 
 const dynamicWallpapers = [
-  { id: 'day-night', name: 'Day & Night', value: 'linear-gradient(to bottom, #87CEEB 0%, #1e3c72 100%)' },
-  { id: 'seasons', name: 'Seasons', value: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }
+  { id: 'day-night', name: 'Day & Night', type: 'gradient', value: 'linear-gradient(to bottom, #87CEEB 0%, #1e3c72 100%)' },
+  { id: 'seasons', name: 'Seasons', type: 'gradient', value: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }
 ]
 
 const liveWallpapers = [
-  { id: 'ocean-waves', name: 'Ocean Waves', value: `url("${useAssetUrl('wallpapers/end-of-daylight.mp4')}") center/cover no-repeat` },
-  { id: 'ROG', name: 'ROG', value: `url("${useAssetUrl('wallpapers/ROG.gif')}") center/cover no-repeat` },
+  { id: 'ocean-waves', name: 'Ocean Waves', type: 'video', value: useAssetUrl('wallpapers/end-of-daylight.mp4') },
+  { id: 'ROG', name: 'ROG', type: 'gif', value: useAssetUrl('wallpapers/ROG.gif') },
 ]
 
 const solidColors = [
-  { id: 'blue', name: 'Blue', value: '#007AFF' },
-  { id: 'purple', name: 'Purple', value: '#AF52DE' },
-  { id: 'pink', name: 'Pink', value: '#FF2D55' },
-  { id: 'orange', name: 'Orange', value: '#FF9500' },
-  { id: 'green', name: 'Green', value: '#34C759' },
-  { id: 'gray', name: 'Gray', value: '#8E8E93' },
-  { id: 'black', name: 'Black', value: '#000000' },
-  { id: 'white', name: 'White', value: '#FFFFFF' }
+  { id: 'blue', name: 'Blue', type: 'color', value: '#007AFF' },
+  { id: 'purple', name: 'Purple', type: 'color', value: '#AF52DE' },
+  { id: 'pink', name: 'Pink', type: 'color', value: '#FF2D55' },
+  { id: 'orange', name: 'Orange', type: 'color', value: '#FF9500' },
+  { id: 'green', name: 'Green', type: 'color', value: '#34C759' },
+  { id: 'gray', name: 'Gray', type: 'color', value: '#8E8E93' },
+  { id: 'black', name: 'Black', type: 'color', value: '#000000' },
+  { id: 'white', name: 'White', type: 'color', value: '#FFFFFF' }
 ]
 
 const gradients = [
-  { id: 'sunset', name: 'Sunset', value: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
-  { id: 'ocean', name: 'Ocean', value: 'linear-gradient(to right, #4facfe 0%, #00f2fe 100%)' },
-  { id: 'forest', name: 'Forest', value: 'linear-gradient(to top, #0ba360 0%, #3cba92 100%)' },
-  { id: 'fire', name: 'Fire', value: 'linear-gradient(45deg, #ff0844 0%, #ffb199 100%)' },
-  { id: 'night', name: 'Night Sky', value: 'linear-gradient(to bottom, #1e3c72 0%, #2a5298 100%)' },
-  { id: 'aurora', name: 'Aurora', value: 'linear-gradient(to right, #00d2ff 0%, #3a7bd5 100%)' }
+  { id: 'sunset', name: 'Sunset', type: 'gradient', value: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
+  { id: 'ocean', name: 'Ocean', type: 'gradient', value: 'linear-gradient(to right, #4facfe 0%, #00f2fe 100%)' },
+  { id: 'forest', name: 'Forest', type: 'gradient', value: 'linear-gradient(to top, #0ba360 0%, #3cba92 100%)' },
+  { id: 'fire', name: 'Fire', type: 'gradient', value: 'linear-gradient(45deg, #ff0844 0%, #ffb199 100%)' },
+  { id: 'night', name: 'Night Sky', type: 'gradient', value: 'linear-gradient(to bottom, #1e3c72 0%, #2a5298 100%)' },
+  { id: 'aurora', name: 'Aurora', type: 'gradient', value: 'linear-gradient(to right, #00d2ff 0%, #3a7bd5 100%)' }
 ]
 
 // Initialize
@@ -341,17 +417,35 @@ onMounted(() => {
     }
   }
   
-  // Load current wallpaper
-  currentWallpaper.value = osStore.wallpaper || ''
+  // Load current wallpaper (handle both legacy and new format)
+  const storedWallpaper = osStore.wallpaper
+  if (storedWallpaper) {
+    // Try to parse as object if it's a string that looks like JSON
+    if (typeof storedWallpaper === 'string' && storedWallpaper.startsWith('{')) {
+      try {
+        currentWallpaper.value = JSON.parse(storedWallpaper)
+      } catch {
+        currentWallpaper.value = storedWallpaper
+      }
+    } else {
+      currentWallpaper.value = storedWallpaper
+    }
+  }
   
   // Load current theme
   currentTheme.value = osStore.theme || 'glassmorphic-light'
 })
 
-// Set wallpaper
-const setWallpaper = (value: string) => {
-  currentWallpaper.value = value
-  osStore.setWallpaper(value)
+// Set wallpaper with proper structure
+const setWallpaper = (wallpaperConfig: any) => {
+  // Create structured wallpaper object
+  const wallpaperObject = {
+    type: wallpaperConfig.type,
+    value: wallpaperConfig.value
+  }
+  
+  currentWallpaper.value = wallpaperObject
+  osStore.setWallpaper(JSON.stringify(wallpaperObject))
 }
 
 // Handle file upload
@@ -363,7 +457,7 @@ const handleFileUpload = (event: Event) => {
     const reader = new FileReader()
     reader.onload = (e) => {
       const dataUrl = e.target?.result as string
-      setWallpaper(`url(${dataUrl})`)
+      setWallpaper({ type: 'image', value: dataUrl })
     }
     reader.readAsDataURL(file)
   }
@@ -376,7 +470,7 @@ const handleUrlInput = () => {
     // Validate it's a proper URL
     try {
       new URL(url)
-      setWallpaper(`url(${url})`)
+      setWallpaper({ type: 'image', value: url })
     } catch {
       alert('Please enter a valid URL')
     }
@@ -726,5 +820,43 @@ const setTheme = (theme: string) => {
 .color-option:hover {
   border-color: currentColor;
   transform: scale(1.1);
+}
+
+/* Video and image previews */
+.preview-video,
+.preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--button-border-radius);
+}
+
+.wallpaper-thumbnail-video,
+.wallpaper-thumbnail-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--button-border-radius);
+}
+
+.wallpaper-item.live {
+  position: relative;
+  background: #1a1a1a;
+}
+
+.wallpaper-item.live .wallpaper-name {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+.wallpaper-item.live .wallpaper-icon {
+  position: relative;
+  z-index: 1;
 }
 </style>

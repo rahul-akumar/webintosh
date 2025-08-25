@@ -35,13 +35,14 @@
 [data-theme="oldschool-light"] {
   /* Background Colors */
   --bg-desktop: #5B7C99;
+  --bg-system: #ECECEC;
   --bg-window: #ECECEC;
-  --bg-window-header: linear-gradient(180deg, #FFFFFF 0%, #D8D8D8 100%);
+  --bg-window-header: linear-gradient(180deg, hsl(0, 0%, 100%) 0%, #D8D8D8 100%);
   --bg-menubar: linear-gradient(180deg, #FFFFFF 0%, #E3E3E3 100%);
   --bg-dock: rgba(245, 245, 245, 0.95);
   --bg-context-menu: #FFFFFF;
   --bg-button: linear-gradient(180deg, #FFFFFF 0%, #E6E6E6 100%);
-  --bg-button-hover: linear-gradient(180deg, #F5F5F5 0%, #D6D6D6 100%);
+  --bg-button-hover: #d8d8d8;
   --bg-button-active: linear-gradient(180deg, #D6D6D6 0%, #E6E6E6 100%);
   --bg-input: #FFFFFF;
   --bg-selection: #007AFF;
@@ -81,13 +82,14 @@
 [data-theme="oldschool-dark"] {
   /* Background Colors */
   --bg-desktop: #1E1E1E;
+  --bg-system: #2D2D30;
   --bg-window: #2D2D30;
   --bg-window-header: linear-gradient(180deg, #3C3C3C 0%, #2D2D30 100%);
   --bg-menubar: linear-gradient(180deg, #2D2D30 0%, #252526 100%);
   --bg-dock: rgba(45, 45, 48, 0.95);
   --bg-context-menu: #2D2D30;
   --bg-button: linear-gradient(180deg, #3C3C3C 0%, #2D2D30 100%);
-  --bg-button-hover: linear-gradient(180deg, #464647 0%, #3C3C3C 100%);
+  --bg-button-hover: #3c3c3c;
   --bg-button-active: linear-gradient(180deg, #2D2D30 0%, #3C3C3C 100%);
   --bg-input: #1E1E1E;
   --bg-selection: #0E639C;

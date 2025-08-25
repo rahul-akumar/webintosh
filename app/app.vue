@@ -3,9 +3,26 @@
     <!-- Wallpaper layer - full viewport background -->
     <div 
       class="os-wallpaper"
-      :class="{ 'has-wallpaper': !!store.wallpaper }"
+      :class="{ 'has-wallpaper': !!wallpaperData }"
       :style="wallpaperStyle"
-    />
+    >
+      <!-- Video wallpaper -->
+      <video
+        v-if="wallpaperType === 'video'"
+        :src="wallpaperSrc"
+        autoplay
+        loop
+        muted
+        playsinline
+        class="wallpaper-video"
+      />
+      <!-- GIF wallpaper -->
+      <img
+        v-else-if="wallpaperType === 'gif'"
+        :src="wallpaperSrc"
+        class="wallpaper-image"
+      />
+    </div>
     
     <!-- MenuBar positioned over wallpaper -->
     <OsMenuBar />
@@ -40,24 +57,97 @@ defineOptions({ name: 'AppRoot' })
 const store = useOSStore()
 const apps = useAppsStore()
 
-// Wallpaper style computed property
+// Parse wallpaper data
+const wallpaperData = computed(() => {
+  if (!store.wallpaper) return null
+  
+  // Try to parse as JSON if it's a string that looks like JSON
+  if (typeof store.wallpaper === 'string' && store.wallpaper.startsWith('{')) {
+    try {
+      return JSON.parse(store.wallpaper)
+    } catch {
+      // Fall back to legacy string format
+      return store.wallpaper
+    }
+  }
+  
+  return store.wallpaper
+})
+
+// Determine wallpaper type
+const wallpaperType = computed(() => {
+  if (!wallpaperData.value) return null
+  
+  // New object format
+  if (typeof wallpaperData.value === 'object' && wallpaperData.value.type) {
+    return wallpaperData.value.type
+  }
+  
+  // Legacy string format detection
+  const val = String(wallpaperData.value)
+  if (val.includes('.mp4') || val.includes('.webm')) return 'video'
+  if (val.includes('.gif')) return 'gif'
+  if (val.startsWith('url(')) return 'image'
+  if (val.includes('gradient')) return 'gradient'
+  return 'color'
+})
+
+// Extract source URL for video/gif
+const wallpaperSrc = computed(() => {
+  if (!wallpaperData.value) return ''
+  
+  // New object format
+  if (typeof wallpaperData.value === 'object' && wallpaperData.value.value) {
+    return wallpaperData.value.value
+  }
+  
+  // Extract URL from legacy format
+  const val = String(wallpaperData.value)
+  const match = val.match(/url\("?([^"]+)"?\)/)
+  return match ? match[1] : ''
+})
+
+// Wallpaper style computed property for CSS-based wallpapers
 const wallpaperStyle = computed(() => {
-  if (store.wallpaper) {
-    // Check if wallpaper is already a complete CSS value (url() or gradient)
-    if (store.wallpaper.startsWith('url(') || store.wallpaper.includes('gradient')) {
+  const type = wallpaperType.value
+  
+  // Video and GIF are handled by elements
+  if (type === 'video' || type === 'gif') return {}
+  
+  if (!wallpaperData.value) return {}
+  
+  // New object format
+  if (typeof wallpaperData.value === 'object') {
+    if (wallpaperData.value.type === 'image') {
       return {
-        background: store.wallpaper,
+        backgroundImage: `url(${wallpaperData.value.value})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
       }
     }
-    // For solid colors (hex, rgb, etc)
-    return {
-      background: store.wallpaper
+    if (wallpaperData.value.type === 'gradient' || wallpaperData.value.type === 'color') {
+      return {
+        background: wallpaperData.value.value
+      }
     }
   }
-  return {}
+  
+  // Legacy string format
+  const val = String(wallpaperData.value)
+  if (val.startsWith('url(') || val.includes('gradient')) {
+    return {
+      background: val,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat'
+    }
+  }
+  
+  // Solid colors
+  return {
+    background: val
+  }
 })
 
 onMounted(() => {
@@ -161,15 +251,30 @@ button {
   overflow: hidden;
 }
 
-/* Wallpaper layer - full viewport background */
+/* Wallpaper layer */
 .os-wallpaper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  background-color: var(--bg-desktop, #1a1a1a);
+}
+
+.os-wallpaper.has-wallpaper {
+  /* Remove default background when custom wallpaper is set */
+  background-color: transparent;
+}
+
+.wallpaper-video,
+.wallpaper-image {
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 0;
-  background: var(--bg-desktop);
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 /* MenuBar now positioned over the wallpaper */
