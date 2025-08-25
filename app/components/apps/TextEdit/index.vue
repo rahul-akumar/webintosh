@@ -1,32 +1,32 @@
 <template>
   <div class="textedit-app">
     <!-- Formatting Toolbar -->
-    <div class="toolbar">
+    <div v-if="showToolbar" class="toolbar">
       <!-- Text Formatting -->
       <div class="toolbar-group">
         <button 
-          @click="format('bold')" 
+          @click="handleBold" 
           :class="{ active: isFormatActive('bold') }"
           title="Bold (Cmd+B)"
         >
           <strong>B</strong>
         </button>
         <button 
-          @click="format('italic')" 
+          @click="handleItalic" 
           :class="{ active: isFormatActive('italic') }"
           title="Italic (Cmd+I)"
         >
           <em>I</em>
         </button>
         <button 
-          @click="format('underline')" 
+          @click="handleUnderline" 
           :class="{ active: isFormatActive('underline') }"
           title="Underline (Cmd+U)"
         >
           <u>U</u>
         </button>
         <button 
-          @click="format('strikeThrough')" 
+          @click="handleStrikethrough" 
           :class="{ active: isFormatActive('strikeThrough') }"
           title="Strikethrough"
         >
@@ -39,7 +39,7 @@
       <!-- Text Alignment -->
       <div class="toolbar-group">
         <button 
-          @click="format('justifyLeft')" 
+          @click="handleAlignLeft" 
           :class="{ active: isFormatActive('justifyLeft') }"
           title="Align Left"
         >
@@ -48,7 +48,7 @@
           </svg>
         </button>
         <button 
-          @click="format('justifyCenter')" 
+          @click="handleAlignCenter" 
           :class="{ active: isFormatActive('justifyCenter') }"
           title="Align Center"
         >
@@ -57,7 +57,7 @@
           </svg>
         </button>
         <button 
-          @click="format('justifyRight')" 
+          @click="handleAlignRight" 
           :class="{ active: isFormatActive('justifyRight') }"
           title="Align Right"
         >
@@ -66,7 +66,7 @@
           </svg>
         </button>
         <button 
-          @click="format('justifyFull')" 
+          @click="handleJustify" 
           :class="{ active: isFormatActive('justifyFull') }"
           title="Justify"
         >
@@ -81,7 +81,7 @@
       <!-- Lists -->
       <div class="toolbar-group">
         <button 
-          @click="format('insertUnorderedList')" 
+          @click="handleBulletList" 
           :class="{ active: isFormatActive('insertUnorderedList') }"
           title="Bullet List"
         >
@@ -93,7 +93,7 @@
           </svg>
         </button>
         <button 
-          @click="format('insertOrderedList')" 
+          @click="handleNumberedList" 
           :class="{ active: isFormatActive('insertOrderedList') }"
           title="Numbered List"
         >
@@ -146,7 +146,7 @@
       <!-- Additional Actions -->
       <div class="toolbar-group">
         <button 
-          @click="format('removeFormat')" 
+          @click="handleClearFormatting" 
           title="Clear Formatting"
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
@@ -163,9 +163,10 @@
       contenteditable="true"
       @input="onInput"
       @keydown="handleKeyDown"
-      @paste="handlePaste"
+      @paste="handlePasteEvent"
       spellcheck="true"
       data-placeholder="Start typing..."
+      :style="{ zoom: `${currentZoom}%` }"
     >
     </div>
 
@@ -210,6 +211,8 @@ defineOptions({ name: 'TextEditApp' })
 const editor = ref<HTMLElement>()
 const selectedFont = ref("-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif")
 const selectedSize = ref("3")
+const showToolbar = ref(true)
+const currentZoom = ref(100)
 
 // Reactive state for tracking active formats
 const activeFormats = reactive({
@@ -246,6 +249,118 @@ watch(documentTitle, (newTitle) => {
     }
   }
 })
+
+// Command handlers for menu items
+const handleBold = () => format('bold')
+const handleItalic = () => format('italic')
+const handleUnderline = () => format('underline')
+const handleStrikethrough = () => format('strikeThrough')
+
+const handleAlignLeft = () => format('justifyLeft')
+const handleAlignCenter = () => format('justifyCenter')
+const handleAlignRight = () => format('justifyRight')
+const handleJustify = () => format('justifyFull')
+
+const handleBulletList = () => format('insertUnorderedList')
+const handleNumberedList = () => format('insertOrderedList')
+
+const handleIncreaseIndent = () => format('indent')
+const handleDecreaseIndent = () => format('outdent')
+
+const handleClearFormatting = () => format('removeFormat')
+
+const handleUndo = () => {
+  document.execCommand('undo')
+  editor.value?.focus()
+}
+
+const handleRedo = () => {
+  document.execCommand('redo')
+  editor.value?.focus()
+}
+
+const handleCut = () => {
+  document.execCommand('cut')
+  editor.value?.focus()
+}
+
+const handleCopy = () => {
+  document.execCommand('copy')
+  editor.value?.focus()
+}
+
+const handlePaste = () => {
+  document.execCommand('paste')
+  editor.value?.focus()
+}
+
+const handlePasteAndMatchStyle = () => {
+  // Get plain text from clipboard
+  navigator.clipboard.readText().then(text => {
+    document.execCommand('insertText', false, text)
+    editor.value?.focus()
+  })
+}
+
+const handleSelectAll = () => {
+  document.execCommand('selectAll')
+  editor.value?.focus()
+}
+
+const handleFontSizeSmaller = () => {
+  const currentSizeIndex = parseInt(selectedSize.value)
+  if (currentSizeIndex > 1) {
+    selectedSize.value = String(currentSizeIndex - 1)
+    changeFontSize()
+  }
+}
+
+const handleFontSizeLarger = () => {
+  const currentSizeIndex = parseInt(selectedSize.value)
+  if (currentSizeIndex < 7) {
+    selectedSize.value = String(currentSizeIndex + 1)
+    changeFontSize()
+  }
+}
+
+const handleZoomIn = () => {
+  if (currentZoom.value < 200) {
+    currentZoom.value += 10
+    if (editor.value) {
+      editor.value.style.zoom = `${currentZoom.value}%`
+    }
+  }
+}
+
+const handleZoomOut = () => {
+  if (currentZoom.value > 50) {
+    currentZoom.value -= 10
+    if (editor.value) {
+      editor.value.style.zoom = `${currentZoom.value}%`
+    }
+  }
+}
+
+const handleZoomReset = () => {
+  currentZoom.value = 100
+  if (editor.value) {
+    editor.value.style.zoom = '100%'
+  }
+}
+
+const handleToggleToolbar = () => {
+  showToolbar.value = !showToolbar.value
+}
+
+const handlePrint = () => {
+  window.print()
+}
+
+const handleOpen = () => {
+  // Open functionality would go here
+  // For now, just show a message
+  console.log('Open file feature not yet implemented')
+}
 
 const format = (command: string, value?: string) => {
   document.execCommand(command, false, value)
@@ -327,8 +442,8 @@ const handleKeyDown = (e: KeyboardEvent) => {
   }
 }
 
-const handlePaste = (e: ClipboardEvent) => {
-  // Handle paste to maintain formatting
+const handlePasteEvent = (e: ClipboardEvent) => {
+  // Handle paste event to maintain formatting
   e.preventDefault()
   const text = e.clipboardData?.getData('text/html') || e.clipboardData?.getData('text/plain')
   if (text) {
@@ -342,6 +457,10 @@ const handleSelectionChange = () => {
 }
 
 const handleSaveCommand = () => {
+  openSaveModal()
+}
+
+const handleSaveAs = () => {
   openSaveModal()
 }
 
@@ -360,19 +479,58 @@ const closeSaveModal = () => {
 }
 
 const saveDocument = () => {
-  const filename = saveFilename.value.trim() || 'Untitled.md'
-  // Remove extension for title display
-  const titleWithoutExt = filename.replace(/\.(md|txt|rtf|html)$/i, '')
-  documentTitle.value = titleWithoutExt
-  closeSaveModal()
+  const filename = saveFilename.value.trim() || 'Untitled'
+  const fullFilename = filename.endsWith('.md') ? filename : `${filename}.md`
   
-  // Here you could implement actual save logic
+  // Remove extension for title display
+  const titleWithoutExt = fullFilename.replace(/\.(md|txt|rtf|html)$/i, '')
+  documentTitle.value = titleWithoutExt
+  
+  // Here you could implement actual save logic when filesystem is available
   // For now, we just update the title
+  console.log('Would save file:', fullFilename)
+  
+  closeSaveModal()
 }
 
 onMounted(() => {
-  // Register save command for this TextEdit instance
+  // Register all command handlers
   register('textedit.save', handleSaveCommand)
+  register('textedit.saveAs', handleSaveAs)
+  register('textedit.open', handleOpen)
+  register('textedit.print', handlePrint)
+  
+  // Edit commands  
+  register('textedit.undo', handleUndo)
+  register('textedit.redo', handleRedo)
+  register('textedit.cut', handleCut)
+  register('textedit.copy', handleCopy)
+  register('textedit.paste', handlePaste)
+  register('textedit.pasteAndMatchStyle', handlePasteAndMatchStyle)
+  register('textedit.selectAll', handleSelectAll)
+  
+  // Format commands
+  register('textedit.bold', handleBold)
+  register('textedit.italic', handleItalic)
+  register('textedit.underline', handleUnderline)
+  register('textedit.strikethrough', handleStrikethrough)
+  register('textedit.alignLeft', handleAlignLeft)
+  register('textedit.alignCenter', handleAlignCenter)
+  register('textedit.alignRight', handleAlignRight)
+  register('textedit.justify', handleJustify)
+  register('textedit.bulletList', handleBulletList)
+  register('textedit.numberedList', handleNumberedList)
+  register('textedit.increaseIndent', handleIncreaseIndent)
+  register('textedit.decreaseIndent', handleDecreaseIndent)
+  register('textedit.clearFormatting', handleClearFormatting)
+  register('textedit.fontSizeSmaller', handleFontSizeSmaller)
+  register('textedit.fontSizeLarger', handleFontSizeLarger)
+  
+  // View commands
+  register('textedit.zoomIn', handleZoomIn)
+  register('textedit.zoomOut', handleZoomOut)
+  register('textedit.zoomReset', handleZoomReset)
+  register('textedit.toggleToolbar', handleToggleToolbar)
   
   // Add selection change listener to update toolbar states
   document.addEventListener('selectionchange', handleSelectionChange)

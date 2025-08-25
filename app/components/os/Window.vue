@@ -129,7 +129,7 @@ function onFocus() {
 }
 
 .os-window.inactive .os-window-control {
-  background: var(--border-window);
+  background: var(--bg-window-action-inactive);
   border-color: var(--border-window);
 }
 
