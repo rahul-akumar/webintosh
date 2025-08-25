@@ -54,7 +54,10 @@ export const useOSStore = defineStore('os', {
     menuBarHeight: 40,
     desktopPadding: 8,
     snapThreshold: 16,
-    wallpaper: null,
+    wallpaper: {
+      type: 'video',
+      value: '/wallpapers/end-of-daylight.mp4'
+    },
     theme: 'glassmorphic-light'
   }),
 
@@ -122,7 +125,7 @@ export const useOSStore = defineStore('os', {
         }
         if (typeof parsed?.nextWindowId === 'number') this.nextWindowId = parsed.nextWindowId
         if (typeof parsed?.nextZ === 'number') this.nextZ = parsed.nextZ
-        if (typeof parsed?.wallpaper === 'string' || parsed?.wallpaper === null) {
+        if (typeof parsed?.wallpaper === 'object' || parsed?.wallpaper === null) {
           this.wallpaper = parsed.wallpaper
         }
         if (typeof parsed?.theme === 'string') {
