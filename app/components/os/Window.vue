@@ -43,6 +43,7 @@
           <AppsTypingTest v-else-if="win.appId === 'typingtest'" />
           <AppsKeyStation v-else-if="win.appId === 'keystation'" />
           <AppsYahooMessenger v-else-if="win.appId === 'yahoomessenger'" />
+          <AppsWhiteNoise v-else-if="win.appId === 'whitenoise'" />
         </template>
 
         <!-- Placeholder content -->

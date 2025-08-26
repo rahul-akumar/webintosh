@@ -166,6 +166,14 @@ onMounted(() => {
       emoji: 'Yahoo!',
       kind: 'app',
       defaultRect: { x: 100, y: 80, width: 960, height: 600 }
+    },
+    {
+      id: 'whitenoise',
+      title: 'White Noise Mixer',
+      icon: 'icons/apps/whitenoise.png',
+      emoji: '🎧',
+      kind: 'app',
+      defaultRect: { x: 100, y: 80, width: 900, height: 700 }
     }
   ])
   // Load Dock minimized ordering (Dock now shows minimized apps only)
