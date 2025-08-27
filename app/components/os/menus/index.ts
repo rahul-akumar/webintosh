@@ -1,46 +1,52 @@
 // Menu Templates Resolver (Phase 2)
-import type { MenuTemplate } from '../../../../types/menu'
-import { createSystemMenuTemplate } from './systemMenu'
-import { createFinderMenuTemplate } from '../../apps/Finder/finderMenu'
-import { createTextEditMenuTemplate } from '../../apps/TextEdit/textEditMenu'
-import { createTypingTestMenuTemplate } from '../../apps/TypingTest/typingTestMenu'
-import { createKeyStationMenuTemplate } from '../../apps/KeyStation/keyStationMenu'
-import { createYahooMessengerMenuTemplate } from '../../apps/YahooMessenger/yahooMessengerMenu'
-import { createDockMenuForApp } from './dockMenu'
+import type { MenuTemplate } from "../../../../types/menu";
+import { createSystemMenuTemplate } from "./systemMenu";
+import { createFinderMenuTemplate } from "../../apps/Finder/finderMenu";
+import { createTextEditMenuTemplate } from "../../apps/TextEdit/textEditMenu";
+import { createTypingTestMenuTemplate } from "../../apps/TypingTest/typingTestMenu";
+import { createKeyStationMenuTemplate } from "../../apps/KeyStation/keyStationMenu";
+import { createYahooMessengerMenuTemplate } from "../../apps/YahooMessenger/yahooMessengerMenu";
+import { createWhiteNoiseMenuTemplate } from "../../apps/WhiteNoise/whiteNoiseMenu";
+import { createDockMenuForApp } from "./dockMenu";
 
 /**
  * Return the system (desktop) menu template.
  */
 export function getSystemMenuTemplate(): MenuTemplate {
-  return createSystemMenuTemplate()
+  return createSystemMenuTemplate();
 }
 
 /**
  * Resolve an app-specific menu template by appId.
  * Falls back to a system-like template with a custom title when unknown.
  */
-export function getAppMenuTemplate(appId: string, appTitle?: string): MenuTemplate {
-  switch ((appId || '').toLowerCase()) {
-    case 'finder':
-      return createFinderMenuTemplate()
-    case 'textedit':
-      return createTextEditMenuTemplate()
-    case 'typingtest':
-      return createTypingTestMenuTemplate()
-    case 'keystation':
-      return createKeyStationMenuTemplate()
-    case 'yahoomessenger':
-      return createYahooMessengerMenuTemplate()
-    case 'about':
+export function getAppMenuTemplate(
+  appId: string,
+  appTitle?: string
+): MenuTemplate {
+  switch ((appId || "").toLowerCase()) {
+    case "finder":
+      return createFinderMenuTemplate();
+    case "textedit":
+      return createTextEditMenuTemplate();
+    case "typingtest":
+      return createTypingTestMenuTemplate();
+    case "keystation":
+      return createKeyStationMenuTemplate();
+    case "yahoomessenger":
+      return createYahooMessengerMenuTemplate();
+    case "whitenoise":
+      return createWhiteNoiseMenuTemplate();
+    case "about":
       // About app shows the desktop menubar itself
-      return createSystemMenuTemplate()
+      return createSystemMenuTemplate();
     default: {
-      const base = createSystemMenuTemplate()
+      const base = createSystemMenuTemplate();
       return {
         ...base,
-        id: `app-${appId || 'unknown'}`,
-        title: appTitle ?? 'App'
-      }
+        id: `app-${appId || "unknown"}`,
+        title: appTitle ?? "App",
+      };
     }
   }
 }
@@ -48,7 +54,14 @@ export function getAppMenuTemplate(appId: string, appTitle?: string): MenuTempla
 /**
  * Optional helper: list of known app ids with first-party menus.
  */
-export const KnownMenuApps = new Set<string>(['finder', 'textedit', 'typingtest', 'keystation', 'yahoomessenger'])
+export const KnownMenuApps = new Set<string>([
+  "finder",
+  "textedit",
+  "typingtest",
+  "keystation",
+  "yahoomessenger",
+  "whitenoise",
+]);
 
 // Re-export Dock context menu builder
-export { createDockMenuForApp }
+export { createDockMenuForApp };

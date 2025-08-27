@@ -1,6 +1,6 @@
-# White Noise Sound Files
+# Noise Sound Files
 
-This directory should contain the ambient sound files for the White Noise Mixer app.
+This directory should contain the ambient sound files for the Noise Mixer app.
 
 ## Required Files
 
@@ -32,22 +32,26 @@ Place the following `.mp3` files in this directory:
 ### Free Sound Libraries
 
 1. **Freesound.org** (CC Licensed)
+
    - Create free account
    - Search for sounds
    - Download in MP3/WAV format
    - Example searches: "rain loop", "ocean waves seamless", "campfire crackling"
 
 2. **Zapsplat.com** (Free with account)
+
    - Free registration required
    - High-quality ambient loops
-   - Search for "ambient", "nature", "white noise"
+   - Search for "ambient", "nature", "noise"
 
 3. **BBC Sound Effects** (Free for personal use)
+
    - http://bbcsfx.acropolis.org.uk/
    - Over 33,000 sound effects
    - Natural and ambient sounds
 
 4. **YouTube Audio Library**
+
    - https://studio.youtube.com/channel/UC/music
    - Free sound effects section
    - Download as MP3
@@ -62,11 +66,12 @@ If you find good ambient sound videos on YouTube:
 
 1. Use a YouTube to MP3 converter (many free online tools)
 2. Look for videos labeled "1 hour", "10 hours" for seamless loops
-3. Search terms: "rain sounds for sleeping", "ocean waves black screen", "white noise 10 hours"
+3. Search terms: "rain sounds for sleeping", "ocean waves black screen", "noise 10 hours"
 
 ### Creating Your Own
 
 1. **Audacity** (Free audio editor)
+
    - Generate white/pink/brown noise
    - Menu: Generate > Noise
    - Export as MP3
@@ -89,7 +94,7 @@ For the best experience, sounds should loop without noticeable cuts:
 1. Open in Audacity
 2. Select last 1-2 seconds
 3. Effect > Fade Out
-4. Select first 1-2 seconds  
+4. Select first 1-2 seconds
 5. Effect > Fade In
 6. Export as MP3
 
@@ -100,9 +105,10 @@ If you don't have audio files yet, the app will automatically fall back to gener
 ## Recommended Sounds to Start With
 
 Priority files to add first:
+
 1. `rain.mp3` - Most popular ambient sound
 2. `waves.mp3` - Ocean waves are very relaxing
-3. `whitenoise.mp3` - Classic white noise
+3. `whitenoise.mp3` - Classic noise
 4. `forest.mp3` - Nature ambience
 5. `cafe.mp3` - Productivity ambience
 
