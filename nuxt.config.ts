@@ -1,5 +1,19 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 const baseURL = process.env.NUXT_APP_BASE_URL || '/webintosh/'
+const isProd = process.env.NODE_ENV === 'production'
+const analyticsScripts = isProd
+  ? [
+      { src: 'https://www.googletagmanager.com/gtag/js?id=G-1V0QJF0D55', async: true },
+      {
+        children: `
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);} 
+          gtag('js', new Date());
+          gtag('config', 'G-1V0QJF0D55');
+        `
+      }
+    ]
+  : []
 
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
@@ -16,7 +30,8 @@ export default defineNuxtConfig({
       ],
       link: [
         { rel: 'icon', type: 'image/png', href: `${baseURL}icons/system/apple.png` }
-      ]
+      ],
+      script: analyticsScripts
     }
   },
 
