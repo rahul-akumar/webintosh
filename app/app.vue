@@ -204,7 +204,7 @@ onMounted(() => {
       icon: "icons/apps/chess.png",
       emoji: "♟️",
       kind: "app",
-      defaultRect: { x: 100, y: 80, width: 800, height: 700 },
+      defaultRect: { x: 100, y: 80, width: 1000, height: 744 },
     },
   ]);
   // Load Dock minimized ordering (Dock now shows minimized apps only)

@@ -1,16 +1,16 @@
 <template>
-  <div class="chess-app">
+  <div class="chess-app" :data-board-theme="boardTheme" :data-piece-theme="pieceTheme">
     <!-- Game Header -->
     <div class="chess-header">
       <div class="game-info">
         <div class="player-info">
           <div class="player" :class="{ active: currentPlayer === 'white' }">
             <div class="player-color white"></div>
-            <span class="text-gray-800">{{ gameMode === 'ai' ? 'You' : 'Player 1' }}</span>
+            <span>{{ gameMode === 'ai' ? 'You' : 'Player 1' }}</span>
           </div>
           <div class="player" :class="{ active: currentPlayer === 'black' }">
             <div class="player-color black"></div>
-            <span class="text-gray-800">{{ gameMode === 'ai' ? `AI (${difficulty})` : 'Player 2' }}</span>
+            <span>{{ gameMode === 'ai' ? `AI (${difficulty})` : 'Player 2' }}</span>
           </div>
         </div>
         
@@ -32,6 +32,7 @@
         </select>
         <button @click="startNewGame" class="control-btn">New Game</button>
         <button @click="undoMove" :disabled="!canUndo" class="control-btn">Undo</button>
+        <button @click="showThemeModal = true" class="control-btn">Themes</button>
       </div>
     </div>
 
@@ -151,6 +152,65 @@
         </div>
       </div>
     </div>
+
+    <!-- Theme Customization Modal -->
+    <div v-if="showThemeModal" class="game-over-modal">
+      <div class="modal-content">
+        <h2>Chess Themes</h2>
+        
+        <div class="theme-section">
+          <h3>Board Theme</h3>
+          <div class="theme-options">
+            <button 
+              v-for="theme in boardThemes" 
+              :key="theme.id"
+              @click="boardTheme = theme.id"
+              class="theme-option"
+              :class="{ active: boardTheme === theme.id }"
+            >
+              <div class="theme-preview">
+                <div class="board-preview">
+                  <div 
+                    class="preview-square light" 
+                    :style="{ backgroundColor: theme.lightColor }"
+                  ></div>
+                  <div 
+                    class="preview-square dark" 
+                    :style="{ backgroundColor: theme.darkColor }"
+                  ></div>
+                </div>
+              </div>
+              <span>{{ theme.name }}</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="theme-section">
+          <h3>Piece Theme</h3>
+          <div class="theme-options">
+            <button 
+              v-for="theme in pieceThemes" 
+              :key="theme.id"
+              @click="pieceTheme = theme.id"
+              class="theme-option"
+              :class="{ active: pieceTheme === theme.id }"
+            >
+              <div class="theme-preview">
+                <div class="piece-preview">
+                  <span :style="{ color: theme.whiteColor }">♔</span>
+                  <span :style="{ color: theme.blackColor }">♚</span>
+                </div>
+              </div>
+              <span>{{ theme.name }}</span>
+            </button>
+          </div>
+        </div>
+        
+        <div class="modal-actions">
+          <button @click="showThemeModal = false" class="control-btn primary">Done</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -204,6 +264,26 @@ const capturedPieces = ref<{ white: ChessPiece[], black: ChessPiece[] }>({ white
 const gameStartTime = ref(0)
 const gameDuration = ref(0)
 const isThinking = ref(false)
+
+// Theme customization
+const showThemeModal = ref(false)
+const boardTheme = ref('brown')
+const pieceTheme = ref('classic')
+
+// Theme options
+const boardThemes = [
+  { id: 'brown', name: 'Classic Wood', lightColor: '#f0d9b5', darkColor: '#b58863' },
+  { id: 'green', name: 'Tournament Green', lightColor: '#ffffdd', darkColor: '#86a666' },
+  { id: 'blue', name: 'Ocean Blue', lightColor: '#dee3e6', darkColor: '#8ca2ad' },
+  { id: 'purple', name: 'Royal Purple', lightColor: '#e8d5ff', darkColor: '#9333ea' }
+]
+
+const pieceThemes = [
+  { id: 'classic', name: 'Classic', whiteColor: '#ffffff', blackColor: '#1f2937' },
+  { id: 'wooden', name: 'Wooden', whiteColor: '#f5deb3', blackColor: '#8b4513' },
+  { id: 'gold', name: 'Gold & Bronze', whiteColor: '#ffd700', blackColor: '#8b4513' },
+  { id: 'silver', name: 'Silver & Charcoal', whiteColor: '#c0c0c0', blackColor: '#2c2c2c' }
+]
 
 // Animation and sound state
 const boardEl = ref<HTMLElement | null>(null)
@@ -1014,484 +1094,82 @@ watch(gameOver, (isOver) => {
 </script>
 
 <style scoped>
-@import "tailwindcss";
+@import "./chess.css";
 
-.chess-app {
+/* Theme modal styling */
+.theme-section {
+  margin-bottom: 1.5rem;
+}
+
+.theme-section h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fbbf24;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.theme-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.theme-option {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  background: theme('colors.gray.50');
-  padding: theme('spacing.4');
-  gap: theme('spacing.4');
-}
-
-.chess-header {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: theme('spacing.3');
-  background: white;
-  border-radius: theme('borderRadius.lg');
-  border: 1px solid theme('colors.gray.200');
-  box-shadow: theme('boxShadow.sm');
-}
-
-.game-info {
-  display: flex;
-  flex-direction: column;
-  gap: theme('spacing.2');
-}
-
-.player-info {
-  display: flex;
-  gap: theme('spacing.6');
-}
-
-.player {
-  display: flex;
-  align-items: center;
-  gap: theme('spacing.2');
-  padding: theme('spacing.2');
-  border-radius: theme('borderRadius.md');
-  transition: all 0.2s;
-}
-
-.player.active {
-  background: theme('colors.blue.50');
-  border: 1px solid theme('colors.blue.200');
-}
-
-.player-color {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  border: 1px solid theme('colors.gray.300');
-}
-
-.player-color.white {
-  background: white;
-}
-
-.player-color.black {
-  background: theme('colors.gray.800');
-}
-
-
-.game-status {
-  display: flex;
-  gap: theme('spacing.4');
-  align-items: center;
-  font-size: theme('fontSize.sm');
-  color: theme('colors.gray.600');
-}
-
-.status-text {
-  font-weight: theme('fontWeight.medium');
-}
-
-.game-controls {
-  display: flex;
-  gap: theme('spacing.3');
-  align-items: center;
-}
-
-.mode-select,
-.difficulty-select {
-  padding: theme('spacing.1') theme('spacing.2');
-  border: 1px solid theme('colors.gray.300');
-  border-radius: theme('borderRadius.md');
-  background: white;
-  color: #374151 !important; /* Fixed gray-700 color, independent of OS theme */
-  font-size: theme('fontSize.sm');
-}
-
-.difficulty-select:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.control-btn {
-  padding: theme('spacing.1') theme('spacing.3');
-  border: 1px solid theme('colors.gray.300');
-  border-radius: theme('borderRadius.md');
-  background: white;
-  color: #374151 !important; /* Fixed gray-700 color, independent of OS theme */
-  font-size: theme('fontSize.sm');
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 2px solid rgba(139, 69, 19, 0.3);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  color: #e5e7eb;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
-.control-btn:hover:not(:disabled) {
-  background: theme('colors.gray.50');
+.theme-option:hover {
+  border-color: #d4af37;
+  background: rgba(0, 0, 0, 0.4);
+  transform: translateY(-1px);
 }
 
-.control-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.theme-option.active {
+  border-color: #ffd700;
+  background: rgba(212, 175, 55, 0.2);
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
 }
 
-.control-btn.primary {
-  background: theme('colors.blue.500');
-  color: white;
-  border-color: theme('colors.blue.500');
-}
-
-.control-btn.primary:hover:not(:disabled) {
-  background: theme('colors.blue.600');
-}
-
-.chess-game-layout {
-  flex: 1;
-  display: grid;
-  grid-template-columns: 200px 1fr 200px;
-  gap: theme('spacing.4');
-  align-items: start;
-}
-
-.left-sidebar, .right-sidebar {
-  background: white;
-  border-radius: theme('borderRadius.lg');
-  border: 1px solid theme('colors.gray.200');
-  box-shadow: theme('boxShadow.sm');
-  padding: theme('spacing.4');
-  height: fit-content;
-}
-
-.section-title {
-  font-size: theme('fontSize.lg');
-  font-weight: theme('fontWeight.semibold');
-  color: theme('colors.gray.800');
-  margin-bottom: theme('spacing.3');
-  text-align: center;
-  border-bottom: 1px solid theme('colors.gray.200');
-  padding-bottom: theme('spacing.2');
-}
-
-.captured-section {
-  display: flex;
-  flex-direction: column;
-  gap: theme('spacing.4');
-}
-
-.captured-color-section {
-  display: flex;
-  flex-direction: column;
-  gap: theme('spacing.2');
-}
-
-.captured-label {
+.theme-preview {
   display: flex;
   align-items: center;
-  gap: theme('spacing.2');
-  font-weight: theme('fontWeight.medium');
-  color: theme('colors.gray.700');
-  font-size: theme('fontSize.sm');
-}
-
-.white-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: white;
-  border: 1px solid theme('colors.gray.300');
-}
-
-.black-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: theme('colors.gray.800');
-}
-
-.captured-pieces-display {
-  display: flex;
-  flex-wrap: wrap;
-  gap: theme('spacing.1');
-  min-height: 32px;
-  align-items: center;
-  padding: theme('spacing.2');
-  background: theme('colors.gray.50');
-  border-radius: theme('borderRadius.md');
-  border: 1px solid theme('colors.gray.200');
-}
-
-.captured-piece-large {
-  font-size: theme('fontSize.xl');
-  line-height: 1;
-  color: theme('colors.gray.700');
-}
-
-.no-captures {
-  font-size: theme('fontSize.xs');
-  color: theme('colors.gray.500');
-  font-style: italic;
-}
-
-.history-section {
-  display: flex;
-  flex-direction: column;
-  gap: theme('spacing.3');
-}
-
-.moves-list {
-  display: flex;
-  flex-direction: column;
-  gap: theme('spacing.1');
-  max-height: 400px;
-  overflow-y: auto;
-  padding: theme('spacing.2');
-  background: theme('colors.gray.50');
-  border-radius: theme('borderRadius.md');
-  border: 1px solid theme('colors.gray.200');
-}
-
-.move-entry {
-  display: flex;
-  align-items: center;
-  gap: theme('spacing.2');
-  padding: theme('spacing.1');
-  font-size: theme('fontSize.sm');
-  border-radius: theme('borderRadius.sm');
-}
-
-.move-entry:hover {
-  background: theme('colors.blue.50');
-}
-
-.move-number {
-  font-weight: theme('fontWeight.medium');
-  color: theme('colors.gray.600');
-  min-width: 20px;
-}
-
-.move-notation {
-  font-family: 'Monaco', 'Consolas', monospace;
-  font-weight: theme('fontWeight.medium');
-  color: theme('colors.gray.800');
-}
-
-.move-notation.black-move {
-  color: theme('colors.blue.600');
-}
-
-.no-moves {
-  font-size: theme('fontSize.sm');
-  color: theme('colors.gray.500');
-  font-style: italic;
-  text-align: center;
-  padding: theme('spacing.4');
-}
-
-.chess-board-container {
-  display: flex;
-  flex-direction: column;
   justify-content: center;
-  align-items: center;
-  gap: theme('spacing.2');
 }
 
-.chess-board-wrapper {
-  display: flex;
-  align-items: center;
-  gap: theme('spacing.2');
-}
-
-.chess-board {
+.board-preview {
   display: grid;
-  grid-template-rows: repeat(8, 1fr);
-  position: relative;
-  border: 2px solid theme('colors.gray.800');
-  border-radius: theme('borderRadius.lg');
+  grid-template-columns: 1fr 1fr;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
   overflow: hidden;
-  box-shadow: theme('boxShadow.lg');
-  width: 480px;
-  height: 480px;
+  border: 1px solid #8b4513;
 }
 
-.chess-row {
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
+.preview-square {
+  width: 100%;
+  height: 100%;
 }
 
-.chess-square {
-  position: relative;
+.piece-preview {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  user-select: none;
-  transition: all 0.2s;
-  aspect-ratio: 1;
+  gap: 0.5rem;
+  font-size: 1.5rem;
 }
 
-.chess-square.light {
-  background: rgb(240 217 181);
-}
-
-.chess-square.dark {
-  background: rgb(181 136 99);
-}
-
-.chess-square.selected {
-  background: rgb(255 255 0 / 0.5);
-  box-shadow: inset 0 0 0 3px theme('colors.yellow.400');
-}
-
-.chess-square.valid-move {
-  background: rgb(0 255 0 / 0.3);
-}
-
-.chess-square.valid-move::after {
-  content: '';
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  background: theme('colors.green.500');
-  border-radius: 50%;
-  opacity: 0.8;
-}
-
-.chess-square.last-move {
-  background: rgb(255 255 0 / 0.3);
-}
-
-.chess-piece {
-  font-size: 36px;
-  line-height: 1;
-  pointer-events: none;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-.chess-piece.white {
-  color: white;
-  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.8));
-}
-
-.chess-piece.black {
-  color: theme('colors.gray.900');
-  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.5));
-}
-
-/* Hide in-square piece during animation destination */
-.chess-square.hide-piece .chess-piece {
-  visibility: hidden;
-}
-
-/* Moving piece overlay */
-.moving-piece {
-  position: absolute;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 36px;
-  line-height: 1;
-  pointer-events: none;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-  will-change: left, top;
-  z-index: 3;
-}
-
-.moving-piece.white { color: white; filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.8)); }
-.moving-piece.black { color: theme('colors.gray.900'); filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.5)); }
-
-
-.file-labels {
-  display: flex;
-  justify-content: space-between;
-  width: 480px;
-  padding: 0 theme('spacing.1');
-}
-
-.rank-labels {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 480px;
-  padding: theme('spacing.1') 0;
-}
-
-.file-label,
-.rank-label {
-  font-size: theme('fontSize.sm');
-  font-weight: theme('fontWeight.medium');
-  color: theme('colors.gray.600');
-}
-
-.game-over-modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 50;
-}
-
-.modal-content {
-  background: white;
-  padding: theme('spacing.6');
-  border-radius: theme('borderRadius.lg');
-  box-shadow: theme('boxShadow.xl');
-  text-align: center;
-  max-width: 400px;
-  width: 90%;
-}
-
-.modal-content h2 {
-  font-size: theme('fontSize.xl');
-  font-weight: theme('fontWeight.bold');
-  margin-bottom: theme('spacing.4');
-  color: theme('colors.gray.900');
-}
-
-.game-stats {
-  display: flex;
-  flex-direction: column;
-  gap: theme('spacing.2');
-  margin-bottom: theme('spacing.4');
-}
-
-.stat {
-  display: flex;
-  justify-content: space-between;
-  padding: theme('spacing.2');
-  background: theme('colors.gray.50');
-  border-radius: theme('borderRadius.md');
-}
-
-.label {
-  font-weight: theme('fontWeight.medium');
-  color: theme('colors.gray.600');
-}
-
-.value {
-  font-weight: theme('fontWeight.semibold');
-  color: theme('colors.gray.900');
-}
-
-.modal-actions {
-  display: flex;
-  gap: theme('spacing.3');
-  justify-content: center;
-}
-
-/* Ensure Chess app is completely independent of OS theme variables */
-.chess-app {
-  /* Override any inherited CSS theme variables with fixed values */
-  --text-primary: #374151 !important; /* gray-700 */
-  --text-secondary: #6b7280 !important; /* gray-500 */
-  --text-tertiary: #9ca3af !important; /* gray-400 */
-}
-
-/* Additional specificity for select elements and dropdowns */
-.chess-app select,
-.chess-app .mode-select,
-.chess-app .difficulty-select {
-  color: #374151 !important;
-}
-
-.chess-app .mode-select option,
-.chess-app .difficulty-select option {
-  color: #374151 !important;
-}
+/* Additional chess app overrides if needed */
 </style>
