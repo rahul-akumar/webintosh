@@ -121,7 +121,12 @@ export type CommandId =
   | "whitenoise.toggleVolumeSliders"
   | "whitenoise.showSoundInfo"
   | "whitenoise.showTips"
-  | "whitenoise.showAudioHelp";
+  | "whitenoise.showAudioHelp"
+  // Chess commands
+  | "chess.newGame"
+  | "chess.undoMove"
+  | "chess.setMode"
+  | "chess.setDifficulty";
 
 /**
  * Keyboard accelerator description.

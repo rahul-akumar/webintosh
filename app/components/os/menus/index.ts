@@ -7,6 +7,7 @@ import { createTypingTestMenuTemplate } from "../../apps/TypingTest/typingTestMe
 import { createKeyStationMenuTemplate } from "../../apps/KeyStation/keyStationMenu";
 import { createYahooMessengerMenuTemplate } from "../../apps/YahooMessenger/yahooMessengerMenu";
 import { createWhiteNoiseMenuTemplate } from "../../apps/WhiteNoise/whiteNoiseMenu";
+import { createChessMenuTemplate } from "../../apps/Chess/chessMenu";
 import { createDockMenuForApp } from "./dockMenu";
 
 /**
@@ -37,6 +38,8 @@ export function getAppMenuTemplate(
       return createYahooMessengerMenuTemplate();
     case "whitenoise":
       return createWhiteNoiseMenuTemplate();
+    case "chess":
+      return createChessMenuTemplate();
     case "about":
       // About app shows the desktop menubar itself
       return createSystemMenuTemplate();
@@ -61,6 +64,7 @@ export const KnownMenuApps = new Set<string>([
   "keystation",
   "yahoomessenger",
   "whitenoise",
+  "chess",
 ]);
 
 // Re-export Dock context menu builder

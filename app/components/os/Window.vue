@@ -44,6 +44,7 @@
           <AppsKeyStation v-else-if="win.appId === 'keystation'" />
           <AppsYahooMessenger v-else-if="win.appId === 'yahoomessenger'" />
           <AppsWhiteNoise v-else-if="win.appId === 'whitenoise'" />
+          <AppsChess v-else-if="win.appId === 'chess'" />
         </template>
 
         <!-- Placeholder content -->
