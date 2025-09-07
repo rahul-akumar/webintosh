@@ -42,6 +42,6 @@ export default defineNuxtConfig({
   // Google Analytics configuration
   // @ts-ignore - nuxt-gtag module types
   gtag: {
-    id: 'G-BTK3F566MW'
+    id: 'G-1V0QJF0D55'
   }
 })
