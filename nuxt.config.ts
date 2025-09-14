@@ -1,12 +1,31 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-const baseURL = process.env.NUXT_APP_BASE_URL || '/webintosh/'
+
+// Environment-aware configuration
+const isDev = process.env.NODE_ENV === 'development'
+const isVercel = process.env.VERCEL === '1'
+const isGitHubPages = process.env.GITHUB_PAGES === 'true' || (!isDev && !isVercel && process.env.NUXT_APP_BASE_URL === '/webintosh/')
+
+// Dynamic base URL based on environment
+let baseURL = '/'
+if (isGitHubPages) {
+  baseURL = process.env.NUXT_APP_BASE_URL || '/webintosh/'
+} else if (process.env.NUXT_APP_BASE_URL) {
+  baseURL = process.env.NUXT_APP_BASE_URL
+}
+
+// Dynamic nitro preset based on environment
+let nitroPreset: string | undefined = undefined
+if (isGitHubPages) {
+  nitroPreset = 'github-pages'
+} else if (isVercel) {
+  nitroPreset = 'vercel'
+}
 
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
 
   app: {
-    // Dynamic base URL: uses environment variable for PR previews, defaults to /webintosh/ for production
     baseURL,
     head: {
       title: 'Webintosh',
@@ -20,10 +39,7 @@ export default defineNuxtConfig({
     }
   },
 
-  nitro: {
-    // Ensures correct static output (404 fallback, asset paths) for GitHub Pages
-    preset: 'github-pages'
-  },
+  nitro: nitroPreset ? { preset: nitroPreset } : {},
 
   css: [
     './app/assets/css/main.css'
