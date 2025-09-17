@@ -1,4 +1,5 @@
 <template>
+  <Analytics />
   <div class="os-root">
     <!-- Wallpaper layer - full viewport background -->
     <div
@@ -55,6 +56,7 @@ import { useAppsStore } from "../stores/apps";
 import { onMounted, computed } from "vue";
 import { registerDefaultCommands } from "./composables/menuCommands";
 import { useGlobalChat } from "./composables/useGlobalChat";
+import { Analytics } from "@vercel/analytics/nuxt";
 
 defineOptions({ name: "AppRoot" });
 
