@@ -130,7 +130,8 @@ const config: AppConfig = {
     },
     author: {
       label: "Author",
-      value: "Rahul Kumar"
+      value: "Rahul Kumar",
+      url: "https://rahulk.design"
     }
   },
   features: [
