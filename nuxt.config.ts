@@ -23,15 +23,24 @@ if (isGitHubPages) {
 
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
-  devtools: { enabled: true },
+  devtools: { enabled: isDev },
 
   app: {
     baseURL,
     head: {
+      htmlAttrs: { lang: 'en' },
       title: 'Webintosh',
       meta: [
         { charset: 'utf-8' },
-        { name: 'viewport', content: 'width=device-width, initial-scale=1' }
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+        { name: 'description', content: 'A retro-inspired web desktop (Webintosh) with apps like Typing Test and an ambient noise mixer.' },
+        { name: 'theme-color', content: '#007AFF' },
+        { property: 'og:type', content: 'website' },
+        { property: 'og:title', content: 'Webintosh' },
+        { property: 'og:description', content: 'A retro-inspired web desktop with classic UI vibes.' },
+        { name: 'twitter:card', content: 'summary' },
+        { name: 'twitter:title', content: 'Webintosh' },
+        { name: 'twitter:description', content: 'A retro-inspired web desktop with classic UI vibes.' }
       ],
       link: [
         { rel: 'icon', type: 'image/png', href: `${baseURL}icons/system/apple.png` }
@@ -45,19 +54,24 @@ export default defineNuxtConfig({
     './app/assets/css/main.css'
   ],
 
+
+
   modules: [
-    '@nuxt/eslint',
+    isDev ? '@nuxt/eslint' : undefined,
     '@nuxt/image',
     '@nuxt/scripts',
-    '@nuxt/test-utils',
     '@nuxt/ui',
     '@pinia/nuxt',
     'nuxt-gtag'
-  ],
+  ].filter(Boolean),
 
-  // Google Analytics configuration
+  image: {
+    screens: { sm: 640, md: 768, lg: 1024, xl: 1280 }
+  },
+
   // @ts-ignore - nuxt-gtag module types
   gtag: {
-    id: 'G-1V0QJF0D55'
+    id: 'G-1V0QJF0D55',
+    config: { anonymize_ip: true }
   }
 })

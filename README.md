@@ -1,38 +1,28 @@
-# Nuxt Minimal Starter
+# Webintosh (Nuxt 4)
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+A retro-inspired web desktop built with Nuxt 4, Vue 3, Pinia, Tailwind CSS, and @nuxt/ui. Deployed to GitHub Pages (SSG) with PR preview deployments.
 
 ## Setup
 
-Make sure to install dependencies:
+Install dependencies (preferred):
 
 ```bash
-# npm
-npm install
-
 # pnpm
 pnpm install
-
-# yarn
-yarn install
 
 # bun
 bun install
 ```
 
-## Development Server
+> Note: npm/yarn are not used in this project.
 
-Start the development server on `http://localhost:3000`:
+## Development
+
+Start the dev server at http://localhost:3000:
 
 ```bash
-# npm
-npm run dev
-
 # pnpm
 pnpm dev
-
-# yarn
-yarn dev
 
 # bun
 bun run dev
@@ -43,33 +33,42 @@ bun run dev
 Build the application for production:
 
 ```bash
-# npm
-npm run build
-
 # pnpm
 pnpm build
-
-# yarn
-yarn build
 
 # bun
 bun run build
 ```
 
-Locally preview production build:
+Preview the production build locally:
 
 ```bash
-# npm
-npm run preview
-
 # pnpm
 pnpm preview
-
-# yarn
-yarn preview
 
 # bun
 bun run preview
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+## Analytics (Google Analytics)
+
+GA is enabled only in production via `nuxt-gtag` when `NUXT_PUBLIC_GTAG_ID` is set.
+Set this environment variable in your local shell or CI/CD (GitHub Actions):
+
+```bash
+# PowerShell (Windows)
+$env:NUXT_PUBLIC_GTAG_ID = "G-XXXXXXX"
+
+# Bash
+export NUXT_PUBLIC_GTAG_ID="G-XXXXXXX"
+```
+
+## CI
+
+- Deploys to GitHub Pages on push to `main`/`master`.
+- PR previews build to `gh-pages` under `/webintosh/pr-<number>/`.
+- A CI workflow runs typechecking and (optionally) linting/tests. Linting runs only if an ESLint config exists; tests run only if a Vitest config/tests exist.
+
+## License
+
+MIT
