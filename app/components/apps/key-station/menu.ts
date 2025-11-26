@@ -1,7 +1,8 @@
-// KeyStation App Menu Template
+// KeyStation App Menu
 import { Menu, type MenuTemplate } from '../../../types/menu'
 
-export function createKeyStationMenuTemplate(): MenuTemplate {
+// Standard export name for convention-based menu discovery
+export function createMenuTemplate(): MenuTemplate {
   return Menu.template('keystation', 'KeyStation', [
     // App menu
     Menu.section('keystation', 'KeyStation', [

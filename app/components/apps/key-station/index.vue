@@ -61,10 +61,7 @@
 
         <div class="control-group">
           <label>Sustain</label>
-          <button 
-            @click="toggleSustain" 
-            :class="['sustain-button', { active: sustainOn }]"
-          >
+          <button @click="toggleSustain" :class="['sustain-button', { active: sustainOn }]">
             {{ sustainOn ? 'ON' : 'OFF' }}
           </button>
         </div>
@@ -72,17 +69,10 @@
         <!-- Recording Controls -->
         <div class="control-group">
           <label>Recording</label>
-          <button 
-            @click="toggleRecording" 
-            :class="['record-button', { recording: isRecording }]"
-          >
+          <button @click="toggleRecording" :class="['record-button', { recording: isRecording }]">
             {{ isRecording ? '⏺ Stop' : '⏺ Record' }}
           </button>
-          <button 
-            v-if="recordedNotes.length > 0" 
-            @click="playRecording"
-            class="play-button"
-          >
+          <button v-if="recordedNotes.length > 0" @click="playRecording" class="play-button">
             ▶ Play
           </button>
         </div>
@@ -105,28 +95,17 @@
     <div class="keyboard-container">
       <div class="keyboard">
         <!-- White Keys -->
-        <div
-          v-for="(note, index) in whiteKeys"
-          :key="`white-${index}`"
-          :class="['key', 'white-key', { active: activeKeys.has(note.key) }]"
-          @mousedown="playNote(note)"
-          @mouseup="stopNote(note)"
-          @mouseleave="stopNote(note)"
-        >
+        <div v-for="(note, index) in whiteKeys" :key="`white-${index}`"
+          :class="['key', 'white-key', { active: activeKeys.has(note.key) }]" @mousedown="playNote(note)"
+          @mouseup="stopNote(note)" @mouseleave="stopNote(note)">
           <span class="key-label">{{ note.label }}</span>
           <span class="key-note">{{ note.key }}</span>
         </div>
-        
+
         <!-- Black Keys -->
-        <div
-          v-for="(note, index) in blackKeys"
-          :key="`black-${index}`"
-          :class="['key', 'black-key', { active: activeKeys.has(note.key) }]"
-          :style="{ left: note.position }"
-          @mousedown="playNote(note)"
-          @mouseup="stopNote(note)"
-          @mouseleave="stopNote(note)"
-        >
+        <div v-for="(note, index) in blackKeys" :key="`black-${index}`"
+          :class="['key', 'black-key', { active: activeKeys.has(note.key) }]" :style="{ left: note.position }"
+          @mousedown="playNote(note)" @mouseup="stopNote(note)" @mouseleave="stopNote(note)">
           <span class="key-label">{{ note.label }}</span>
         </div>
       </div>
@@ -207,33 +186,33 @@ const blackKeys = computed(() => [
 // Initialize audio context
 const initAudio = () => {
   audioContext.value = new (window.AudioContext || (window as any).webkitAudioContext)()
-  
+
   // Create master gain
   masterGainNode.value = audioContext.value.createGain()
   masterGainNode.value.gain.value = volume.value / 100
-  
+
   // Create reverb
   reverbNode.value = audioContext.value.createConvolver()
   createReverbImpulse()
-  
+
   // Create delay
   delayNode.value = audioContext.value.createDelay(1)
   delayNode.value.delayTime.value = 0.3
   delayGainNode.value = audioContext.value.createGain()
   delayGainNode.value.gain.value = 0
-  
+
   // Create analyser for waveform
   analyser.value = audioContext.value.createAnalyser()
   analyser.value.fftSize = 2048
-  
+
   // Connect effects chain
   delayNode.value.connect(delayGainNode.value)
   delayGainNode.value.connect(delayNode.value) // Feedback loop
   delayGainNode.value.connect(masterGainNode.value)
-  
+
   masterGainNode.value.connect(analyser.value)
   analyser.value.connect(audioContext.value.destination)
-  
+
   // Start waveform animation
   drawWaveform()
 }
@@ -241,17 +220,17 @@ const initAudio = () => {
 // Create reverb impulse response
 const createReverbImpulse = () => {
   if (!audioContext.value || !reverbNode.value) return
-  
+
   const length = audioContext.value.sampleRate * 2
   const impulse = audioContext.value.createBuffer(2, length, audioContext.value.sampleRate)
-  
+
   for (let channel = 0; channel < 2; channel++) {
     const channelData = impulse.getChannelData(channel)
     for (let i = 0; i < length; i++) {
       channelData[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, 2)
     }
   }
-  
+
   reverbNode.value.buffer = impulse
 }
 
@@ -259,8 +238,8 @@ const createReverbImpulse = () => {
 const getInstrumentSettings = (instrument: string) => {
   switch (instrument) {
     case 'piano':
-      return { 
-        waveform: 'triangle' as OscillatorType, 
+      return {
+        waveform: 'triangle' as OscillatorType,
         harmonics: [1, 0.5, 0.3, 0.2],
         attack: 0.01,
         decay: 0.3,
@@ -268,8 +247,8 @@ const getInstrumentSettings = (instrument: string) => {
         release: 0.5
       }
     case 'synth':
-      return { 
-        waveform: 'sawtooth' as OscillatorType, 
+      return {
+        waveform: 'sawtooth' as OscillatorType,
         harmonics: [1, 0.7, 0.5, 0.3],
         attack: 0.05,
         decay: 0.2,
@@ -277,8 +256,8 @@ const getInstrumentSettings = (instrument: string) => {
         release: 0.3
       }
     case 'organ':
-      return { 
-        waveform: 'sine' as OscillatorType, 
+      return {
+        waveform: 'sine' as OscillatorType,
         harmonics: [1, 0.8, 0.6, 0.4, 0.3],
         attack: 0.01,
         decay: 0.1,
@@ -286,8 +265,8 @@ const getInstrumentSettings = (instrument: string) => {
         release: 0.2
       }
     case 'strings':
-      return { 
-        waveform: 'sawtooth' as OscillatorType, 
+      return {
+        waveform: 'sawtooth' as OscillatorType,
         harmonics: [1, 0.4, 0.3, 0.2],
         attack: 0.3,
         decay: 0.2,
@@ -295,8 +274,8 @@ const getInstrumentSettings = (instrument: string) => {
         release: 0.8
       }
     case 'brass':
-      return { 
-        waveform: 'sawtooth' as OscillatorType, 
+      return {
+        waveform: 'sawtooth' as OscillatorType,
         harmonics: [1, 0.9, 0.7, 0.5],
         attack: 0.1,
         decay: 0.2,
@@ -304,8 +283,8 @@ const getInstrumentSettings = (instrument: string) => {
         release: 0.3
       }
     case 'flute':
-      return { 
-        waveform: 'sine' as OscillatorType, 
+      return {
+        waveform: 'sine' as OscillatorType,
         harmonics: [1, 0.2],
         attack: 0.2,
         decay: 0.1,
@@ -313,8 +292,8 @@ const getInstrumentSettings = (instrument: string) => {
         release: 0.4
       }
     default:
-      return { 
-        waveform: 'sine' as OscillatorType, 
+      return {
+        waveform: 'sine' as OscillatorType,
         harmonics: [1],
         attack: 0.01,
         decay: 0.3,
@@ -329,41 +308,41 @@ const playNote = (note: any) => {
   if (!audioContext.value || !masterGainNode.value) {
     initAudio()
   }
-  
+
   if (!audioContext.value || !masterGainNode.value) return
-  
+
   const noteKey = note.key
   const noteName = note.note
   const octaveOffset = note.octaveOffset || 0
   const octave = currentOctave.value + octaveOffset
-  
+
   // Don't replay if already playing
   if (activeOscillators.has(noteKey)) return
-  
+
   // Calculate frequency
   const baseFreq = noteFrequencies[noteName]
   if (!baseFreq) return
   const frequency = baseFreq * Math.pow(2, octave - 4)
-  
+
   // Get instrument settings
   const settings = getInstrumentSettings(selectedInstrument.value)
-  
+
   // Create oscillator and gain for this note
   const oscillator = audioContext.value.createOscillator()
   const noteGain = audioContext.value.createGain()
-  
+
   oscillator.type = selectedOscillatorType.value
   oscillator.frequency.setValueAtTime(frequency, audioContext.value.currentTime)
-  
+
   // ADSR envelope
   const now = audioContext.value.currentTime
   noteGain.gain.setValueAtTime(0, now)
   noteGain.gain.linearRampToValueAtTime(1, now + settings.attack)
   noteGain.gain.linearRampToValueAtTime(settings.sustain, now + settings.attack + settings.decay)
-  
+
   // Connect nodes
   oscillator.connect(noteGain)
-  
+
   // Add effects if enabled
   if (reverb.value > 0 && reverbNode.value) {
     const reverbGain = audioContext.value.createGain()
@@ -372,23 +351,23 @@ const playNote = (note: any) => {
     reverbGain.connect(reverbNode.value)
     reverbNode.value.connect(masterGainNode.value!)
   }
-  
+
   if (delay.value > 0 && delayNode.value) {
     noteGain.connect(delayNode.value)
     if (delayGainNode.value) {
       delayGainNode.value.gain.value = delay.value / 100 * 0.5
     }
   }
-  
+
   noteGain.connect(masterGainNode.value)
-  
+
   oscillator.start()
-  
+
   // Store reference
   activeOscillators.set(noteKey, { oscillator, gainNode: noteGain })
   activeKeys.value.add(noteKey)
   currentNote.value = `${noteName}${octave}`
-  
+
   // Record if recording
   if (isRecording.value) {
     recordedNotes.value.push({
@@ -401,25 +380,25 @@ const playNote = (note: any) => {
 // Stop a note
 const stopNote = (note: any) => {
   if (!audioContext.value || sustainOn.value) return
-  
+
   const noteKey = note.key
   const active = activeOscillators.get(noteKey)
-  
+
   if (active) {
     const settings = getInstrumentSettings(selectedInstrument.value)
     const now = audioContext.value.currentTime
-    
+
     // Release envelope
     active.gainNode.gain.cancelScheduledValues(now)
     active.gainNode.gain.setValueAtTime(active.gainNode.gain.value, now)
     active.gainNode.gain.linearRampToValueAtTime(0, now + settings.release)
-    
+
     // Stop oscillator after release
     active.oscillator.stop(now + settings.release)
-    
+
     activeOscillators.delete(noteKey)
     activeKeys.value.delete(noteKey)
-    
+
     if (activeKeys.value.size === 0) {
       currentNote.value = ''
     }
@@ -429,24 +408,24 @@ const stopNote = (note: any) => {
 // Draw waveform
 const drawWaveform = () => {
   if (!waveformCanvas.value || !analyser.value) return
-  
+
   const canvas = waveformCanvas.value
   const ctx = canvas.getContext('2d')
   if (!ctx) return
-  
+
   // Set canvas size
   canvas.width = canvas.offsetWidth * 2
   canvas.height = canvas.offsetHeight * 2
   ctx.scale(2, 2)
-  
+
   const bufferLength = analyser.value.frequencyBinCount
   const dataArray = new Uint8Array(bufferLength)
-  
+
   const draw = () => {
     animationId.value = requestAnimationFrame(draw)
-    
+
     analyser.value!.getByteTimeDomainData(dataArray)
-    
+
     ctx.fillStyle = 'rgba(20, 20, 30, 0.2)'
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 
@@ -471,32 +450,32 @@ const drawWaveform = () => {
         lineWidth = 3
         break
     }
-    
+
     ctx.lineWidth = lineWidth
     ctx.strokeStyle = strokeColor
     ctx.shadowBlur = 10
     ctx.shadowColor = strokeColor
     ctx.beginPath()
-    
+
     const sliceWidth = canvas.width / 2 / bufferLength
     let x = 0
-    
+
     for (let i = 0; i < bufferLength; i++) {
       const v = (dataArray[i] ?? 128) / 128.0
       const y = v * canvas.height / 4
-      
+
       if (i === 0) {
         ctx.moveTo(x, y)
       } else {
         ctx.lineTo(x, y)
       }
-      
+
       x += sliceWidth
     }
-    
+
     ctx.stroke()
   }
-  
+
   draw()
 }
 
@@ -521,19 +500,19 @@ const updateOscillatorType = () => {
 
 const toggleSustain = () => {
   sustainOn.value = !sustainOn.value
-  
+
   // If turning off sustain, stop all notes
   if (!sustainOn.value && audioContext.value) {
     const ctx = audioContext.value
     activeOscillators.forEach((active, key) => {
       const settings = getInstrumentSettings(selectedInstrument.value)
       const now = ctx.currentTime
-      
+
       active.gainNode.gain.cancelScheduledValues(now)
       active.gainNode.gain.setValueAtTime(active.gainNode.gain.value, now)
       active.gainNode.gain.linearRampToValueAtTime(0, now + settings.release)
       active.oscillator.stop(now + settings.release)
-      
+
       activeKeys.value.delete(key)
     })
     activeOscillators.clear()
@@ -553,7 +532,7 @@ const toggleRecording = () => {
 
 const playRecording = () => {
   if (recordedNotes.value.length === 0) return
-  
+
   recordedNotes.value.forEach(({ note, time }) => {
     setTimeout(() => {
       playNote(note)
@@ -565,11 +544,11 @@ const playRecording = () => {
 // Keyboard event handlers
 const handleKeyDown = (e: KeyboardEvent) => {
   const key = e.key.toUpperCase()
-  
+
   // Find matching key
   const whiteKey = whiteKeys.value.find(k => k.key === key)
   const blackKey = blackKeys.value.find(k => k.key === key)
-  
+
   if (whiteKey) {
     playNote(whiteKey)
   } else if (blackKey) {
@@ -582,10 +561,10 @@ const handleKeyDown = (e: KeyboardEvent) => {
 
 const handleKeyUp = (e: KeyboardEvent) => {
   const key = e.key.toUpperCase()
-  
+
   const whiteKey = whiteKeys.value.find(k => k.key === key)
   const blackKey = blackKeys.value.find(k => k.key === key)
-  
+
   if (whiteKey) {
     stopNote(whiteKey)
   } else if (blackKey) {
@@ -598,7 +577,7 @@ onMounted(() => {
   initAudio()
   window.addEventListener('keydown', handleKeyDown)
   window.addEventListener('keyup', handleKeyUp)
-  
+
   // Register menu command handlers
   registerMenuCommands()
 })
@@ -606,16 +585,16 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('keydown', handleKeyDown)
   window.removeEventListener('keyup', handleKeyUp)
-  
+
   if (animationId.value) {
     cancelAnimationFrame(animationId.value)
   }
-  
+
   // Clean up audio
   activeOscillators.forEach(({ oscillator }) => {
     oscillator.stop()
   })
-  
+
   if (audioContext.value) {
     audioContext.value.close()
   }
@@ -643,34 +622,34 @@ const registerMenuCommands = () => {
     activeOscillators.clear()
     currentNote.value = ''
   })
-  
+
   register('keystation.startRecording', () => {
     if (!isRecording.value) {
       toggleRecording()
     }
   })
-  
+
   register('keystation.stopRecording', () => {
     if (isRecording.value) {
       toggleRecording()
     }
   })
-  
+
   register('keystation.playRecording', () => {
     playRecording()
   })
-  
+
   register('keystation.clearRecording', () => {
     recordedNotes.value = []
   })
-  
+
   // Edit menu commands
   register('keystation.clearAll', () => {
     recordedNotes.value = []
     currentNote.value = ''
     activeKeys.value.clear()
   })
-  
+
   // Instrument menu commands
   register('keystation.setInstrument', (args?: unknown) => {
     const instrument = getArg<string>(args, 'instrument')
@@ -678,14 +657,14 @@ const registerMenuCommands = () => {
       selectedInstrument.value = instrument
     }
   })
-  
+
   register('keystation.setOscillator', (args?: unknown) => {
     const type = getArg<string>(args, 'type')
     if (type && ['sine', 'triangle', 'sawtooth', 'square'].includes(type)) {
       selectedOscillatorType.value = type as OscillatorType
     }
   })
-  
+
   // Effects menu commands
   register('keystation.setReverb', (args?: unknown) => {
     const level = getArg<number>(args, 'level')
@@ -693,7 +672,7 @@ const registerMenuCommands = () => {
       reverb.value = level
     }
   })
-  
+
   register('keystation.setDelay', (args?: unknown) => {
     const level = getArg<number>(args, 'level')
     if (typeof level === 'number') {
@@ -703,11 +682,11 @@ const registerMenuCommands = () => {
       }
     }
   })
-  
+
   register('keystation.toggleSustain', () => {
     toggleSustain()
   })
-  
+
   // Octave menu commands
   register('keystation.setOctave', (args?: unknown) => {
     const octave = getArg<number>(args, 'octave')
@@ -715,15 +694,15 @@ const registerMenuCommands = () => {
       currentOctave.value = octave
     }
   })
-  
+
   register('keystation.octaveUp', () => {
     changeOctave(1)
   })
-  
+
   register('keystation.octaveDown', () => {
     changeOctave(-1)
   })
-  
+
   // Audio menu commands
   register('keystation.setVolume', (args?: unknown) => {
     const level = getArg<number>(args, 'level')
@@ -732,17 +711,17 @@ const registerMenuCommands = () => {
       updateVolume()
     }
   })
-  
+
   register('keystation.volumeUp', () => {
     volume.value = Math.min(100, volume.value + 10)
     updateVolume()
   })
-  
+
   register('keystation.volumeDown', () => {
     volume.value = Math.max(0, volume.value - 10)
     updateVolume()
   })
-  
+
   register('keystation.resetAudio', () => {
     // Close existing context
     if (audioContext.value) {
@@ -751,20 +730,20 @@ const registerMenuCommands = () => {
     // Reinitialize audio
     initAudio()
   })
-  
+
   // View menu commands
   register('keystation.toggleWaveform', () => {
     // TODO: Toggle waveform display visibility
   })
-  
+
   register('keystation.toggleKeyLabels', () => {
     // TODO: Toggle key labels visibility
   })
-  
+
   register('keystation.toggleOctaveLabels', () => {
     // TODO: Toggle octave labels visibility
   })
-  
+
   // Help menu commands
   register('keystation.showKeyboardGuide', () => {
     alert('Keyboard Layout:\n\nWhite Keys: A S D F G H J K L\nBlack Keys: W E T Y U\nSustain: Space\n\nOctave Up: ]\nOctave Down: [')
@@ -797,7 +776,7 @@ function getArg<T>(args: unknown, key: string): T | undefined {
   border-radius: 8px;
   padding: 12px;
   margin-bottom: 10px;
-  box-shadow: 
+  box-shadow:
     inset 0 2px 4px rgba(0, 0, 0, 0.5),
     0 1px 0 rgba(255, 255, 255, 0.05);
   border: 1px solid #111;
@@ -895,7 +874,7 @@ function getArg<T>(args: unknown, key: string): T | undefined {
   color: #00ff88;
   cursor: pointer;
   font-weight: bold;
-  box-shadow: 
+  box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.1),
     0 2px 4px rgba(0, 0, 0, 0.3);
   transition: all 0.1s;
@@ -941,7 +920,7 @@ function getArg<T>(args: unknown, key: string): T | undefined {
   letter-spacing: 1px;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 
+  box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.1),
     0 2px 4px rgba(0, 0, 0, 0.3);
 }
@@ -957,7 +936,7 @@ function getArg<T>(args: unknown, key: string): T | undefined {
   background: linear-gradient(180deg, #00ff88 0%, #00cc66 100%);
   color: #000;
   border-color: #00ff88;
-  box-shadow: 
+  box-shadow:
     0 0 20px rgba(0, 255, 136, 0.5),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
@@ -967,7 +946,7 @@ function getArg<T>(args: unknown, key: string): T | undefined {
   color: white;
   border-color: #ff3333;
   animation: pulse 1s infinite;
-  box-shadow: 
+  box-shadow:
     0 0 20px rgba(255, 51, 51, 0.5),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
@@ -979,21 +958,24 @@ function getArg<T>(args: unknown, key: string): T | undefined {
 }
 
 .play-button:hover {
-  box-shadow: 
+  box-shadow:
     0 0 20px rgba(0, 170, 255, 0.5),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 @keyframes pulse {
-  0%, 100% { 
-    opacity: 1; 
-    box-shadow: 
+
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow:
       0 0 20px rgba(255, 51, 51, 0.5),
       inset 0 1px 0 rgba(255, 255, 255, 0.3);
   }
-  50% { 
-    opacity: 0.8; 
-    box-shadow: 
+
+  50% {
+    opacity: 0.8;
+    box-shadow:
       0 0 30px rgba(255, 51, 51, 0.8),
       inset 0 1px 0 rgba(255, 255, 255, 0.3);
   }
@@ -1013,7 +995,7 @@ function getArg<T>(args: unknown, key: string): T | undefined {
   position: relative;
   overflow: hidden;
   border: 1px solid #222;
-  box-shadow: 
+  box-shadow:
     inset 0 2px 8px rgba(0, 0, 0, 0.8),
     0 1px 0 rgba(255, 255, 255, 0.05);
 }
@@ -1037,7 +1019,7 @@ function getArg<T>(args: unknown, key: string): T | undefined {
   border: 1px solid #222;
   font-family: 'SF Mono', monospace;
   text-shadow: 0 0 10px rgba(0, 255, 136, 0.6);
-  box-shadow: 
+  box-shadow:
     inset 0 2px 8px rgba(0, 0, 0, 0.8),
     0 1px 0 rgba(255, 255, 255, 0.05);
 }
@@ -1068,7 +1050,7 @@ function getArg<T>(args: unknown, key: string): T | undefined {
   padding: 0;
   background: linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 100%);
   border-radius: 0;
-  box-shadow: 
+  box-shadow:
     inset 0 2px 4px rgba(0, 0, 0, 0.8),
     0 1px 0 rgba(255, 255, 255, 0.05);
   border-top: 1px solid #111;
@@ -1096,7 +1078,7 @@ function getArg<T>(args: unknown, key: string): T | undefined {
   background: linear-gradient(to bottom, #f8f8f8 0%, #e8e8e8 100%);
   border: 1px solid #aaa;
   border-radius: 0 0 6px 6px;
-  box-shadow: 
+  box-shadow:
     0 4px 6px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
@@ -1108,7 +1090,7 @@ function getArg<T>(args: unknown, key: string): T | undefined {
 .white-key.active {
   background: linear-gradient(to bottom, #00ff88 0%, #00cc66 100%);
   transform: translateY(2px);
-  box-shadow: 
+  box-shadow:
     0 2px 4px rgba(0, 0, 0, 0.3),
     0 0 20px rgba(0, 255, 136, 0.5),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
@@ -1122,7 +1104,7 @@ function getArg<T>(args: unknown, key: string): T | undefined {
   position: absolute;
   top: 0;
   z-index: 2;
-  box-shadow: 
+  box-shadow:
     0 4px 8px rgba(0, 0, 0, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1);
   transform: translateX(-50%);
@@ -1135,7 +1117,7 @@ function getArg<T>(args: unknown, key: string): T | undefined {
 .black-key.active {
   background: linear-gradient(to bottom, #00ff88 0%, #00aa55 100%);
   transform: translateY(2px) translateX(-50%);
-  box-shadow: 
+  box-shadow:
     0 2px 4px rgba(0, 0, 0, 0.5),
     0 0 15px rgba(0, 255, 136, 0.6);
 }
