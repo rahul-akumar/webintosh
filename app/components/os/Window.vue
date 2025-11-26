@@ -50,7 +50,7 @@
 import { computed, type CSSProperties, provide } from 'vue'
 import type { OSWindowModel } from '../../types/os'
 import { useOSStore } from '../../stores/os'
-import { getAppComponent } from './appRegistry'
+import { getAppComponent } from '../../config/apps'
 
 defineOptions({ name: 'OsWindow' })
 

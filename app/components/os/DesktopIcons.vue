@@ -22,7 +22,7 @@ import { useOSStore } from '../../stores/os'
 import { execute } from '../../utils/menuCommands'
 import { Menu } from '../../types/menu'
 import type { AppDescriptor, AppId } from '../../types/app'
-import { LAYOUT } from './constants'
+import { LAYOUT } from '../../constants/os'
 
 defineOptions({ name: 'OsDesktopIcons' })
 

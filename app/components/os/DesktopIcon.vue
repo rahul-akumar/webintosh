@@ -21,7 +21,7 @@
 import { computed, watch } from 'vue'
 import { useAppsStore } from '../../stores/apps'
 import { useDraggable, getViewportBounds } from '../../composables/useDraggable'
-import { ICON_SIZES, LAYOUT } from './constants'
+import { ICON_SIZES, LAYOUT } from '../../constants/os'
 import OsAppIcon from './AppIcon.vue'
 
 defineOptions({ name: 'OsDesktopIcon' })
