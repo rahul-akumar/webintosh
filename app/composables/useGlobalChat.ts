@@ -1,14 +1,13 @@
-import { ref, onUnmounted } from 'vue';
+import { ref, readonly, onUnmounted } from 'vue';
 import { 
   collection, 
   query, 
   onSnapshot, 
   where, 
-  orderBy,
   limit,
-  Timestamp
+  type Timestamp
 } from 'firebase/firestore';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, type Unsubscribe } from 'firebase/auth';
 import type { User } from 'firebase/auth';
 import { db, auth } from '../config/firebase';
 import { useNotifications } from './useNotifications';
@@ -28,7 +27,10 @@ interface Message {
 const currentUser = ref<User | null>(null);
 const processedMessageIds = new Set<string>();
 const channelUnsubscribes = new Map<string, () => void>();
+// Track conversation message listeners to prevent memory leaks
+const conversationUnsubscribes = new Map<string, () => void>();
 let dmUnsubscribe: (() => void) | null = null;
+let authUnsubscribe: Unsubscribe | null = null;
 const isAppOpen = ref(false);  // Start as false, Yahoo Messenger will set to true when it mounts
 let isInitialized = false;
 
@@ -50,7 +52,7 @@ export const useGlobalChat = () => {
     isInitialized = true;
     
     // Listen for auth state changes
-    onAuthStateChanged(auth, (user) => {
+    authUnsubscribe = onAuthStateChanged(auth, (user) => {
       currentUser.value = user;
       
       if (user) {
@@ -86,17 +88,22 @@ export const useGlobalChat = () => {
     );
 
     dmUnsubscribe = onSnapshot(q, (snapshot) => {
-      snapshot.docs.forEach(doc => {
-        const conversationId = doc.id;
+      snapshot.docs.forEach(docSnapshot => {
+        const conversationId = docSnapshot.id;
         
-        // Listen to messages in this conversation (remove orderBy to avoid index issues)
+        // Skip if we already have a listener for this conversation
+        if (conversationUnsubscribes.has(conversationId)) {
+          return;
+        }
+        
+        // Listen to messages in this conversation
         const msgQuery = query(
           collection(db, 'messages'),
           where('conversationId', '==', conversationId),
           limit(50)
         );
         
-        onSnapshot(msgQuery, (msgSnapshot) => {
+        const unsubscribeMsg = onSnapshot(msgQuery, (msgSnapshot) => {
           if (!currentUser.value) return;
           
           msgSnapshot.docChanges().forEach((change) => {
@@ -133,6 +140,9 @@ export const useGlobalChat = () => {
             }
           });
         });
+        
+        // Store the unsubscribe function to prevent memory leaks
+        conversationUnsubscribes.set(conversationId, unsubscribeMsg);
       });
     });
   };
@@ -142,12 +152,22 @@ export const useGlobalChat = () => {
     channelUnsubscribes.forEach(unsubscribe => unsubscribe());
     channelUnsubscribes.clear();
     
+    // Clean up conversation message listeners
+    conversationUnsubscribes.forEach(unsubscribe => unsubscribe());
+    conversationUnsubscribes.clear();
+    
     if (dmUnsubscribe) {
       dmUnsubscribe();
       dmUnsubscribe = null;
     }
     
+    if (authUnsubscribe) {
+      authUnsubscribe();
+      authUnsubscribe = null;
+    }
+    
     processedMessageIds.clear();
+    isInitialized = false;
   };
 
   // Clean up on unmount
