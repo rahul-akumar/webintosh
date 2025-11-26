@@ -212,9 +212,9 @@ import {
 } from './yahooMessenger';
 import { useNotifications } from '~/composables/useNotifications';
 import { useGlobalChat } from '~/composables/useGlobalChat';
-import { clearChannelMessages } from '~/composables/clearChatData';
+import { clearChannelMessages } from '~/utils/clearChatData';
 import { createYahooMessengerMenuTemplate } from './yahooMessengerMenu';
-import { useMenuCommand } from '~/composables/menuCommands';
+import { useMenuCommand } from '~/utils/menuCommands';
 import { useOSStore } from '../../../stores/os';
 
 // State

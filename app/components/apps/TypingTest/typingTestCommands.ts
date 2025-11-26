@@ -1,5 +1,5 @@
 // TypingTest Menu Command Handlers
-import { register } from '../../../composables/menuCommands'
+import { register } from '../../../utils/menuCommands'
 
 export interface TypingTestAPI {
   startNewTest: () => void

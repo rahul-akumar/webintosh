@@ -19,7 +19,7 @@
 import { computed } from 'vue'
 import { useAppsStore } from '../../stores/apps'
 import { useOSStore } from '../../stores/os'
-import { execute } from '../../composables/menuCommands'
+import { execute } from '../../utils/menuCommands'
 import { Menu } from '../../types/menu'
 import type { AppDescriptor, AppId } from '../../types/app'
 

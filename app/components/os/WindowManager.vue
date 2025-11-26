@@ -16,7 +16,7 @@
 import { onMounted, onUnmounted } from 'vue'
 import { useOSStore } from '../../stores/os'
 import OsWindow from './Window.vue'
-import { execute, registerDefaultCommands } from '../../composables/menuCommands'
+import { execute, registerDefaultCommands } from '../../utils/menuCommands'
 import { useKeyboardShortcuts } from '../../composables/useKeyboardShortcuts'
 
 defineOptions({ name: 'OsWindowManager' })

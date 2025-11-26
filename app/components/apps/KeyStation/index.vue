@@ -136,7 +136,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue'
-import { register } from '../../../composables/menuCommands'
+import { register } from '../../../utils/menuCommands'
 
 // Audio Context
 const audioContext = ref<AudioContext | null>(null)

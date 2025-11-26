@@ -53,7 +53,7 @@
 import { useOSStore } from "../stores/os";
 import { useAppsStore } from "../stores/apps";
 import { onMounted, onUnmounted, computed } from "vue";
-import { registerDefaultCommands } from "../composables/menuCommands";
+import { registerDefaultCommands } from "../utils/menuCommands";
 import { appRegistry } from "../config/apps";
 
 defineOptions({ name: "AppRoot" });

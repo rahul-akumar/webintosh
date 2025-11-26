@@ -26,7 +26,6 @@ interface Message {
 // Global state - shared across all instances
 const currentUser = ref<User | null>(null);
 const processedMessageIds = new Set<string>();
-const channelUnsubscribes = new Map<string, () => void>();
 // Track conversation message listeners to prevent memory leaks
 const conversationUnsubscribes = new Map<string, () => void>();
 let dmUnsubscribe: (() => void) | null = null;
@@ -58,8 +57,6 @@ export const useGlobalChat = () => {
       if (user) {
         // Add a delay to mark all existing messages as processed
         setTimeout(() => {
-          // Start listening to all channels
-          startChannelListeners();
           // Start listening to DMs for this user
           startDMListener();
         }, 2000); // Wait 2 seconds to ensure all existing messages are skipped
@@ -68,11 +65,6 @@ export const useGlobalChat = () => {
         stopAllListeners();
       }
     });
-  };
-
-  // Start listening to all channels (NO NOTIFICATIONS for channels)
-  const startChannelListeners = () => {
-    // We skip channel listeners since we don't want notifications for them
   };
 
   // Start listening to DMs
@@ -149,9 +141,6 @@ export const useGlobalChat = () => {
 
   // Stop all listeners
   const stopAllListeners = () => {
-    channelUnsubscribes.forEach(unsubscribe => unsubscribe());
-    channelUnsubscribes.clear();
-    
     // Clean up conversation message listeners
     conversationUnsubscribes.forEach(unsubscribe => unsubscribe());
     conversationUnsubscribes.clear();

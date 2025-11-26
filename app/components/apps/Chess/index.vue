@@ -216,7 +216,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
-import { useMenuCommand } from '~/composables/menuCommands'
+import { useMenuCommand } from '~/utils/menuCommands'
 import { createChessMenuTemplate } from './chessMenu'
 import { useOSStore } from '../../../stores/os'
 import type { CommandId } from '../../../types/menu'
