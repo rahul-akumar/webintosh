@@ -13,124 +13,19 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue'
 import { useOSStore } from '../../stores/os'
 import OsWindow from './Window.vue'
-import { execute, registerDefaultCommands } from '../../utils/menuCommands'
-import { useKeyboardShortcuts } from '../../composables/useKeyboardShortcuts'
+import { useWindowEvents } from '../../composables/useWindowEvents'
 
 defineOptions({ name: 'OsWindowManager' })
 
 const store = useOSStore()
-const { isModifierPressed } = useKeyboardShortcuts()
 
 // Development mode check for debug UI
 const isDev = import.meta.dev ?? process.env.NODE_ENV === 'development'
 
-function onMove(e: MouseEvent) {
-  // Support both dragging and resizing depending on store.drag.resizing
-  store.resizeTo(e.clientX, e.clientY)
-  store.dragTo(e.clientX, e.clientY)
-}
-function onUp() {
-  store.endDrag()
-}
-
-let resizeTimer: number | undefined
-function onResize() {
-  if (resizeTimer) window.clearTimeout(resizeTimer)
-  resizeTimer = window.setTimeout(() => {
-    store.realignAllToBounds()
-  }, 100)
-}
-
-function cycleWindowsForward() {
-  const list = store.orderedWindows
-  if (list.length === 0) return
-  const focusedId = store.focusedId ?? null
-  const idx = focusedId != null ? list.findIndex(w => w.id === focusedId) : -1
-  const next = list[(idx + 1) % list.length]
-  if (next) store.bringToFront(next.id)
-}
-
-function onKeyDown(e: KeyboardEvent) {
-  // ESC: cancel drag/resize and close menus
-  if (e.key === 'Escape') {
-    store.endDrag()
-    store.closeMenu()
-    e.preventDefault()
-    return
-  }
-
-  // Platform-aware modifier key shortcuts
-  // Mac: Ctrl+key (Cmd is reserved for browser)
-  // Windows/Linux: Alt+key (Ctrl often conflicts with browser)
-  // Also handles Cmd/Ctrl for cross-platform support
-  const hasModifier = isModifierPressed(e) || e.metaKey || e.ctrlKey
-  if (!hasModifier) return
-
-  const k = e.key.toLowerCase()
-  switch (k) {
-    case 'n': {
-      // New/Open window behavior:
-      // - If TextEdit focused: New Document
-      // - If any app focused: New Window for that app
-      // - Else (desktop): OS Open Window
-      const appId = store.focused?.appId ?? null
-      if (appId === 'textedit') {
-        execute('app.newDocument', { appId })
-      } else if (appId) {
-        execute('app.newWindow', { appId })
-      } else {
-        execute('os.openWindow')
-      }
-      e.preventDefault()
-      break
-    }
-    case 'w': {
-      execute('os.closeFocused')
-      e.preventDefault()
-      break
-    }
-    case 'm': {
-      execute('os.minimizeFocused')
-      e.preventDefault()
-      break
-    }
-    case 'z': {
-      execute('view.toggleZoom')
-      e.preventDefault()
-      break
-    }
-    case '/': {
-      execute('system.showShortcuts')
-      e.preventDefault()
-      break
-    }
-    case '`': {
-      cycleWindowsForward()
-      e.preventDefault()
-      break
-    }
-    default:
-      break
-  }
-}
-
-onMounted(() => {
-  // Ensure command registry is initialized (idempotent; safe across HMR)
-  registerDefaultCommands()
-  window.addEventListener('mousemove', onMove)
-  window.addEventListener('mouseup', onUp)
-  window.addEventListener('keydown', onKeyDown)
-  window.addEventListener('resize', onResize)
-})
-onUnmounted(() => {
-  window.removeEventListener('mousemove', onMove)
-  window.removeEventListener('mouseup', onUp)
-  window.removeEventListener('keydown', onKeyDown)
-  window.removeEventListener('resize', onResize)
-})
+// Set up global window management events (drag, resize, keyboard shortcuts)
+useWindowEvents()
 </script>
 
 <style scoped>

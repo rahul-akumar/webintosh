@@ -24,16 +24,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useAppsStore } from '../../stores/apps'
 import { useOSStore } from '../../stores/os'
 import { createDockMenuForApp } from './menus'
+import { useDockDragDrop } from '../../composables/useDockDragDrop'
 import type { AppId } from '../../types/app'
 
 defineOptions({ name: 'OsDock' })
 
 const apps = useAppsStore()
 const os = useOSStore()
+const { onDragStart, onDragOver, onDrop, onDropList } = useDockDragDrop()
 
 type DockItem = {
   id: AppId
@@ -112,51 +114,6 @@ function onContextId(id: AppId, e?: MouseEvent) {
   const y = spaceBelow < menuH + 20 ? Math.max(8, rawY - menuH) : rawY
 
   os.openContext(x, y, tpl)
-}
-
-/**
- * Drag and drop ordering for minimized app tiles
- */
-const dragSource = ref<AppId | null>(null)
-
-function onDragStart(payload: { id: AppId; ev: DragEvent }) {
-  dragSource.value = payload.id
-  const dt = payload.ev.dataTransfer
-  if (dt) {
-    dt.setData('text/plain', payload.id)
-    dt.effectAllowed = 'move'
-    // Some UAs require an explicit dropEffect during drag
-    dt.dropEffect = 'move'
-  }
-}
-
-function onDragOver(payload: { id: AppId; ev: DragEvent }) {
-  // Ensure cursor shows as a move operation while hovering targets
-  const dt = payload.ev.dataTransfer
-  if (dt) dt.dropEffect = 'move'
-}
-
-function onDrop(payload: { id: AppId; ev: DragEvent }) {
-  const source = dragSource.value
-  const target = payload.id
-  if (source) {
-    // Place source before target
-    apps.moveInMinOrder(source, target ?? null)
-  }
-  dragSource.value = null
-}
-
-/**
- * Handle drop on the dock list background (e.g., after last item or between gaps).
- * Falls back to appending to the end of the order.
- */
-function onDropList(ev: DragEvent) {
-  const data = ev.dataTransfer?.getData('text/plain') || ''
-  const source = data as AppId
-  if (source && typeof source === 'string') {
-    apps.moveInMinOrder(source, null)
-  }
-  dragSource.value = null
 }
 </script>
 
