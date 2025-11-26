@@ -71,11 +71,9 @@ const handleNotificationClick = (notification: any) => {
   if (notification.appId) {
     const window = osStore.windows.find((w: any) => w.appId === notification.appId);
     if (window) {
-      osStore.focusWindow(window.id);
-    } else {
-      // Open the app if not already open
-      osStore.openApp(notification.appId);
+      osStore.bringToFront(window.id);
     }
+    // Note: Opening apps that aren't already open would require useAppsStore
   }
 };
 

@@ -342,6 +342,7 @@ const playNote = (note: any) => {
   
   // Calculate frequency
   const baseFreq = noteFrequencies[noteName]
+  if (!baseFreq) return
   const frequency = baseFreq * Math.pow(2, octave - 4)
   
   // Get instrument settings
@@ -481,7 +482,7 @@ const drawWaveform = () => {
     let x = 0
     
     for (let i = 0; i < bufferLength; i++) {
-      const v = dataArray[i] / 128.0
+      const v = (dataArray[i] ?? 128) / 128.0
       const y = v * canvas.height / 4
       
       if (i === 0) {
@@ -523,9 +524,10 @@ const toggleSustain = () => {
   
   // If turning off sustain, stop all notes
   if (!sustainOn.value && audioContext.value) {
+    const ctx = audioContext.value
     activeOscillators.forEach((active, key) => {
       const settings = getInstrumentSettings(selectedInstrument.value)
-      const now = audioContext.value.currentTime
+      const now = ctx.currentTime
       
       active.gainNode.gain.cancelScheduledValues(now)
       active.gainNode.gain.setValueAtTime(active.gainNode.gain.value, now)

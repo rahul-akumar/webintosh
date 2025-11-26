@@ -521,7 +521,7 @@ const getUserAvatarColor = (name: string | undefined): string => {
 
   // Use the hash to pick a color consistently
   const index = Math.abs(hash) % colors.length;
-  return colors[index];
+  return colors[index] ?? '#ffd700';
 };
 
 const clearCurrentChannel = async () => {
