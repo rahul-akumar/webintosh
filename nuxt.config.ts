@@ -57,7 +57,7 @@ export default defineNuxtConfig({
 
 
   modules: [
-    isDev ? '@nuxt/eslint' : undefined,
+    '@nuxt/eslint',
     '@nuxt/image',
     '@nuxt/scripts',
     '@nuxt/ui',
