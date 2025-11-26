@@ -20,7 +20,10 @@ defineOptions({ name: 'OsDesktop' })
 const store = useOSStore()
 const apps = useAppsStore()
 
-// Reactive context menu template that updates when state changes
+/**
+ * Context menu template - computed provides memoization.
+ * Only recalculates when dependent reactive values (iconLayoutDirection, iconSize) change.
+ */
 const contextMenuTemplate = computed(() => 
   Menu.template('desktop-context', 'Webintosh', [
     Menu.section('wallpaper', 'Wallpaper', [

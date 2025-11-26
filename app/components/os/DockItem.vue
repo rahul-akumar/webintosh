@@ -1,7 +1,5 @@
 <template>
-  <li
-    class="dock-item"
-  >
+  <li class="dock-item">
     <button
       class="dock-button"
       @click="$emit('launch')"
@@ -13,9 +11,7 @@
       @dragover.prevent="$emit('drag-over', { id, ev: $event })"
       @drop.prevent="$emit('drop', { id, ev: $event })"
     >
-      <!-- Use SVG icon if available, otherwise fall back to emoji -->
-      <img v-if="iconUrl && !iconError" :src="iconUrl" :alt="title" class="dock-icon-svg" aria-hidden="true" @error="iconError = true">
-      <span v-else class="dock-icon-emoji" aria-hidden="true">{{ emoji || '🗂️' }}</span>
+      <OsAppIcon :icon="icon" :emoji="emoji" :alt="title" size="dock" />
       <!-- Optional minimized count badge (shown when 2+ minimized windows exist) -->
       <span v-if="minimizedCount && minimizedCount > 1" class="count-badge" aria-hidden="true">{{ minimizedCount }}</span>
       <!-- Legacy running indicator kept for compatibility; can be removed when Dock shows minimized-only -->
@@ -26,8 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useAssetUrl } from '../../composables/useAssetUrl'
+import OsAppIcon from './AppIcon.vue'
 
 defineOptions({ name: 'OsDockItem' })
 
@@ -40,9 +35,6 @@ const { id, title, icon, emoji, running = false, minimized = false, minimizedCou
   minimized?: boolean
   minimizedCount?: number
 }>()
-
-const iconError = ref(false)
-const iconUrl = computed(() => useAssetUrl(icon))
 
 defineEmits<{
   (e: 'launch' | 'context', ev?: MouseEvent): void
@@ -71,16 +63,6 @@ defineEmits<{
 .dock-button:hover {
   background: rgba(0, 0, 0, 0.06);
   transform: translateY(-2px);
-}
-
-.dock-icon-svg {
-  width: 26px;
-  height: 26px;
-}
-
-.dock-icon-emoji {
-  font-size: 26px;
-  line-height: 1;
 }
 
 /* Running indicator */

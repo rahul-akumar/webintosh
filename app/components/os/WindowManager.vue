@@ -1,6 +1,7 @@
 <template>
   <div class="wm-root">
-    <div class="debug">Windows: {{ store.windows.length }}</div>
+    <!-- Debug info (development only) -->
+    <div v-if="isDev" class="debug">Windows: {{ store.windows.length }}</div>
 
     <!-- Windows -->
     <OsWindow
@@ -8,7 +9,6 @@
       :key="w.id"
       :win="w"
     />
-
   </div>
 </template>
 
@@ -23,6 +23,9 @@ defineOptions({ name: 'OsWindowManager' })
 
 const store = useOSStore()
 const { isModifierPressed } = useKeyboardShortcuts()
+
+// Development mode check for debug UI
+const isDev = import.meta.dev ?? process.env.NODE_ENV === 'development'
 
 function onMove(e: MouseEvent) {
   // Support both dragging and resizing depending on store.drag.resizing
@@ -62,74 +65,49 @@ function onKeyDown(e: KeyboardEvent) {
   // Platform-aware modifier key shortcuts
   // Mac: Ctrl+key (Cmd is reserved for browser)
   // Windows/Linux: Alt+key (Ctrl often conflicts with browser)
-  if (isModifierPressed(e)) {
-    const k = e.key.toLowerCase()
-    switch (k) {
-      case 'n': {
-        // New/Open window behavior:
-        // - If TextEdit focused: New Document
-        // - If any app focused: New Window for that app
-        // - Else (desktop): OS Open Window
-        const appId = store.focused?.appId ?? null
-        if (appId === 'textedit') {
-          execute('app.newDocument', { appId })
-        } else if (appId) {
-          execute('app.newWindow', { appId })
-        } else {
-          execute('os.openWindow')
-        }
-        e.preventDefault()
-        return
-      }
-      case 'w': {
-        execute('os.closeFocused')
-        e.preventDefault()
-        return
-      }
-      case 'm': {
-        execute('os.minimizeFocused')
-        e.preventDefault()
-        return
-      }
-      case 'z': {
-        execute('view.toggleZoom')
-        e.preventDefault()
-        return
-      }
-      case '/': {
-        execute('system.showShortcuts')
-        e.preventDefault()
-        return
-      }
-      case '`': {
-        // Cycle windows forward using existing helper
-        cycleWindowsForward()
-        e.preventDefault()
-        return
-      }
-      default:
-        break
-    }
-  }
+  // Also handles Cmd/Ctrl for cross-platform support
+  const hasModifier = isModifierPressed(e) || e.metaKey || e.ctrlKey
+  if (!hasModifier) return
 
-  // Cmd/Ctrl combos (existing behavior)
-  const mod = e.metaKey || e.ctrlKey
-  if (!mod) return
-
-  switch (e.key.toLowerCase()) {
-    case 'm': { // minimize
-      const f = store.focused
-      if (f) store.toggleMinimize(f.id)
+  const k = e.key.toLowerCase()
+  switch (k) {
+    case 'n': {
+      // New/Open window behavior:
+      // - If TextEdit focused: New Document
+      // - If any app focused: New Window for that app
+      // - Else (desktop): OS Open Window
+      const appId = store.focused?.appId ?? null
+      if (appId === 'textedit') {
+        execute('app.newDocument', { appId })
+      } else if (appId) {
+        execute('app.newWindow', { appId })
+      } else {
+        execute('os.openWindow')
+      }
       e.preventDefault()
       break
     }
-    case 'w': { // close
-      const f = store.focused
-      if (f) store.closeWindow(f.id)
+    case 'w': {
+      execute('os.closeFocused')
       e.preventDefault()
       break
     }
-    case '`': { // cycle
+    case 'm': {
+      execute('os.minimizeFocused')
+      e.preventDefault()
+      break
+    }
+    case 'z': {
+      execute('view.toggleZoom')
+      e.preventDefault()
+      break
+    }
+    case '/': {
+      execute('system.showShortcuts')
+      e.preventDefault()
+      break
+    }
+    case '`': {
       cycleWindowsForward()
       e.preventDefault()
       break

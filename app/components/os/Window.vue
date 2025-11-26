@@ -21,36 +21,26 @@
       <div class="os-window-title">{{ win.title }}</div>
     </div>
 
-    <!-- Resize handles -->
-    <div class="resize-handle handle-n"  @mousedown.stop="onStartResize('n',  $event)" />
-    <div class="resize-handle handle-s"  @mousedown.stop="onStartResize('s',  $event)" />
-    <div class="resize-handle handle-e"  @mousedown.stop="onStartResize('e',  $event)" />
-    <div class="resize-handle handle-w"  @mousedown.stop="onStartResize('w',  $event)" />
-    <div class="resize-handle handle-ne" @mousedown.stop="onStartResize('ne', $event)" />
-    <div class="resize-handle handle-nw" @mousedown.stop="onStartResize('nw', $event)" />
-    <div class="resize-handle handle-se" @mousedown.stop="onStartResize('se', $event)" />
-    <div class="resize-handle handle-sw" @mousedown.stop="onStartResize('sw', $event)" />
+    <!-- Resize handles with accessibility labels -->
+    <div class="resize-handle handle-n"  role="separator" aria-label="Resize top" @mousedown.stop="onStartResize('n',  $event)" />
+    <div class="resize-handle handle-s"  role="separator" aria-label="Resize bottom" @mousedown.stop="onStartResize('s',  $event)" />
+    <div class="resize-handle handle-e"  role="separator" aria-label="Resize right" @mousedown.stop="onStartResize('e',  $event)" />
+    <div class="resize-handle handle-w"  role="separator" aria-label="Resize left" @mousedown.stop="onStartResize('w',  $event)" />
+    <div class="resize-handle handle-ne" role="separator" aria-label="Resize top-right corner" @mousedown.stop="onStartResize('ne', $event)" />
+    <div class="resize-handle handle-nw" role="separator" aria-label="Resize top-left corner" @mousedown.stop="onStartResize('nw', $event)" />
+    <div class="resize-handle handle-se" role="separator" aria-label="Resize bottom-right corner" @mousedown.stop="onStartResize('se', $event)" />
+    <div class="resize-handle handle-sw" role="separator" aria-label="Resize bottom-left corner" @mousedown.stop="onStartResize('sw', $event)" />
 
     <div class="os-window-content">
       <slot>
-        <!-- Default content for known app windows -->
-        <template v-if="win.kind === 'app' || win.kind === 'system'">
-          <AppsFinder v-if="win.appId === 'finder'" />
-          <AppsTextEdit v-else-if="win.appId === 'textedit'" :window-id="win.id" />
-          <AppsShortcuts v-else-if="win.appId === 'shortcuts'" />
-          <AppsAbout v-else-if="win.appId === 'about'" />
-          <AppsSettings v-else-if="win.appId === 'settings'" />
-          <AppsTypingTest v-else-if="win.appId === 'typingtest'" />
-          <AppsKeyStation v-else-if="win.appId === 'keystation'" />
-          <AppsYahooMessenger v-else-if="win.appId === 'yahoomessenger'" />
-          <AppsWhiteNoise v-else-if="win.appId === 'whitenoise'" />
-          <AppsChess v-else-if="win.appId === 'chess'" />
-        </template>
-
-        <!-- Placeholder content -->
-        <template v-else>
-          <p>This is a window body (id: {{ win.id }})</p>
-        </template>
+        <!-- Dynamic app content from registry -->
+        <component 
+          v-if="appComponent" 
+          :is="appComponent" 
+          :window-id="win.id"
+        />
+        <!-- Placeholder content for unknown apps -->
+        <p v-else>This is a window body (id: {{ win.id }})</p>
       </slot>
     </div>
   </div>
@@ -60,6 +50,7 @@
 import { computed, type CSSProperties, provide } from 'vue'
 import type { OSWindowModel } from '../../types/os'
 import { useOSStore } from '../../stores/os'
+import { getAppComponent } from './appRegistry'
 
 defineOptions({ name: 'OsWindow' })
 
@@ -70,6 +61,14 @@ const props = defineProps<{
 const store = useOSStore()
 
 provide('window', props.win)
+
+// Resolve app component from registry
+const appComponent = computed(() => {
+  if (props.win.kind === 'app' || props.win.kind === 'system') {
+    return getAppComponent(props.win.appId)
+  }
+  return undefined
+})
 
 const styleObject = computed<CSSProperties>(() => ({
   position: 'absolute',

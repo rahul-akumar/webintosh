@@ -3,7 +3,7 @@
     class="desktop-icon"
     :class="`icon-size-${appsStore.iconSize}`"
     :style="positionStyle"
-    @mousedown="startDrag"
+    @mousedown="handleMouseDown"
   >
     <button
       class="icon-button"
@@ -11,18 +11,18 @@
       @dblclick.stop="$emit('open')"
       @contextmenu.prevent.stop="$emit('context', $event)"
     >
-      <!-- Use SVG icon if available, otherwise fall back to emoji -->
-      <img v-if="iconUrl && !iconError" :src="iconUrl" :alt="title" class="icon-svg" aria-hidden="true" @error="iconError = true">
-      <span v-else class="icon-emoji" aria-hidden="true">{{ emoji || '🗂️' }}</span>
+      <OsAppIcon :icon="icon" :emoji="emoji" :alt="title" :size="appsStore.iconSize" />
       <span class="icon-label">{{ title }}</span>
     </button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import { useAssetUrl } from '../../composables/useAssetUrl'
+import { computed, watch } from 'vue'
 import { useAppsStore } from '../../stores/apps'
+import { useDraggable, getViewportBounds } from '../../composables/useDraggable'
+import { ICON_SIZES, LAYOUT } from './constants'
+import OsAppIcon from './AppIcon.vue'
 
 defineOptions({ name: 'OsDesktopIcon' })
 
@@ -41,23 +41,43 @@ const emit = defineEmits<{
 }>()
 
 const appsStore = useAppsStore()
-const isDragging = ref(false)
-const currentX = ref(props.x ?? 0)
-const currentY = ref(props.y ?? 0)
-const iconError = ref(false)
-const iconUrl = computed(() => useAssetUrl(props.icon))
+
+// Get current icon dimensions
+function getIconDimensions() {
+  const size = ICON_SIZES[appsStore.iconSize]
+  return { width: size.width, height: size.height }
+}
+
+// Calculate viewport bounds for dragging
+function calculateBounds() {
+  const { width, height } = getIconDimensions()
+  const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1280
+  const viewportHeight = typeof window !== 'undefined' ? window.innerHeight : 768
+  
+  return {
+    minX: 0,
+    maxX: viewportWidth - width - LAYOUT.DESKTOP_PADDING,
+    minY: 0,
+    maxY: viewportHeight - LAYOUT.MENU_BAR_HEIGHT - height,
+  }
+}
+
+const { isDragging, currentX, currentY, startDrag, setPosition } = useDraggable({
+  initialX: props.x ?? 0,
+  initialY: props.y ?? 0,
+  bounds: calculateBounds(),
+  onDragEnd: (data) => {
+    emit('move', data)
+  },
+})
 
 // Update local position when props change
 watch(() => props.x, (newX) => {
-  if (newX !== undefined && !isDragging.value) {
-    currentX.value = newX
-  }
+  if (newX !== undefined) setPosition(newX, currentY.value)
 })
 
 watch(() => props.y, (newY) => {
-  if (newY !== undefined && !isDragging.value) {
-    currentY.value = newY
-  }
+  if (newY !== undefined) setPosition(currentX.value, newY)
 })
 
 const positionStyle = computed(() => {
@@ -73,55 +93,8 @@ const positionStyle = computed(() => {
   return {}
 })
 
-function startDrag(e: MouseEvent) {
-  if (e.button !== 0) return // Only left click
-  
-  e.preventDefault()
-  
-  const startX = e.clientX
-  const startY = e.clientY
-  const origX = currentX.value
-  const origY = currentY.value
-  
-  isDragging.value = true
-  
-  function onMouseMove(e: MouseEvent) {
-    const deltaX = e.clientX - startX
-    const deltaY = e.clientY - startY
-    
-    // Get viewport dimensions
-    const viewportWidth = window.innerWidth
-    const viewportHeight = window.innerHeight
-    
-    // Icon dimensions based on size setting
-    const iconSizes = {
-      small: { width: 72, height: 68 },
-      medium: { width: 88, height: 80 },
-      large: { width: 104, height: 92 }
-    }
-    const { width: iconWidth, height: iconHeight } = iconSizes[appsStore.iconSize]
-    const menuBarHeight = 40 // OS menu bar height
-    const desktopPadding = 8 // Desktop padding to match OS store
-    
-    // Calculate new position with bounds checking
-    const newX = origX + deltaX
-    const newY = origY + deltaY
-    
-    // Constrain to viewport bounds with padding
-    currentX.value = Math.max(0, Math.min(newX, viewportWidth - iconWidth - desktopPadding))
-    currentY.value = Math.max(0, Math.min(newY, viewportHeight - menuBarHeight - iconHeight))
-  }
-  
-  function onMouseUp() {
-    isDragging.value = false
-    // Emit final position
-    emit('move', { x: currentX.value, y: currentY.value })
-    document.removeEventListener('mousemove', onMouseMove)
-    document.removeEventListener('mouseup', onMouseUp)
-  }
-  
-  document.addEventListener('mousemove', onMouseMove)
-  document.addEventListener('mouseup', onMouseUp)
+function handleMouseDown(e: MouseEvent) {
+  startDrag(e)
 }
 </script>
 
@@ -184,37 +157,6 @@ function startDrag(e: MouseEvent) {
 .desktop-icon:hover .icon-button {
   background: rgba(0, 0, 0, 0.06);
   pointer-events: auto;
-}
-
-/* Icon sizes */
-.icon-svg {
-  width: 28px;
-  height: 28px;
-}
-
-.icon-emoji {
-  font-size: 28px;
-  line-height: 1;
-}
-
-/* Small icon sizes */
-.icon-size-small .icon-svg {
-  width: 22px;
-  height: 22px;
-}
-
-.icon-size-small .icon-emoji {
-  font-size: 22px;
-}
-
-/* Large icon sizes */
-.icon-size-large .icon-svg {
-  width: 36px;
-  height: 36px;
-}
-
-.icon-size-large .icon-emoji {
-  font-size: 36px;
 }
 
 /* Label sizes */

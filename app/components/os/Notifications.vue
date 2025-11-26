@@ -60,35 +60,54 @@
 </template>
 
 <script setup lang="ts">
-import { useNotifications } from '~/composables/useNotifications';
-import { useOSStore } from '../../stores/os';
+import { type DeepReadonly } from 'vue'
+import { useNotifications, type Notification } from '~/composables/useNotifications'
+import { useOSStore } from '../../stores/os'
+import type { OSWindowModel } from '../../types/os'
 
-const { notifications, dismissNotification } = useNotifications();
-const osStore = useOSStore();
+const { notifications, dismissNotification } = useNotifications()
+const osStore = useOSStore()
 
-const handleNotificationClick = (notification: any) => {
+// Readonly notification type for template iteration
+type ReadonlyNotification = DeepReadonly<Notification>
+
+interface NotificationAction {
+  label: string
+  action: () => void
+}
+
+const handleNotificationClick = (notification: ReadonlyNotification) => {
   // If notification has an appId, focus that app
   if (notification.appId) {
-    const window = osStore.windows.find((w: any) => w.appId === notification.appId);
+    const window = osStore.windows.find((w: OSWindowModel) => w.appId === notification.appId)
     if (window) {
-      osStore.bringToFront(window.id);
+      osStore.bringToFront(window.id)
     }
     // Note: Opening apps that aren't already open would require useAppsStore
   }
-};
+}
 
-const handleAction = (notification: any, action: any) => {
-  action.action();
-  dismissNotification(notification.id);
-};
+const handleAction = (notification: ReadonlyNotification, action: Readonly<NotificationAction>) => {
+  action.action()
+  dismissNotification(notification.id)
+}
 </script>
 
 <style scoped>
+/* CSS Variables for notification theming */
+:root {
+  --notif-success: #4caf50;
+  --notif-error: #f44336;
+  --notif-warning: #ff9800;
+  --notif-message: #764ba2;
+  --notif-info: #2196f3;
+}
+
 .notifications-container {
   position: fixed;
   top: 40px; /* Below menubar */
   right: 20px;
-  z-index: 9999;
+  z-index: var(--z-notifications, 9999);
   pointer-events: none;
 }
 
@@ -100,40 +119,41 @@ const handleAction = (notification: any, action: any) => {
   max-width: 420px;
   margin-bottom: 10px;
   padding: 12px;
-  background: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  background: var(--bg-notification, rgba(255, 255, 255, 0.98));
+  backdrop-filter: blur(var(--blur-amount, 20px));
+  -webkit-backdrop-filter: blur(var(--blur-amount, 20px));
+  border: 1px solid var(--border-notification, rgba(0, 0, 0, 0.1));
+  border-radius: var(--notification-border-radius, 8px);
+  box-shadow: var(--shadow-notification, 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05));
   pointer-events: auto;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-normal, 0.2s) ease;
 }
 
 .notification:hover {
   transform: translateX(-5px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-notification-hover, 0 6px 16px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.1));
 }
 
 /* Type-specific colors */
 .notification-success {
-  border-left: 4px solid #4caf50;
+  border-left: 4px solid var(--notif-success);
 }
 
 .notification-error {
-  border-left: 4px solid #f44336;
+  border-left: 4px solid var(--notif-error);
 }
 
 .notification-warning {
-  border-left: 4px solid #ff9800;
+  border-left: 4px solid var(--notif-warning);
 }
 
 .notification-message {
-  border-left: 4px solid #764ba2;
+  border-left: 4px solid var(--notif-message);
 }
 
 .notification-info {
-  border-left: 4px solid #2196f3;
+  border-left: 4px solid var(--notif-info);
 }
 
 .notification-icon {
@@ -150,7 +170,7 @@ const handleAction = (notification: any, action: any) => {
   align-items: center;
   justify-content: center;
   border-radius: 6px;
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--bg-button-hover, rgba(0, 0, 0, 0.05));
 }
 
 .notification-icon-default svg {
@@ -159,23 +179,23 @@ const handleAction = (notification: any, action: any) => {
 }
 
 .notification-success .notification-icon-default {
-  background: rgba(76, 175, 80, 0.1);
-  color: #4caf50;
+  background: color-mix(in srgb, var(--notif-success) 10%, transparent);
+  color: var(--notif-success);
 }
 
 .notification-error .notification-icon-default {
-  background: rgba(244, 67, 54, 0.1);
-  color: #f44336;
+  background: color-mix(in srgb, var(--notif-error) 10%, transparent);
+  color: var(--notif-error);
 }
 
 .notification-warning .notification-icon-default {
-  background: rgba(255, 152, 0, 0.1);
-  color: #ff9800;
+  background: color-mix(in srgb, var(--notif-warning) 10%, transparent);
+  color: var(--notif-warning);
 }
 
 .notification-message .notification-icon-default {
-  background: rgba(118, 75, 162, 0.1);
-  color: #764ba2;
+  background: color-mix(in srgb, var(--notif-message) 10%, transparent);
+  color: var(--notif-message);
 }
 
 .notification-content {
@@ -186,14 +206,14 @@ const handleAction = (notification: any, action: any) => {
 .notification-title {
   font-size: 14px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--text-primary, #1a1a1a);
   margin-bottom: 4px;
   line-height: 1.2;
 }
 
 .notification-message {
   font-size: 13px;
-  color: #666;
+  color: var(--text-secondary, #666);
   line-height: 1.4;
   word-break: break-word;
 }
@@ -208,17 +228,17 @@ const handleAction = (notification: any, action: any) => {
   padding: 4px 12px;
   font-size: 12px;
   font-weight: 500;
-  color: #764ba2;
-  background: rgba(118, 75, 162, 0.1);
-  border: 1px solid rgba(118, 75, 162, 0.2);
-  border-radius: 4px;
+  color: var(--color-primary, var(--notif-message));
+  background: color-mix(in srgb, var(--color-primary, var(--notif-message)) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-primary, var(--notif-message)) 20%, transparent);
+  border-radius: var(--button-border-radius, 4px);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-fast, 0.12s);
 }
 
 .notification-action:hover {
-  background: rgba(118, 75, 162, 0.2);
-  border-color: rgba(118, 75, 162, 0.3);
+  background: color-mix(in srgb, var(--color-primary, var(--notif-message)) 20%, transparent);
+  border-color: color-mix(in srgb, var(--color-primary, var(--notif-message)) 30%, transparent);
 }
 
 .notification-close {
@@ -234,8 +254,9 @@ const handleAction = (notification: any, action: any) => {
   border: none;
   cursor: pointer;
   opacity: 0.5;
-  transition: opacity 0.2s;
+  transition: opacity var(--transition-fast, 0.12s);
   padding: 0;
+  color: var(--text-primary, currentColor);
 }
 
 .notification-close:hover {
@@ -264,25 +285,5 @@ const handleAction = (notification: any, action: any) => {
 .notification-leave-to {
   transform: translateX(100%);
   opacity: 0;
-}
-
-/* Dark theme support */
-@media (prefers-color-scheme: dark) {
-  .notification {
-    background: rgba(30, 30, 30, 0.98);
-    border-color: rgba(255, 255, 255, 0.1);
-  }
-  
-  .notification-title {
-    color: #f0f0f0;
-  }
-  
-  .notification-message {
-    color: #aaa;
-  }
-  
-  .notification-icon-default {
-    background: rgba(255, 255, 255, 0.05);
-  }
 }
 </style>
