@@ -37,7 +37,6 @@ export const useGlobalChat = () => {
   
   // Track whether Yahoo Messenger is open
   const setAppOpen = (open: boolean) => {
-    console.log('[GlobalChat] App open state changed:', open);
     isAppOpen.value = open;
     if (open) {
       // Clear processed messages when app opens to avoid duplicate notifications
@@ -50,11 +49,8 @@ export const useGlobalChat = () => {
     if (isInitialized) return; // Prevent multiple initializations
     isInitialized = true;
     
-    console.log('[GlobalChat] Initializing global listeners');
-    
     // Listen for auth state changes
     onAuthStateChanged(auth, (user) => {
-      console.log('[GlobalChat] Auth state changed:', user?.displayName || 'null');
       currentUser.value = user;
       
       if (user) {
@@ -74,15 +70,12 @@ export const useGlobalChat = () => {
 
   // Start listening to all channels (NO NOTIFICATIONS for channels)
   const startChannelListeners = () => {
-    // We can skip channel listeners entirely since we don't want notifications for them
-    console.log('[GlobalChat] Skipping channel listeners - notifications disabled for channels');
+    // We skip channel listeners since we don't want notifications for them
   };
 
   // Start listening to DMs
   const startDMListener = () => {
     if (!currentUser.value || dmUnsubscribe) return;
-    
-    console.log('[GlobalChat] Starting DM listeners for user:', currentUser.value.displayName);
     
     // Mark current time to only process messages after this point
     const startTime = Date.now();
@@ -125,20 +118,10 @@ export const useGlobalChat = () => {
               const messageTime = message.timestamp?.toMillis() || 0;
               const isNewMessage = messageTime > startTime && (Date.now() - messageTime < 10000);
               
-              console.log('[GlobalChat] DM detected:', {
-                from: message.userName,
-                isAppOpen: isAppOpen.value,
-                isFromSelf: message.userId === currentUser.value!.uid,
-                isNewMessage,
-                messageAge: messageTime ? `${(Date.now() - messageTime) / 1000}s ago` : 'no timestamp'
-              });
-              
               // Only notify for truly new DMs from others when app is closed
               if (!isAppOpen.value && 
                   message.userId !== currentUser.value!.uid &&
                   isNewMessage) {
-                
-                console.log('[GlobalChat] 🔔 Showing DM notification from:', message.userName, ':', message.text);
                 
                 notifyMessage(
                   message.userName,

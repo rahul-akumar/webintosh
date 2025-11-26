@@ -357,9 +357,7 @@ const handlePrint = () => {
 }
 
 const handleOpen = () => {
-  // Open functionality would go here
-  // For now, just show a message
-  console.log('Open file feature not yet implemented')
+  // TODO: Implement file open functionality
 }
 
 const format = (command: string, value?: string) => {
@@ -486,9 +484,7 @@ const saveDocument = () => {
   const titleWithoutExt = fullFilename.replace(/\.(md|txt|rtf|html)$/i, '')
   documentTitle.value = titleWithoutExt
   
-  // Here you could implement actual save logic when filesystem is available
-  // For now, we just update the title
-  console.log('Would save file:', fullFilename)
+  // TODO: Implement actual save logic when filesystem is available
   
   closeSaveModal()
 }
