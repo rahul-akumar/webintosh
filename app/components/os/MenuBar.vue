@@ -59,6 +59,7 @@ import { useOSStore } from '../../stores/os'
 import { useAppsStore } from '../../stores/apps'
 import { getSystemMenuTemplate, getAppMenuTemplate } from './menus'
 import { useAssetUrl } from '../../composables/useAssetUrl'
+import { useClock } from '../../composables/useClock'
 
 defineOptions({ name: 'OsMenuBar' })
 
@@ -67,15 +68,8 @@ const apps = useAppsStore()
 const menuLeftEl = ref<HTMLElement | null>(null)
 const logoUrl = ref<string | null>(useAssetUrl("/icons/system/apple.png") || null)
 
-// Clock tick (unchanged behavior)
-let t: number | undefined
-onMounted(() => {
-  store.tickClock()
-  t = window.setInterval(() => store.tickClock(), 1000)
-})
-onUnmounted(() => {
-  if (t) window.clearInterval(t)
-})
+// Initialize clock
+useClock()
 
 // Resolve active template - default to system menu when no windows are open
 const activeTemplate = computed(() => {

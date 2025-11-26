@@ -22,14 +22,14 @@
     </div>
 
     <!-- Resize handles with accessibility labels -->
-    <div class="resize-handle handle-n"  role="separator" aria-label="Resize top" @mousedown.stop="onStartResize('n',  $event)" />
-    <div class="resize-handle handle-s"  role="separator" aria-label="Resize bottom" @mousedown.stop="onStartResize('s',  $event)" />
-    <div class="resize-handle handle-e"  role="separator" aria-label="Resize right" @mousedown.stop="onStartResize('e',  $event)" />
-    <div class="resize-handle handle-w"  role="separator" aria-label="Resize left" @mousedown.stop="onStartResize('w',  $event)" />
-    <div class="resize-handle handle-ne" role="separator" aria-label="Resize top-right corner" @mousedown.stop="onStartResize('ne', $event)" />
-    <div class="resize-handle handle-nw" role="separator" aria-label="Resize top-left corner" @mousedown.stop="onStartResize('nw', $event)" />
-    <div class="resize-handle handle-se" role="separator" aria-label="Resize bottom-right corner" @mousedown.stop="onStartResize('se', $event)" />
-    <div class="resize-handle handle-sw" role="separator" aria-label="Resize bottom-left corner" @mousedown.stop="onStartResize('sw', $event)" />
+    <div
+      v-for="h in resizeHandles"
+      :key="h.edge"
+      :class="['resize-handle', `handle-${h.edge}`]"
+      role="separator"
+      :aria-label="h.label"
+      @mousedown.stop="onStartResize(h.edge, $event)"
+    />
 
     <div class="os-window-content">
       <slot>
@@ -61,6 +61,17 @@ const props = defineProps<{
 const store = useOSStore()
 
 provide('window', props.win)
+
+const resizeHandles = [
+  { edge: 'n', label: 'Resize top' },
+  { edge: 's', label: 'Resize bottom' },
+  { edge: 'e', label: 'Resize right' },
+  { edge: 'w', label: 'Resize left' },
+  { edge: 'ne', label: 'Resize top-right corner' },
+  { edge: 'nw', label: 'Resize top-left corner' },
+  { edge: 'se', label: 'Resize bottom-right corner' },
+  { edge: 'sw', label: 'Resize bottom-left corner' },
+] as const
 
 // Resolve app component from registry
 const appComponent = computed(() => {
