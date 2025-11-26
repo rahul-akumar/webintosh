@@ -73,8 +73,8 @@
 <script setup lang="ts">
 import { computed, ref, nextTick, onMounted } from 'vue'
 import type { CSSProperties } from 'vue'
-import type { MenuEntry, MenuItem, Accelerator } from '../../../types/menu'
-import { formatAccelerator } from '../../../types/menu'
+import type { MenuEntry, MenuItem, Accelerator } from '../../types/menu'
+import { formatAccelerator } from '../../types/menu'
 import { execute } from '../../composables/menuCommands'
 
 defineOptions({ name: 'MenuDropdown' })

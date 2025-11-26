@@ -50,8 +50,8 @@
 </template>
 
 <script setup lang="ts">
-import { useOSStore } from "../../stores/os";
-import { useAppsStore } from "../../stores/apps";
+import { useOSStore } from "../stores/os";
+import { useAppsStore } from "../stores/apps";
 import { onMounted, computed } from "vue";
 import { registerDefaultCommands } from "../composables/menuCommands";
 import { useGlobalChat } from "../composables/useGlobalChat";

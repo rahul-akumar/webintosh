@@ -1,5 +1,5 @@
 // WhiteNoise (Noise Mixer) App Menu Template
-import { Menu, type MenuTemplate } from "../../../../types/menu";
+import { Menu, type MenuTemplate } from "../../../types/menu";
 
 export function createWhiteNoiseMenuTemplate(): MenuTemplate {
   return Menu.template("whitenoise", "Noise Mixer", [

@@ -1,5 +1,5 @@
 // KeyStation App Menu Template
-import { Menu, type MenuTemplate } from '../../../../types/menu'
+import { Menu, type MenuTemplate } from '../../../types/menu'
 
 export function createKeyStationMenuTemplate(): MenuTemplate {
   return Menu.template('keystation', 'KeyStation', [

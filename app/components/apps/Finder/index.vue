@@ -70,8 +70,8 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useAppsStore } from '../../../../stores/apps'
-import { useOSStore } from '../../../../stores/os'
+import { useAppsStore } from '../../../stores/apps'
+import { useOSStore } from '../../../stores/os'
 
 defineOptions({ name: 'FinderApp' })
 

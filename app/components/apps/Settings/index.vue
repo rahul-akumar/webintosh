@@ -284,9 +284,9 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, inject } from 'vue'
-import { useOSStore } from '../../../../stores/os'
-import { useAssetUrl } from '../../../../app/composables/useAssetUrl'
-import type { OSWindowModel } from '../../../../types/os'
+import { useOSStore } from '../../../stores/os'
+import { useAssetUrl } from '../../../composables/useAssetUrl'
+import type { OSWindowModel } from '../../../types/os'
 
 defineOptions({ name: 'SettingsApp' })
 

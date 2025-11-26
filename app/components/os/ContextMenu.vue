@@ -21,7 +21,7 @@
 
 <script setup lang="ts">
 import { onMounted, onUnmounted, computed } from 'vue'
-import type { MenuEntry, MenuSection } from '../../../types/menu'
+import type { MenuEntry, MenuSection } from '../../types/menu'
 import MenuDropdown from './MenuDropdown.vue'
 
 defineOptions({ name: 'OsContextMenu' })

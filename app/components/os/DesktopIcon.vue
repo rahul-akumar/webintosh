@@ -22,7 +22,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useAssetUrl } from '../../composables/useAssetUrl'
-import { useAppsStore } from '../../../stores/apps'
+import { useAppsStore } from '../../stores/apps'
 
 defineOptions({ name: 'OsDesktopIcon' })
 

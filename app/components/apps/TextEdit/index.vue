@@ -203,7 +203,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, reactive, watch, nextTick } from 'vue'
-import { useOSStore } from '../../../../stores/os'
+import { useOSStore } from '../../../stores/os'
 import { register } from '../../../composables/menuCommands'
 
 defineOptions({ name: 'TextEditApp' })

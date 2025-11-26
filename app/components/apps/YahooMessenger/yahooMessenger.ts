@@ -21,7 +21,7 @@ import {
   signOut
 } from 'firebase/auth';
 import type { User } from 'firebase/auth';
-import { db, auth } from '../../../../config/firebase';
+import { db, auth } from '../../../config/firebase';
 
 // Types
 export interface Channel {

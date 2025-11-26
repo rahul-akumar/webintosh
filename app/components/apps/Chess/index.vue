@@ -218,8 +218,8 @@
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useMenuCommand } from '~/composables/menuCommands'
 import { createChessMenuTemplate } from './chessMenu'
-import { useOSStore } from '../../../../stores/os'
-import type { CommandId } from '../../../../types/menu'
+import { useOSStore } from '../../../stores/os'
+import type { CommandId } from '../../../types/menu'
 
 // Types
 type PieceColor = 'white' | 'black'

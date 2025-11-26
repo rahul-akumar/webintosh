@@ -1,5 +1,5 @@
 // Menu Templates Resolver (Phase 2)
-import type { MenuTemplate } from "../../../../types/menu";
+import type { MenuTemplate } from "../../../types/menu";
 import { createSystemMenuTemplate } from "./systemMenu";
 import { createFinderMenuTemplate } from "../../apps/Finder/finderMenu";
 import { createTextEditMenuTemplate } from "../../apps/TextEdit/textEditMenu";

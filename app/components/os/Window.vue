@@ -58,8 +58,8 @@
 
 <script setup lang="ts">
 import { computed, type CSSProperties, provide } from 'vue'
-import type { OSWindowModel } from '../../../types/os'
-import { useOSStore } from '../../../stores/os'
+import type { OSWindowModel } from '../../types/os'
+import { useOSStore } from '../../stores/os'
 
 defineOptions({ name: 'OsWindow' })
 

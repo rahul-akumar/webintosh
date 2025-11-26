@@ -10,7 +10,7 @@ import {
 } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import type { User } from 'firebase/auth';
-import { db, auth } from '../../config/firebase';
+import { db, auth } from '../config/firebase';
 import { useNotifications } from './useNotifications';
 
 interface Message {
