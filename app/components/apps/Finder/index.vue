@@ -138,13 +138,11 @@ const files = computed(() => {
 })
 
 const openFile = (file: any) => {
-  console.log('Opening file:', file.name)
-  
   // If it's an app, launch it using the apps store
   if (file.type === 'app' && file.appId) {
     appsStore.launchOrFocus(file.appId)
   }
-  // Handle other file types here in the future
+  // TODO: Handle other file types
 }
 </script>
 

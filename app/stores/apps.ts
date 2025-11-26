@@ -1,11 +1,7 @@
 import { defineStore } from 'pinia';
 import type { AppDescriptor, AppId } from '../types/app';
 import { useOSStore } from './os';
-
-const PINS_KEY = 'webintosh:dock:v1:pins';
-const MIN_ORDER_KEY = 'webintosh:dock:v1:minOrder';
-const ICON_POSITIONS_KEY = 'webintosh:desktop:v1:iconPositions';
-const ICON_LAYOUT_KEY = 'webintosh:desktop:v1:iconLayout';
+import { STORAGE_KEYS } from '../constants/storage-keys';
 
 export interface AppsState {
   registry: Record<AppId, AppDescriptor>;
@@ -49,7 +45,7 @@ export const useAppsStore = defineStore('apps', {
     loadPins() {
       if (typeof localStorage === 'undefined') return;
       try {
-        const raw = localStorage.getItem(PINS_KEY);
+        const raw = localStorage.getItem(STORAGE_KEYS.DOCK_PINS);
         if (!raw) return;
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed)) {
@@ -61,7 +57,7 @@ export const useAppsStore = defineStore('apps', {
     savePins() {
       if (typeof localStorage === 'undefined') return;
       try {
-        localStorage.setItem(PINS_KEY, JSON.stringify(this.pinned));
+        localStorage.setItem(STORAGE_KEYS.DOCK_PINS, JSON.stringify(this.pinned));
       } catch { /* ignore */ }
     },
 
@@ -95,22 +91,22 @@ export const useAppsStore = defineStore('apps', {
     loadIconPositions() {
       if (typeof localStorage === 'undefined') return;
       try {
-        const raw = localStorage.getItem(ICON_POSITIONS_KEY);
+        const raw = localStorage.getItem(STORAGE_KEYS.ICON_POSITIONS);
         if (raw) {
           const parsed = JSON.parse(raw);
           if (typeof parsed === 'object' && parsed !== null) {
             this.iconPositions = parsed;
           }
         }
-      } catch (e) {
-        console.error('Failed to load icon positions:', e);
+      } catch {
+        // Silently ignore storage errors
       }
     },
 
     loadIconLayout() {
       if (typeof localStorage === 'undefined') return;
       try {
-        const raw = localStorage.getItem(ICON_LAYOUT_KEY);
+        const raw = localStorage.getItem(STORAGE_KEYS.ICON_LAYOUT);
         if (raw) {
           const parsed = JSON.parse(raw);
           if (typeof parsed === 'object' && parsed !== null) {
@@ -125,8 +121,8 @@ export const useAppsStore = defineStore('apps', {
             }
           }
         }
-      } catch (e) {
-        console.error('Failed to load icon layout:', e);
+      } catch {
+        // Silently ignore storage errors
       }
     },
 
@@ -138,9 +134,9 @@ export const useAppsStore = defineStore('apps', {
           sortBy: this.iconSortBy,
           size: this.iconSize
         };
-        localStorage.setItem(ICON_LAYOUT_KEY, JSON.stringify(layout));
-      } catch (e) {
-        console.error('Failed to save icon layout:', e);
+        localStorage.setItem(STORAGE_KEYS.ICON_LAYOUT, JSON.stringify(layout));
+      } catch {
+        // Silently ignore storage errors
       }
     },
 
@@ -149,9 +145,9 @@ export const useAppsStore = defineStore('apps', {
       // Save immediately to localStorage
       if (typeof localStorage !== 'undefined') {
         try {
-          localStorage.setItem(ICON_POSITIONS_KEY, JSON.stringify(this.iconPositions));
-        } catch (e) {
-          console.error('Failed to save icon positions:', e);
+          localStorage.setItem(STORAGE_KEYS.ICON_POSITIONS, JSON.stringify(this.iconPositions));
+        } catch {
+          // Silently ignore storage errors
         }
       }
     },
@@ -180,9 +176,9 @@ export const useAppsStore = defineStore('apps', {
       this.iconPositions = {};
       if (typeof localStorage !== 'undefined') {
         try {
-          localStorage.setItem(ICON_POSITIONS_KEY, JSON.stringify({}));
-        } catch (e) {
-          console.error('Failed to clear icon positions:', e);
+          localStorage.setItem(STORAGE_KEYS.ICON_POSITIONS, JSON.stringify({}));
+        } catch {
+          // Silently ignore storage errors
         }
       }
     },
@@ -211,7 +207,7 @@ export const useAppsStore = defineStore('apps', {
     loadMinOrder() {
       if (typeof localStorage === 'undefined') return;
       try {
-        const raw = localStorage.getItem(MIN_ORDER_KEY);
+        const raw = localStorage.getItem(STORAGE_KEYS.DOCK_MIN_ORDER);
         if (!raw) return;
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed)) {
@@ -230,7 +226,7 @@ export const useAppsStore = defineStore('apps', {
     saveMinOrder() {
       if (typeof localStorage === 'undefined') return;
       try {
-        localStorage.setItem(MIN_ORDER_KEY, JSON.stringify(this.minimizedOrder));
+        localStorage.setItem(STORAGE_KEYS.DOCK_MIN_ORDER, JSON.stringify(this.minimizedOrder));
       } catch { /* ignore */ }
     },
 

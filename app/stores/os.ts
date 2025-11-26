@@ -6,6 +6,7 @@ import type {
   WindowId,
 } from "../types/os";
 import type { MenuTemplate } from "../types/menu";
+import { STORAGE_KEYS } from "../constants/storage-keys";
 
 const MIN_W = 240;
 const MIN_H = 160;
@@ -107,7 +108,7 @@ export const useOSStore = defineStore("os", {
         theme: this.theme,
       };
       try {
-        localStorage.setItem("webintosh:session:v1", JSON.stringify(snapshot));
+        localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(snapshot));
       } catch {
         /* ignore */
       }
@@ -116,7 +117,7 @@ export const useOSStore = defineStore("os", {
     loadSession() {
       if (typeof localStorage === "undefined") return;
       try {
-        const raw = localStorage.getItem("webintosh:session:v1");
+        const raw = localStorage.getItem(STORAGE_KEYS.SESSION);
         if (!raw) {
           // First time - set default wallpaper with proper base URL
           const baseURL =

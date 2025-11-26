@@ -1,5 +1,6 @@
 {
-  "name": "nuxt-app",
+  "name": "webintosh",
+  "description": "A retro-inspired web desktop built with Nuxt 4, Vue 3, and Tailwind CSS",
   "type": "module",
   "private": true,
   "scripts": {

@@ -752,18 +752,15 @@ const registerMenuCommands = () => {
   
   // View menu commands
   register('keystation.toggleWaveform', () => {
-    // Toggle waveform display visibility (would need to add a ref for this)
-    console.log('Toggle waveform display')
+    // TODO: Toggle waveform display visibility
   })
   
   register('keystation.toggleKeyLabels', () => {
-    // Toggle key labels visibility (would need to add a ref for this)
-    console.log('Toggle key labels')
+    // TODO: Toggle key labels visibility
   })
   
   register('keystation.toggleOctaveLabels', () => {
-    // Toggle octave labels visibility (would need to add a ref for this)
-    console.log('Toggle octave labels')
+    // TODO: Toggle octave labels visibility
   })
   
   // Help menu commands

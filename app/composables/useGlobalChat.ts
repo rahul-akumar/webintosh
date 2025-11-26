@@ -1,14 +1,13 @@
-import { ref, onUnmounted } from 'vue';
+import { ref, readonly, onUnmounted } from 'vue';
 import { 
   collection, 
   query, 
   onSnapshot, 
   where, 
-  orderBy,
   limit,
-  Timestamp
+  type Timestamp
 } from 'firebase/firestore';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, type Unsubscribe } from 'firebase/auth';
 import type { User } from 'firebase/auth';
 import { db, auth } from '../config/firebase';
 import { useNotifications } from './useNotifications';
@@ -28,7 +27,10 @@ interface Message {
 const currentUser = ref<User | null>(null);
 const processedMessageIds = new Set<string>();
 const channelUnsubscribes = new Map<string, () => void>();
+// Track conversation message listeners to prevent memory leaks
+const conversationUnsubscribes = new Map<string, () => void>();
 let dmUnsubscribe: (() => void) | null = null;
+let authUnsubscribe: Unsubscribe | null = null;
 const isAppOpen = ref(false);  // Start as false, Yahoo Messenger will set to true when it mounts
 let isInitialized = false;
 
@@ -37,7 +39,6 @@ export const useGlobalChat = () => {
   
   // Track whether Yahoo Messenger is open
   const setAppOpen = (open: boolean) => {
-    console.log('[GlobalChat] App open state changed:', open);
     isAppOpen.value = open;
     if (open) {
       // Clear processed messages when app opens to avoid duplicate notifications
@@ -50,11 +51,8 @@ export const useGlobalChat = () => {
     if (isInitialized) return; // Prevent multiple initializations
     isInitialized = true;
     
-    console.log('[GlobalChat] Initializing global listeners');
-    
     // Listen for auth state changes
-    onAuthStateChanged(auth, (user) => {
-      console.log('[GlobalChat] Auth state changed:', user?.displayName || 'null');
+    authUnsubscribe = onAuthStateChanged(auth, (user) => {
       currentUser.value = user;
       
       if (user) {
@@ -74,15 +72,12 @@ export const useGlobalChat = () => {
 
   // Start listening to all channels (NO NOTIFICATIONS for channels)
   const startChannelListeners = () => {
-    // We can skip channel listeners entirely since we don't want notifications for them
-    console.log('[GlobalChat] Skipping channel listeners - notifications disabled for channels');
+    // We skip channel listeners since we don't want notifications for them
   };
 
   // Start listening to DMs
   const startDMListener = () => {
     if (!currentUser.value || dmUnsubscribe) return;
-    
-    console.log('[GlobalChat] Starting DM listeners for user:', currentUser.value.displayName);
     
     // Mark current time to only process messages after this point
     const startTime = Date.now();
@@ -93,17 +88,22 @@ export const useGlobalChat = () => {
     );
 
     dmUnsubscribe = onSnapshot(q, (snapshot) => {
-      snapshot.docs.forEach(doc => {
-        const conversationId = doc.id;
+      snapshot.docs.forEach(docSnapshot => {
+        const conversationId = docSnapshot.id;
         
-        // Listen to messages in this conversation (remove orderBy to avoid index issues)
+        // Skip if we already have a listener for this conversation
+        if (conversationUnsubscribes.has(conversationId)) {
+          return;
+        }
+        
+        // Listen to messages in this conversation
         const msgQuery = query(
           collection(db, 'messages'),
           where('conversationId', '==', conversationId),
           limit(50)
         );
         
-        onSnapshot(msgQuery, (msgSnapshot) => {
+        const unsubscribeMsg = onSnapshot(msgQuery, (msgSnapshot) => {
           if (!currentUser.value) return;
           
           msgSnapshot.docChanges().forEach((change) => {
@@ -125,20 +125,10 @@ export const useGlobalChat = () => {
               const messageTime = message.timestamp?.toMillis() || 0;
               const isNewMessage = messageTime > startTime && (Date.now() - messageTime < 10000);
               
-              console.log('[GlobalChat] DM detected:', {
-                from: message.userName,
-                isAppOpen: isAppOpen.value,
-                isFromSelf: message.userId === currentUser.value!.uid,
-                isNewMessage,
-                messageAge: messageTime ? `${(Date.now() - messageTime) / 1000}s ago` : 'no timestamp'
-              });
-              
               // Only notify for truly new DMs from others when app is closed
               if (!isAppOpen.value && 
                   message.userId !== currentUser.value!.uid &&
                   isNewMessage) {
-                
-                console.log('[GlobalChat] 🔔 Showing DM notification from:', message.userName, ':', message.text);
                 
                 notifyMessage(
                   message.userName,
@@ -150,6 +140,9 @@ export const useGlobalChat = () => {
             }
           });
         });
+        
+        // Store the unsubscribe function to prevent memory leaks
+        conversationUnsubscribes.set(conversationId, unsubscribeMsg);
       });
     });
   };
@@ -159,12 +152,22 @@ export const useGlobalChat = () => {
     channelUnsubscribes.forEach(unsubscribe => unsubscribe());
     channelUnsubscribes.clear();
     
+    // Clean up conversation message listeners
+    conversationUnsubscribes.forEach(unsubscribe => unsubscribe());
+    conversationUnsubscribes.clear();
+    
     if (dmUnsubscribe) {
       dmUnsubscribe();
       dmUnsubscribe = null;
     }
     
+    if (authUnsubscribe) {
+      authUnsubscribe();
+      authUnsubscribe = null;
+    }
+    
     processedMessageIds.clear();
+    isInitialized = false;
   };
 
   // Clean up on unmount

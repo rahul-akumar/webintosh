@@ -6,12 +6,7 @@
         <img src="/icons/apps/yahooMessenger.png" alt="Yahoo Messenger" class="logo">
         <h2>Yahoo! Messenger</h2>
         <p>Enter your name to join</p>
-        <input 
-          v-model="username" 
-          @keyup.enter="login"
-          placeholder="Your name"
-          class="username-input"
-        >
+        <input v-model="username" @keyup.enter="login" placeholder="Your name" class="username-input">
         <button @click="login" :disabled="!username.trim()" class="login-btn">
           Sign In
         </button>
@@ -23,7 +18,8 @@
       <!-- Sidebar -->
       <div class="sidebar">
         <div class="user-info">
-          <div class="user-avatar" :style="{ background: getUserAvatarColor(currentUser.displayName || '') }">{{ getInitials(currentUser.displayName || '') }}</div>
+          <div class="user-avatar" :style="{ background: getUserAvatarColor(currentUser.displayName || '') }">{{
+            getInitials(currentUser.displayName || '') }}</div>
           <div class="user-details">
             <div class="username">{{ currentUser.displayName }}</div>
             <div class="status-indicator online">Online</div>
@@ -39,16 +35,10 @@
 
         <!-- Chat Mode Toggle -->
         <div class="chat-mode-toggle">
-          <button 
-            @click="chatMode = 'channels'" 
-            :class="{ active: chatMode === 'channels' }"
-          >
+          <button @click="chatMode = 'channels'" :class="{ active: chatMode === 'channels' }">
             Channels
           </button>
-          <button 
-            @click="chatMode = 'direct'" 
-            :class="{ active: chatMode === 'direct' }"
-          >
+          <button @click="chatMode = 'direct'" :class="{ active: chatMode === 'direct' }">
             Direct Messages
           </button>
         </div>
@@ -56,12 +46,8 @@
         <!-- Channels List -->
         <div v-if="chatMode === 'channels'" class="channels-list">
           <div class="section-header">CHANNELS</div>
-          <div 
-            v-for="channel in channels" 
-            :key="channel.id"
-            @click="selectChannel(channel)"
-            :class="['channel-item', { active: selectedChannel?.id === channel.id }]"
-          >
+          <div v-for="channel in channels" :key="channel.id" @click="selectChannel(channel)"
+            :class="['channel-item', { active: selectedChannel?.id === channel.id }]">
             <span class="channel-icon">#</span>
             <span class="channel-name">{{ channel.name }}</span>
             <span v-if="(unreadCounts[channel.id] ?? 0) > 0" class="unread-badge">{{ unreadCounts[channel.id] }}</span>
@@ -74,13 +60,10 @@
             DIRECT MESSAGES
             <button @click="showNewDMModal = true" class="add-dm-btn">+</button>
           </div>
-          <div 
-            v-for="dm in directMessages" 
-            :key="dm.id"
-            @click="selectDirectMessage(dm)"
-            :class="['dm-item', { active: selectedDM?.id === dm.id }]"
-          >
-            <div class="dm-avatar" :style="{ background: getUserAvatarColor(dm.otherUser) }">{{ getInitials(dm.otherUser) }}</div>
+          <div v-for="dm in directMessages" :key="dm.id" @click="selectDirectMessage(dm)"
+            :class="['dm-item', { active: selectedDM?.id === dm.id }]">
+            <div class="dm-avatar" :style="{ background: getUserAvatarColor(dm.otherUser) }">{{
+              getInitials(dm.otherUser) }}</div>
             <div class="dm-info">
               <div class="dm-name">{{ dm.otherUser }}</div>
               <div class="dm-status" :class="{ online: dm.online }">
@@ -94,7 +77,8 @@
         <div class="online-users">
           <div class="section-header">ONLINE NOW ({{ onlineUsers.length }})</div>
           <div v-for="user in onlineUsers" :key="user.uid" class="online-user">
-            <div class="user-avatar small" :style="{ background: getUserAvatarColor(user.displayName) }">{{ getInitials(user.displayName) }}</div>
+            <div class="user-avatar small" :style="{ background: getUserAvatarColor(user.displayName) }">{{
+              getInitials(user.displayName) }}</div>
             <span class="user-name">{{ user.displayName }}</span>
           </div>
         </div>
@@ -110,7 +94,8 @@
             <span class="chat-description">{{ selectedChannel.description }}</span>
           </template>
           <template v-else-if="chatMode === 'direct' && selectedDM">
-            <div class="dm-header-avatar" :style="{ background: getUserAvatarColor(selectedDM.otherUser) }">{{ getInitials(selectedDM.otherUser) }}</div>
+            <div class="dm-header-avatar" :style="{ background: getUserAvatarColor(selectedDM.otherUser) }">{{
+              getInitials(selectedDM.otherUser) }}</div>
             <span class="chat-title">{{ selectedDM.otherUser }}</span>
             <span class="chat-status" :class="{ online: selectedDM.online }">
               {{ selectedDM.online ? 'Online' : 'Last seen ' + getTimeAgo(selectedDM.lastSeen || null) }}
@@ -132,7 +117,8 @@
           </div>
           <div v-else>
             <div v-for="message in currentMessages" :key="message.id" class="message">
-              <div class="message-avatar" :style="{ background: getUserAvatarColor(message.userName) }">{{ getInitials(message.userName) }}</div>
+              <div class="message-avatar" :style="{ background: getUserAvatarColor(message.userName) }">{{
+                getInitials(message.userName) }}</div>
               <div class="message-content">
                 <div class="message-header">
                   <span class="message-author">{{ message.userName }}</span>
@@ -149,12 +135,7 @@
         <!-- Message Input -->
         <div v-if="selectedChannel || selectedDM" class="message-input-container">
           <div class="emoticons">
-            <button 
-              v-for="emoji in emoticons" 
-              :key="emoji"
-              @click="insertEmoji(emoji)"
-              class="emoji-btn"
-            >
+            <button v-for="emoji in emoticons" :key="emoji" @click="insertEmoji(emoji)" class="emoji-btn">
               {{ emoji }}
             </button>
           </div>
@@ -162,12 +143,9 @@
             <button @click="sendBuzz" class="buzz-btn" title="Send BUZZ!">
               BUZZ!
             </button>
-            <input 
-              v-model="messageText"
-              @keyup.enter="sendMessage"
+            <input v-model="messageText" @keyup.enter="sendMessage"
               :placeholder="`Message ${chatMode === 'channels' ? '#' + selectedChannel?.name : selectedDM?.otherUser}`"
-              class="message-input"
-            >
+              class="message-input">
             <button @click="sendMessage" :disabled="!messageText.trim()" class="send-btn">
               Send
             </button>
@@ -182,13 +160,10 @@
         <h3>Start Direct Message</h3>
         <p>Select a user to message:</p>
         <div class="user-list">
-          <div 
-            v-for="user in availableUsersForDM" 
-            :key="user.uid"
-            @click="startDirectMessage(user)"
-            class="user-option"
-          >
-            <div class="user-avatar" :style="{ background: getUserAvatarColor(user.displayName) }">{{ getInitials(user.displayName) }}</div>
+          <div v-for="user in availableUsersForDM" :key="user.uid" @click="startDirectMessage(user)"
+            class="user-option">
+            <div class="user-avatar" :style="{ background: getUserAvatarColor(user.displayName) }">{{
+              getInitials(user.displayName) }}</div>
             <span>{{ user.displayName }}</span>
           </div>
         </div>
@@ -200,12 +175,12 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
-import { 
-  collection, 
-  query, 
-  orderBy, 
-  onSnapshot, 
-  where, 
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  where,
   serverTimestamp,
   doc,
   getDoc,
@@ -272,7 +247,7 @@ let presenceInterval: NodeJS.Timeout | null = null;
 
 // Computed
 const availableUsersForDM = computed(() => {
-  return onlineUsers.value.filter(user => 
+  return onlineUsers.value.filter(user =>
     user.uid !== currentUser.value?.uid &&
     !directMessages.value.some(dm => dm.otherUserId === user.uid)
   );
@@ -281,14 +256,14 @@ const availableUsersForDM = computed(() => {
 // Methods
 const login = async () => {
   if (!username.value.trim()) return;
-  
+
   try {
     await loginUser(username.value);
     startPresenceUpdates();
   } catch (error: any) {
     console.error('Login error:', error);
     let errorMessage = 'Failed to sign in. ';
-    
+
     if (error.code === 'permission-denied') {
       errorMessage += 'Firebase permissions error. Please check Firestore rules.';
     } else if (error.code === 'unavailable') {
@@ -296,7 +271,7 @@ const login = async () => {
     } else {
       errorMessage += error.message || 'Please try again.';
     }
-    
+
     alert(errorMessage);
   }
 };
@@ -326,27 +301,27 @@ const selectDirectMessage = (dm: DirectMessage) => {
 
 const startDirectMessage = async (user: OnlineUser) => {
   if (!currentUser.value) return;
-  
+
   const conversationId = await createDirectMessage(currentUser.value, user);
-  
+
   const newDM: DirectMessage = {
     id: conversationId,
     otherUser: user.displayName,
     otherUserId: user.uid,
     online: true
   };
-  
+
   directMessages.value.push(newDM);
   selectedDM.value = newDM;
   selectedChannel.value = null;
   showNewDMModal.value = false;
-  
+
   loadDirectMessages(conversationId);
 };
 
 const loadChannelMessages = (channelId: string) => {
   if (messagesUnsubscribe) messagesUnsubscribe();
-  
+
   loading.value = true;
   // Remove orderBy initially to avoid issues with null timestamps
   const q = query(
@@ -354,31 +329,25 @@ const loadChannelMessages = (channelId: string) => {
     where('channelId', '==', channelId),
     limit(100)
   );
-
   messagesUnsubscribe = onSnapshot(q, 
     (snapshot) => {
-      console.log(`Received ${snapshot.docs.length} messages for channel ${channelId}`);
-      const messages = snapshot.docs.map(doc => {
-        const data = doc.data();
-        console.log('Message data:', data);
-        return {
-          id: doc.id,
-          ...data
-        } as Message;
-      });
-      
+      const messages = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as Message));
+
       // Sort messages client-side
       messages.sort((a, b) => {
         const timeA = a.timestamp?.toMillis() || 0;
         const timeB = b.timestamp?.toMillis() || 0;
         return timeA - timeB;
       });
-      
+
       // Check for new messages from other users
       if (!loading.value && currentUser.value) {
         messages.forEach(msg => {
-          if (!lastMessageIds.has(msg.id) && 
-              msg.userId !== currentUser.value!.uid) {
+          if (!lastMessageIds.has(msg.id) &&
+            msg.userId !== currentUser.value!.uid) {
             // Only increment unread count if this channel is not currently selected
             if (selectedChannel.value?.id !== channelId) {
               if (!unreadCounts.value[channelId]) {
@@ -386,7 +355,7 @@ const loadChannelMessages = (channelId: string) => {
               }
               const msgTime = msg.timestamp?.toMillis() || Date.now();
               const lastRead = lastReadTimestamps.value[channelId] || 0;
-              
+
               // Only count as unread if message is newer than last read time
               if (msgTime > lastRead) {
                 unreadCounts.value[channelId]++;
@@ -396,10 +365,10 @@ const loadChannelMessages = (channelId: string) => {
           }
         });
       }
-      
+
       // Update message IDs set
       messages.forEach(msg => lastMessageIds.add(msg.id));
-      
+
       currentMessages.value = messages;
       loading.value = false;
       scrollToBottom();
@@ -418,7 +387,7 @@ const loadChannelMessages = (channelId: string) => {
 
 const loadDirectMessages = (conversationId: string) => {
   if (messagesUnsubscribe) messagesUnsubscribe();
-  
+
   loading.value = true;
   // Remove orderBy initially to avoid issues with null timestamps
   const q = query(
@@ -427,25 +396,25 @@ const loadDirectMessages = (conversationId: string) => {
     limit(100)
   );
 
-  messagesUnsubscribe = onSnapshot(q, 
+  messagesUnsubscribe = onSnapshot(q,
     (snapshot) => {
       const messages = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       } as Message));
-      
+
       // Sort messages client-side
       messages.sort((a, b) => {
         const timeA = a.timestamp?.toMillis() || 0;
         const timeB = b.timestamp?.toMillis() || 0;
         return timeA - timeB;
       });
-      
+
       // Check for new DM messages from other users
       if (!loading.value && currentUser.value) {
         messages.forEach(msg => {
-          if (!lastMessageIds.has(msg.id) && 
-              msg.userId !== currentUser.value!.uid) {
+          if (!lastMessageIds.has(msg.id) &&
+            msg.userId !== currentUser.value!.uid) {
             // Show notification for new DM
             notifyMessage(
               msg.userName,
@@ -457,10 +426,10 @@ const loadDirectMessages = (conversationId: string) => {
           }
         });
       }
-      
+
       // Update message IDs set
       messages.forEach(msg => lastMessageIds.add(msg.id));
-      
+
       currentMessages.value = messages;
       loading.value = false;
       scrollToBottom();
@@ -474,19 +443,17 @@ const loadDirectMessages = (conversationId: string) => {
 
 const sendMessage = async () => {
   if (!messageText.value.trim() || !currentUser.value) return;
-  
+
   const text = messageText.value.trim();
   messageText.value = '';
-  
+
   try {
     if (selectedChannel.value) {
-      console.log('Sending to channel:', selectedChannel.value.id);
       await sendChannelMessage(currentUser.value, selectedChannel.value.id, text);
     } else if (selectedDM.value) {
-      console.log('Sending DM to:', selectedDM.value.id);
       await sendDirectMessage(currentUser.value, selectedDM.value.id, text);
     }
-    
+
     playMessageSound();
   } catch (error) {
     console.error('Failed to send message:', error);
@@ -497,17 +464,17 @@ const sendMessage = async () => {
 
 const sendBuzz = async () => {
   if (!currentUser.value) return;
-  
+
   const buzzText = '🐝 BUZZ! 🐝';
-  
+
   if (selectedChannel.value) {
     await sendChannelMessage(currentUser.value, selectedChannel.value.id, buzzText, 'buzz');
   } else if (selectedDM.value) {
     await sendDirectMessage(currentUser.value, selectedDM.value.id, buzzText, 'buzz');
   }
-  
+
   playMessageSound();
-  
+
   // Shake effect
   const chatArea = document.querySelector('.chat-area');
   if (chatArea) {
@@ -525,7 +492,7 @@ const insertEmoji = (emoji: string) => {
 // Generate consistent color for user avatars based on username
 const getUserAvatarColor = (name: string | undefined): string => {
   if (!name) return '#ffd700'; // Default yellow if no name
-  
+
   // List of pleasant colors for avatars
   const colors = [
     '#FF6B6B', // Red
@@ -545,13 +512,13 @@ const getUserAvatarColor = (name: string | undefined): string => {
     '#FFB6B9', // Light Pink
     '#95E1D3', // Aqua
   ];
-  
+
   // Generate a hash from the username
   let hash = 0;
   for (let i = 0; i < name.length; i++) {
     hash = name.charCodeAt(i) + ((hash << 5) - hash);
   }
-  
+
   // Use the hash to pick a color consistently
   const index = Math.abs(hash) % colors.length;
   return colors[index];
@@ -559,7 +526,7 @@ const getUserAvatarColor = (name: string | undefined): string => {
 
 const clearCurrentChannel = async () => {
   if (!selectedChannel.value) return;
-  
+
   if (confirm(`Clear all messages in #${selectedChannel.value.name}?`)) {
     try {
       const count = await clearChannelMessages(selectedChannel.value.id);
@@ -590,7 +557,7 @@ const loadOnlineUsers = () => {
 
 const loadDirectMessagesList = async () => {
   if (!currentUser.value) return;
-  
+
   const q = query(
     collection(db, 'directMessages'),
     where('participants', 'array-contains', currentUser.value.uid)
@@ -598,16 +565,16 @@ const loadDirectMessagesList = async () => {
 
   dmUnsubscribe = onSnapshot(q, async (snapshot) => {
     const dms: DirectMessage[] = [];
-    
+
     for (const docSnap of snapshot.docs) {
       const data = docSnap.data();
       const otherUserId = data.participants.find((id: string) => id !== currentUser.value!.uid);
       const otherUserName = data.participantNames[otherUserId];
-      
+
       // Check if other user is online
       const userDoc = await getDoc(doc(db, 'users', otherUserId));
       const userData = userDoc.data();
-      
+
       dms.push({
         id: docSnap.id,
         otherUser: otherUserName,
@@ -617,14 +584,14 @@ const loadDirectMessagesList = async () => {
         online: userData?.online || false
       });
     }
-    
+
     directMessages.value = dms;
   });
 };
 
 const startPresenceUpdates = () => {
   if (!currentUser.value) return;
-  
+
   presenceInterval = setInterval(async () => {
     if (currentUser.value) {
       await updateUserPresence(currentUser.value.uid);
@@ -652,32 +619,32 @@ const monitorAllChannels = () => {
   channels.forEach(channel => {
     // Don't monitor the currently selected channel
     if (selectedChannel.value?.id === channel.id) return;
-    
+
     const q = query(
       collection(db, 'messages'),
       where('channelId', '==', channel.id),
       limit(50)
     );
-    
+
     onSnapshot(q, (snapshot) => {
       if (!currentUser.value) return;
-      
+
       const messages = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       } as Message));
-      
+
       // Count unread messages for this channel
       const lastRead = lastReadTimestamps.value[channel.id] || 0;
       let unreadCount = 0;
-      
+
       messages.forEach(msg => {
         const msgTime = msg.timestamp?.toMillis() || 0;
         if (msg.userId !== currentUser.value!.uid && msgTime > lastRead) {
           unreadCount++;
         }
       });
-      
+
       unreadCounts.value[channel.id] = unreadCount;
     });
   });
@@ -686,73 +653,67 @@ const monitorAllChannels = () => {
 // Register menu command handlers
 const registerMenuCommands = () => {
   const { register } = useMenuCommand();
-  
+
   // Conversations menu commands
   register('yahooMessenger.signOut', () => {
     logout();
   });
-  
+
   register('yahooMessenger.newMessage', () => {
     showNewDMModal.value = true;
   });
-  
+
   register('yahooMessenger.joinChannel', () => {
     if (channels[0]) selectChannel(channels[0]);
   });
-  
+
   register('yahooMessenger.switchChannel', (args: any) => {
     const channel = channels.find(c => c.id === args.channel);
     if (channel) selectChannel(channel);
   });
-  
+
   register('yahooMessenger.showDirectMessages', () => {
     chatMode.value = 'direct';
   });
-  
+
   register('yahooMessenger.clearChat', () => {
     clearCurrentChannel();
   });
-  
+
   // Status menu commands
-  register('yahooMessenger.setStatus', (args: any) => {
+  register('yahooMessenger.setStatus', (_args: any) => {
     // TODO: Implement status changes
-    console.log('Set status to:', args.status);
   });
-  
+
   // Tools menu commands
   register('yahooMessenger.sendBuzz', () => {
     sendBuzz();
   });
-  
+
   register('yahooMessenger.insertEmoticon', (args: any) => {
     insertEmoji(args.emoticon);
   });
-  
+
   register('yahooMessenger.toggleSounds', () => {
     // TODO: Implement sound toggle
-    console.log('Toggle sounds');
   });
   
   register('yahooMessenger.toggleNotifications', () => {
     // TODO: Implement notification toggle
-    console.log('Toggle notifications');
   });
   
   // View menu commands
   register('yahooMessenger.toggleSidebar', () => {
     // TODO: Implement sidebar toggle
-    console.log('Toggle sidebar');
   });
   
   register('yahooMessenger.toggleOnlineUsers', () => {
     // TODO: Implement online users toggle
-    console.log('Toggle online users');
   });
   
   // Help menu commands
   register('yahooMessenger.showAbout', () => {
     // TODO: Implement about dialog
-    console.log('Show about');
   });
 };
 
@@ -760,12 +721,12 @@ const registerMenuCommands = () => {
 onMounted(() => {
   // Register menu commands
   registerMenuCommands();
-  
+
   // Only mark app as open after component is actually mounted
   nextTick(() => {
     setAppOpen(true);
   });
-  
+
   onAuthStateChanged(auth, (user) => {
     currentUser.value = user;
     if (user) {
@@ -780,14 +741,14 @@ onMounted(() => {
 onUnmounted(() => {
   // Mark app as closed when component unmounts
   setAppOpen(false);
-  
+
   cleanupSubscriptions();
-  
+
   if (currentUser.value) {
     updateDoc(doc(db, 'users', currentUser.value.uid), {
       online: false,
       lastSeen: serverTimestamp()
-    }).catch(() => {});
+    }).catch(() => { });
   }
 });
 
@@ -797,7 +758,7 @@ watch(() => currentUser.value, async (newUser, oldUser) => {
     await updateDoc(doc(db, 'users', oldUser.uid), {
       online: false,
       lastSeen: serverTimestamp()
-    }).catch(() => {});
+    }).catch(() => { });
   }
 });
 </script>
