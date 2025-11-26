@@ -155,7 +155,7 @@ export function createTextEditMenuTemplate(): MenuTemplate {
       Menu.item('format.font', 'Font…', {
         command: 'textedit.showFonts'
       }),
-      Menu.item('format.fontSize', 'Font Size', [
+      Menu.submenu('format.fontSize', 'Font Size', [
         Menu.item('format.fontSize.smaller', 'Smaller', {
           command: 'textedit.fontSizeSmaller',
           accel: { key: '-', alt: true }

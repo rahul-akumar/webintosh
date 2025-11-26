@@ -108,8 +108,8 @@
                     class="wallpaper-thumbnail-video"
                     muted
                     loop
-                    @mouseenter="$event.target.play()"
-                    @mouseleave="$event.target.pause()"
+                    @mouseenter="($event.target as HTMLVideoElement)?.play()"
+                    @mouseleave="($event.target as HTMLVideoElement)?.pause()"
                   />
                   <!-- GIF thumbnail -->
                   <img 

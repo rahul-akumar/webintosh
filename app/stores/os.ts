@@ -127,7 +127,7 @@ export const useOSStore = defineStore("os", {
               : "/";
           this.wallpaper = {
             type: "video",
-            value: useAssetUrl("wallpapers/end-of-daylight.mp4"),
+            value: useAssetUrl("wallpapers/end-of-daylight.mp4") ?? "/wallpapers/end-of-daylight.mp4",
           };
           return;
         }
