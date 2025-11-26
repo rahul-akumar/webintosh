@@ -11,9 +11,9 @@
 
 <script setup lang="ts">
 import { computed, watch } from 'vue'
-import { useOSStore } from '../../../stores/os'
-import { useAppsStore } from '../../../stores/apps'
-import { Menu } from '../../../types/menu'
+import { useOSStore } from '../../stores/os'
+import { useAppsStore } from '../../stores/apps'
+import { Menu } from '../../types/menu'
 
 defineOptions({ name: 'OsDesktop' })
 

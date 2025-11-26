@@ -1,6 +1,6 @@
 // System Menu Template (Phase 2)
-import { Menu, type MenuTemplate } from '../../../../types/menu'
-import { useAppsStore } from '../../../../stores/apps'
+import { Menu, type MenuTemplate } from '../../../types/menu'
+import { useAppsStore } from '../../../stores/apps'
 
 export function createSystemMenuTemplate(): MenuTemplate {
   // Get all apps for the submenu

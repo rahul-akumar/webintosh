@@ -1,7 +1,7 @@
 // Menu Command Registry (Phase 0)
-import type { CommandId } from '../../types/menu'
-import { useOSStore } from '../../stores/os'
-import { useAppsStore } from '../../stores/apps'
+import type { CommandId } from '../types/menu'
+import { useOSStore } from '../stores/os'
+import { useAppsStore } from '../stores/apps'
 
 type CommandHandler = (args?: unknown) => void
 

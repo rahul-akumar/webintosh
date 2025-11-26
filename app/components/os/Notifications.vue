@@ -61,7 +61,7 @@
 
 <script setup lang="ts">
 import { useNotifications } from '~/composables/useNotifications';
-import { useOSStore } from '../../../stores/os';
+import { useOSStore } from '../../stores/os';
 
 const { notifications, dismissNotification } = useNotifications();
 const osStore = useOSStore();

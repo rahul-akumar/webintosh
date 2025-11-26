@@ -17,11 +17,11 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useAppsStore } from '../../../stores/apps'
-import { useOSStore } from '../../../stores/os'
+import { useAppsStore } from '../../stores/apps'
+import { useOSStore } from '../../stores/os'
 import { execute } from '../../composables/menuCommands'
-import { Menu } from '../../../types/menu'
-import type { AppDescriptor, AppId } from '../../../types/app'
+import { Menu } from '../../types/menu'
+import type { AppDescriptor, AppId } from '../../types/app'
 
 defineOptions({ name: 'OsDesktopIcons' })
 

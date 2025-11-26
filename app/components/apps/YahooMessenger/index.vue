@@ -214,7 +214,7 @@ import {
 } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import type { User } from 'firebase/auth';
-import { db, auth } from '../../../../config/firebase';
+import { db, auth } from '../../../config/firebase';
 import type {
   Channel,
   Message,
@@ -240,7 +240,7 @@ import { useGlobalChat } from '~/composables/useGlobalChat';
 import { clearChannelMessages } from '~/composables/clearChatData';
 import { createYahooMessengerMenuTemplate } from './yahooMessengerMenu';
 import { useMenuCommand } from '~/composables/menuCommands';
-import { useOSStore } from '../../../../stores/os';
+import { useOSStore } from '../../../stores/os';
 
 // State
 const currentUser = ref<User | null>(null);

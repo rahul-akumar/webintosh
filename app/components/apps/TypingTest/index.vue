@@ -173,8 +173,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch, defineProps } from 'vue'
-import { useOSStore } from '../../../../stores/os'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { useOSStore } from '../../../stores/os'
 import { registerTypingTestCommands } from './typingTestCommands'
 
 // Test phrases by difficulty

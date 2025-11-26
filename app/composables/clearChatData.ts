@@ -1,5 +1,5 @@
 import { collection, query, where, getDocs, deleteDoc, doc } from 'firebase/firestore';
-import { db } from '../../config/firebase';
+import { db } from '../config/firebase';
 
 // Clear all messages from a specific channel
 export const clearChannelMessages = async (channelId: string) => {

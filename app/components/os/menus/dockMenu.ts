@@ -1,5 +1,5 @@
 // Dock Menu Template for Dock per-app minimized windows
-import { Menu, type MenuTemplate } from '../../../../types/menu'
+import { Menu, type MenuTemplate } from '../../../types/menu'
 
 export interface DockWindowEntry {
   id: number

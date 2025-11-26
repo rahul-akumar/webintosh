@@ -1,5 +1,5 @@
 // Chess App Menu Template
-import { Menu, type MenuTemplate } from '../../../../types/menu'
+import { Menu, type MenuTemplate } from '../../../types/menu'
 
 export function createChessMenuTemplate(): MenuTemplate {
   return Menu.template('chess', 'Chess', [

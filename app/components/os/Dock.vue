@@ -25,10 +25,10 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useAppsStore } from '../../../stores/apps'
-import { useOSStore } from '../../../stores/os'
+import { useAppsStore } from '../../stores/apps'
+import { useOSStore } from '../../stores/os'
 import { createDockMenuForApp } from './menus'
-import type { AppId } from '../../../types/app'
+import type { AppId } from '../../types/app'
 
 defineOptions({ name: 'OsDock' })
 
