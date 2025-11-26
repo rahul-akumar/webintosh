@@ -14,27 +14,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup PNPM
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: bun install --frozen-lockfile
 
       - name: Typecheck
-        run: pnpm typecheck
+        run: bun run typecheck
 
       - name: Lint (if ESLint config present)
         if: ${{ hashFiles('eslint.config.*', '.eslintrc*') != '' }}
-        run: pnpm lint
+        run: bun run lint
 
       - name: Unit tests (if Vitest config/tests present)
         if: ${{ hashFiles('vitest.config.*', '**/*.test.*', '**/*.spec.*') != '' }}
-        run: pnpm test:unit
+        run: bun run test:unit

@@ -4,27 +4,17 @@ A retro-inspired web desktop built with Nuxt 4, Vue 3, Pinia, Tailwind CSS, and 
 
 ## Setup
 
-Install dependencies (preferred):
+Install dependencies:
 
 ```bash
-# pnpm
-pnpm install
-
-# bun
 bun install
 ```
-
-> Note: npm/yarn are not used in this project.
 
 ## Development
 
 Start the dev server at http://localhost:3000:
 
 ```bash
-# pnpm
-pnpm dev
-
-# bun
 bun run dev
 ```
 
@@ -33,20 +23,12 @@ bun run dev
 Build the application for production:
 
 ```bash
-# pnpm
-pnpm build
-
-# bun
 bun run build
 ```
 
 Preview the production build locally:
 
 ```bash
-# pnpm
-pnpm preview
-
-# bun
 bun run preview
 ```
 
