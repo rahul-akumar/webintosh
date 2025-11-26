@@ -11,6 +11,16 @@ export interface OSWindowRect {
 
 export type OSWindowKind = 'blank' | 'system' | 'app';
 
+/**
+ * Display state for a window (mutually exclusive states).
+ */
+export type WindowDisplayState = 'normal' | 'minimized' | 'maximized';
+
+/**
+ * Valid resize edge directions.
+ */
+export type ResizeEdge = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw';
+
 export interface OSWindowModel {
   id: WindowId;
   title: string;
@@ -25,9 +35,10 @@ export interface OSWindowModel {
   resizable?: boolean;      // default true for app windows
   minimizable?: boolean;    // default true for app windows
   maximizable?: boolean;    // default true for app windows
-  maximized?: boolean;      // runtime
-  minimized?: boolean;      // runtime
   closable?: boolean;       // default true
+
+  // Display state (replaces boolean flags)
+  displayState: WindowDisplayState;
 
   // For restore from maximize
   lastNormalRect?: OSWindowRect;
@@ -36,6 +47,33 @@ export interface OSWindowModel {
   metadata?: Record<string, any>;
 }
 
+/**
+ * Window interaction state machine.
+ * Uses discriminated union to ensure only one interaction mode at a time.
+ */
+export type WindowInteractionState =
+  | { mode: 'idle' }
+  | {
+      mode: 'dragging';
+      windowId: WindowId;
+      startX: number;
+      startY: number;
+      originX: number;
+      originY: number;
+    }
+  | {
+      mode: 'resizing';
+      windowId: WindowId;
+      edge: ResizeEdge;
+      startX: number;
+      startY: number;
+      originRect: OSWindowRect;
+    };
+
+/**
+ * @deprecated Use WindowInteractionState instead.
+ * Kept for backward compatibility during migration.
+ */
 export interface DragState {
   active: boolean;
   windowId: WindowId | null;
@@ -46,7 +84,7 @@ export interface DragState {
 
   // Resize support
   resizing?: boolean;
-  edge?: 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw' | null;
+  edge?: ResizeEdge | null;
   originW?: number;
   originH?: number;
 }

@@ -4,6 +4,7 @@
     :class="`icon-size-${appsStore.iconSize}`"
     :style="positionStyle"
     @mousedown="handleMouseDown"
+    @touchstart="handleTouchStart"
   >
     <button
       class="icon-button"
@@ -62,12 +63,21 @@ function calculateBounds() {
   }
 }
 
-const { isDragging, currentX, currentY, startDrag, setPosition } = useDraggable({
+const { isDragging, currentX, currentY, startDrag, startTouchDrag, setPosition } = useDraggable({
   initialX: props.x ?? 0,
   initialY: props.y ?? 0,
   bounds: calculateBounds(),
   onDragEnd: (data) => {
-    emit('move', data)
+    // Only emit move if we actually dragged (not just a tap)
+    if (didDrag) {
+      emit('move', data)
+    }
+    didDrag = false
+    clearLongPressTimer()
+  },
+  onDrag: () => {
+    didDrag = true
+    clearLongPressTimer()
   },
 })
 
@@ -93,8 +103,47 @@ const positionStyle = computed(() => {
   return {}
 })
 
+// Track if we actually dragged (vs just tapped)
+let didDrag = false
+let longPressTimer: ReturnType<typeof setTimeout> | null = null
+const LONG_PRESS_DURATION = 500
+
+function clearLongPressTimer() {
+  if (longPressTimer) {
+    clearTimeout(longPressTimer)
+    longPressTimer = null
+  }
+}
+
 function handleMouseDown(e: MouseEvent) {
   startDrag(e)
+}
+
+function handleTouchStart(e: TouchEvent) {
+  didDrag = false
+  
+  // Store touch position for context menu
+  const touch = e.touches[0]
+  if (!touch) return
+  
+  const touchX = touch.clientX
+  const touchY = touch.clientY
+  
+  // Start long-press timer for context menu
+  clearLongPressTimer()
+  longPressTimer = setTimeout(() => {
+    // Trigger context menu on long press
+    const syntheticEvent = new MouseEvent('contextmenu', {
+      clientX: touchX,
+      clientY: touchY,
+      bubbles: true,
+    })
+    emit('context', syntheticEvent)
+    longPressTimer = null
+  }, LONG_PRESS_DURATION)
+  
+  // Start touch drag
+  startTouchDrag(e)
 }
 </script>
 

@@ -50,7 +50,7 @@ const items = computed(() => {
   const byApp = new Map<AppId, { count: number }>()
   for (const w of os.windows) {
     if (!w.appId) continue
-    if (!w.minimized) continue
+    if (w.displayState !== 'minimized') continue
     const cur = byApp.get(w.appId as AppId) ?? { count: 0 }
     cur.count++
     byApp.set(w.appId as AppId, cur)
@@ -81,7 +81,7 @@ const items = computed(() => {
 function onLaunchId(id: AppId) {
   // Restore the topmost minimized window for the app
   const minimized = os.windows
-    .filter(w => w.appId === id && w.minimized)
+    .filter(w => w.appId === id && w.displayState === 'minimized')
     .sort((a, b) => b.zIndex - a.zIndex)
   const top = minimized[0]
   if (top) {
@@ -91,7 +91,7 @@ function onLaunchId(id: AppId) {
 
 function onContextId(id: AppId, e?: MouseEvent) {
   const minimized = os.windows
-    .filter(w => w.appId === id && w.minimized)
+    .filter(w => w.appId === id && w.displayState === 'minimized')
     .map(w => ({ id: w.id, title: w.title }))
 
   const appTitle = apps.registry[id]?.title

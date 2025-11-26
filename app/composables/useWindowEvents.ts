@@ -4,8 +4,17 @@ import { execute, registerDefaultCommands } from '../utils/menuCommands'
 import { useKeyboardShortcuts } from './useKeyboardShortcuts'
 
 /**
+ * Extract clientX/clientY from touch event.
+ */
+function getTouchPosition(e: TouchEvent): { clientX: number; clientY: number } | null {
+  const touch = e.touches[0] || e.changedTouches[0]
+  if (!touch) return null
+  return { clientX: touch.clientX, clientY: touch.clientY }
+}
+
+/**
  * Composable that sets up global event listeners for window management.
- * Handles mouse drag/resize, keyboard shortcuts, and viewport resize.
+ * Handles mouse/touch drag/resize, keyboard shortcuts, and viewport resize.
  */
 export function useWindowEvents() {
   const store = useOSStore()
@@ -21,6 +30,25 @@ export function useWindowEvents() {
   }
 
   function onMouseUp() {
+    store.endDrag()
+  }
+
+  // --- Touch handlers ---
+
+  function onTouchMove(e: TouchEvent) {
+    const pos = getTouchPosition(e)
+    if (!pos) return
+    
+    // Prevent scrolling while dragging/resizing
+    if (store.drag.active) {
+      e.preventDefault()
+    }
+    
+    store.resizeTo(pos.clientX, pos.clientY)
+    store.dragTo(pos.clientX, pos.clientY)
+  }
+
+  function onTouchEnd() {
     store.endDrag()
   }
 
@@ -107,16 +135,30 @@ export function useWindowEvents() {
 
   onMounted(() => {
     registerDefaultCommands()
+    // Mouse events
     window.addEventListener('mousemove', onMouseMove)
     window.addEventListener('mouseup', onMouseUp)
+    // Touch events (passive: false to allow preventDefault)
+    window.addEventListener('touchmove', onTouchMove, { passive: false })
+    window.addEventListener('touchend', onTouchEnd)
+    window.addEventListener('touchcancel', onTouchEnd)
+    // Keyboard
     window.addEventListener('keydown', onKeyDown)
+    // Viewport resize
     window.addEventListener('resize', onViewportResize)
   })
 
   onUnmounted(() => {
+    // Mouse events
     window.removeEventListener('mousemove', onMouseMove)
     window.removeEventListener('mouseup', onMouseUp)
+    // Touch events
+    window.removeEventListener('touchmove', onTouchMove)
+    window.removeEventListener('touchend', onTouchEnd)
+    window.removeEventListener('touchcancel', onTouchEnd)
+    // Keyboard
     window.removeEventListener('keydown', onKeyDown)
+    // Viewport resize
     window.removeEventListener('resize', onViewportResize)
     if (resizeTimer) window.clearTimeout(resizeTimer)
   })

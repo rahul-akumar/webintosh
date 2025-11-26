@@ -41,7 +41,7 @@ function onIconMove(appId: AppId, data: { x: number; y: number }) {
 function onOpenApp(id: AppId) {
   // If any minimized windows for the app: restore the topmost minimized
   const minimized = os.windows
-    .filter(w => w.appId === id && w.minimized)
+    .filter(w => w.appId === id && w.displayState === 'minimized')
     .sort((a, b) => b.zIndex - a.zIndex)
   const topMin = minimized[0]
   if (topMin) {
@@ -51,7 +51,7 @@ function onOpenApp(id: AppId) {
 
   // Else if any visible windows exist: bring topmost visible to front
   const visible = os.windows
-    .filter(w => w.appId === id && !w.minimized)
+    .filter(w => w.appId === id && w.displayState !== 'minimized')
     .sort((a, b) => b.zIndex - a.zIndex)
   const topVis = visible[0]
   if (topVis) {

@@ -5,7 +5,7 @@
     :style="styleObject"
     @mousedown.stop="onFocus"
   >
-    <div class="os-window-header" @mousedown.stop="onStartDrag" @dblclick.stop="onTitlebarDblClick">
+    <div class="os-window-header" @mousedown.stop="onStartDrag" @touchstart.stop="onTouchStartDrag" @dblclick.stop="onTitlebarDblClick">
       <div class="os-window-controls">
         <button class="os-window-control close" v-if="win.closable" @click.stop="store.closeWindow(win.id)" aria-label="Close"></button>
         <button class="os-window-control minimize" v-if="win.minimizable !== false" @click.stop="store.toggleMinimize(win.id)" aria-label="Minimize"></button>
@@ -29,6 +29,7 @@
       role="separator"
       :aria-label="h.label"
       @mousedown.stop="onStartResize(h.edge, $event)"
+      @touchstart.stop="onTouchStartResize(h.edge, $event)"
     />
 
     <div class="os-window-content">
@@ -97,9 +98,23 @@ function onStartDrag(e: MouseEvent) {
   store.startDrag(props.win.id, e.clientX, e.clientY)
 }
 
+function onTouchStartDrag(e: TouchEvent) {
+  const touch = e.touches[0]
+  if (!touch) return
+  store.closeMenu()
+  store.startDrag(props.win.id, touch.clientX, touch.clientY)
+}
+
 function onStartResize(edge: 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw', e: MouseEvent) {
   store.closeMenu()
   store.startResize(props.win.id, edge, e.clientX, e.clientY)
+}
+
+function onTouchStartResize(edge: 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw', e: TouchEvent) {
+  const touch = e.touches[0]
+  if (!touch) return
+  store.closeMenu()
+  store.startResize(props.win.id, edge, touch.clientX, touch.clientY)
 }
 
 function onTitlebarDblClick() {

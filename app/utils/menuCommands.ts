@@ -1,21 +1,33 @@
-// Menu Command Registry (Phase 0)
-import type { CommandId } from '../types/menu'
+/**
+ * Menu Command Registry
+ * Provides type-safe command execution and registration.
+ */
+import { type CommandId, type CommandPayloads, type AnyCommandHandler, getArg } from '../types/commands'
 import { useOSStore } from '../stores/os'
 import { useAppsStore } from '../stores/apps'
 
-type CommandHandler = (args?: unknown) => void
+// Re-export types for convenience
+export type { CommandId, CommandPayloads }
 
-const registry: Partial<Record<CommandId, CommandHandler>> = {}
+const registry: Partial<Record<CommandId, AnyCommandHandler>> = {}
 
 /**
  * Execute a command by id with optional args.
+ * Provides type-safe execution when called with proper types.
  * No-ops on unknown commands; logs a warning in dev.
+ * 
+ * @example
+ * execute('app.launch', { appId: 'textedit' })  // Type-safe
+ * execute('os.closeFocused')                     // No args needed
  */
-export function execute(command: CommandId, args?: unknown): void {
+export function execute<K extends CommandId>(
+  command: K,
+  ...args: CommandPayloads[K] extends void ? [] : [CommandPayloads[K]]
+): void {
   const handler = registry[command]
   if (typeof handler === 'function') {
     try {
-      handler(args)
+      handler(args[0])
     } catch (err) {
       if (import.meta.dev) {
         // eslint-disable-next-line no-console
@@ -32,9 +44,13 @@ export function execute(command: CommandId, args?: unknown): void {
 
 /**
  * Register a single command handler (allows override/extension).
+ * The handler receives typed args based on CommandPayloads.
  */
-export function register(command: CommandId, handler: CommandHandler): void {
-  registry[command] = handler
+export function register<K extends CommandId>(
+  command: K,
+  handler: CommandPayloads[K] extends void ? () => void : (args: CommandPayloads[K]) => void
+): void {
+  registry[command] = handler as AnyCommandHandler
 }
 
 /**
@@ -184,7 +200,7 @@ export function registerDefaultCommands(): void {
     if (existing.length > 0) {
       // Focus existing window
       const topmost = existing.sort((a, b) => b.zIndex - a.zIndex)[0]!
-      if (topmost.minimized) {
+      if (topmost.displayState === 'minimized') {
         os.restoreWindow(topmost.id)
       } else {
         os.bringToFront(topmost.id)
@@ -213,7 +229,7 @@ export function registerDefaultCommands(): void {
     if (existing.length > 0) {
       // Focus existing window
       const topmost = existing.sort((a, b) => b.zIndex - a.zIndex)[0]!
-      if (topmost.minimized) {
+      if (topmost.displayState === 'minimized') {
         os.restoreWindow(topmost.id)
       } else {
         os.bringToFront(topmost.id)
@@ -259,16 +275,6 @@ export function registerDefaultCommands(): void {
       apps.setIconSize(size)
     }
   })
-}
-
-/**
- * Helper to safely extract a property from a generic args object.
- */
-function getArg<T>(args: unknown, key: string): T | undefined {
-  if (args && typeof args === 'object' && key in (args as Record<string, unknown>)) {
-    return (args as Record<string, unknown>)[key] as T
-  }
-  return undefined
 }
 
 /**

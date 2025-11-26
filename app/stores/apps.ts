@@ -303,7 +303,7 @@ export const useAppsStore = defineStore('apps', {
       const running = os.windows.filter((w) => w.appId === id);
 
       // Prefer topmost non-minimized
-      const nonMin = [...running.filter(w => !w.minimized)]
+      const nonMin = [...running.filter(w => w.displayState !== 'minimized')]
         .sort((a, b) => b.zIndex - a.zIndex);
       const topNonMin = nonMin[0];
       if (topNonMin) {
@@ -312,7 +312,7 @@ export const useAppsStore = defineStore('apps', {
       }
 
       // Otherwise restore topmost minimized
-      const minimized = [...running.filter(w => !!w.minimized)]
+      const minimized = [...running.filter(w => w.displayState === 'minimized')]
         .sort((a, b) => b.zIndex - a.zIndex);
       const topMin = minimized[0];
       if (topMin) {
