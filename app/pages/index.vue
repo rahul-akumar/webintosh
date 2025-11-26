@@ -209,9 +209,6 @@ onMounted(() => {
   ]);
   // Load Dock minimized ordering (Dock now shows minimized apps only)
   apps.loadMinOrder();
-
-  // Menu commands: register default command handlers once
-  registerDefaultCommands();
 });
 </script>
 
