@@ -1,4 +1,4 @@
-import { ref, readonly, onUnmounted } from 'vue';
+import { ref, readonly, onUnmounted, getCurrentInstance } from 'vue';
 import { 
   collection, 
   query, 
@@ -170,10 +170,12 @@ export const useGlobalChat = () => {
     isInitialized = false;
   };
 
-  // Clean up on unmount
-  onUnmounted(() => {
-    stopAllListeners();
-  });
+  // Clean up on unmount when used inside a component setup()
+  if (getCurrentInstance()) {
+    onUnmounted(() => {
+      stopAllListeners();
+    });
+  }
 
   return {
     initializeGlobalListeners,
