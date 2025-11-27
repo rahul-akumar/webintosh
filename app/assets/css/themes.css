@@ -4,6 +4,7 @@
 
 /* Base Theme Variables */
 :root {
+  --font-system: 'Satoshi', sans-serif;
   /* Colors */
   --color-primary: #007AFF;
   --color-secondary: #5856D6;
@@ -27,6 +28,10 @@
   --z-modal: 600;
   --z-notification: 700;
   --z-tooltip: 800;
+}
+
+body {
+  font-family: var(--font-system);
 }
 
 /* ===========================

@@ -157,7 +157,7 @@ body {
   margin: 0;
   background: #f5f6f8;
   color: #111;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-family: var(--font-system);
 }
 button {
   border: none;

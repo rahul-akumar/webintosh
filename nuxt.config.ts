@@ -58,6 +58,7 @@ export default defineNuxtConfig({
 
   modules: [
     isDev ? '@nuxt/eslint' : undefined,
+    '@nuxt/fonts',
     '@nuxt/image',
     '@nuxt/scripts',
     '@nuxt/ui',
