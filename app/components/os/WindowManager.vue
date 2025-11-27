@@ -3,12 +3,14 @@
     <!-- Debug info (development only) -->
     <div v-if="isDev" class="debug">Windows: {{ store.windows.length }}</div>
 
-    <!-- Windows -->
-    <OsWindow
-      v-for="w in store.orderedWindows"
-      :key="w.id"
-      :win="w"
-    />
+    <!-- Windows with open/close animations -->
+    <TransitionGroup name="window">
+      <OsWindow
+        v-for="w in store.orderedWindows"
+        :key="w.id"
+        :win="w"
+      />
+    </TransitionGroup>
   </div>
 </template>
 
@@ -59,4 +61,34 @@ useWindowEvents()
   z-index: 10000;
 }
 
+/* Window open/close animations */
+.window-enter-active {
+  animation: window-open 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.window-leave-active {
+  animation: window-close 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes window-open {
+  0% {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes window-close {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+}
 </style>

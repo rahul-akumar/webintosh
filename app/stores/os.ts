@@ -16,6 +16,9 @@ import { clamp, getViewport } from '../utils/math'
 const MIN_W = 240
 const MIN_H = 160
 const SAVE_DEBOUNCE_MS = 500
+const MINIMIZE_ANIMATION_MS = 300
+const RESTORE_ANIMATION_MS = 300
+const MAXIMIZE_ANIMATION_MS = 250
 
 // Module-level debounced save
 let debouncedSaveFn: ReturnType<typeof debounce> | null = null
@@ -51,7 +54,7 @@ export const useOSStore = defineStore('os', {
   getters: {
     orderedWindows: (s): OSWindowModel[] =>
       [...s.windows]
-        .filter((w) => w.displayState !== 'minimized')
+        .filter((w) => w.displayState !== 'minimized' || w.animationState === 'minimizing' || w.animationState === 'restoring')
         .sort((a, b) => a.zIndex - b.zIndex),
 
     focused: (s): OSWindowModel | null =>
@@ -263,6 +266,7 @@ export const useOSStore = defineStore('os', {
         maximizable: partial?.maximizable ?? true,
         closable: partial?.closable ?? true,
         displayState: 'normal',
+        animationState: 'none',
       }
       this.windows.push(w)
       this.bringToFront(w.id)
@@ -358,39 +362,93 @@ export const useOSStore = defineStore('os', {
     toggleMaximize(id: WindowId): void {
       const w = this.windows.find((w) => w.id === id)
       if (!w) return
+      
+      // Skip if already animating
+      if (w.animationState === 'maximizing' || w.animationState === 'unmaximizing') return
+      
       const { vw, vh } = getViewport()
       const pad = this.desktopPadding
+      
       if (w.displayState !== 'maximized') {
+        // Maximizing
         w.lastNormalRect = { ...w.rect }
-        w.rect.x = pad
-        w.rect.y = this.menuBarHeight
-        w.rect.width = Math.floor(Math.max(MIN_W, vw - pad * 2))
-        w.rect.height = Math.floor(Math.max(MIN_H, vh - this.menuBarHeight - pad))
-        w.displayState = 'maximized'
+        w.animationState = 'maximizing'
+        
+        // Use requestAnimationFrame to ensure animation class is applied before rect changes
+        requestAnimationFrame(() => {
+          w.rect.x = pad
+          w.rect.y = this.menuBarHeight
+          w.rect.width = Math.floor(Math.max(MIN_W, vw - pad * 2))
+          w.rect.height = Math.floor(Math.max(MIN_H, vh - this.menuBarHeight - pad))
+          w.displayState = 'maximized'
+        })
+        
+        setTimeout(() => {
+          const win = this.windows.find((win) => win.id === id)
+          if (win && win.animationState === 'maximizing') {
+            win.animationState = 'none'
+            this.saveSessionImmediate()
+          }
+        }, MAXIMIZE_ANIMATION_MS)
       } else {
-        if (w.lastNormalRect) {
-          w.rect = { ...w.lastNormalRect }
-        }
-        w.displayState = 'normal'
+        // Unmaximizing
+        w.animationState = 'unmaximizing'
+        
+        requestAnimationFrame(() => {
+          if (w.lastNormalRect) {
+            w.rect = { ...w.lastNormalRect }
+          }
+          w.displayState = 'normal'
+        })
+        
+        setTimeout(() => {
+          const win = this.windows.find((win) => win.id === id)
+          if (win && win.animationState === 'unmaximizing') {
+            win.animationState = 'none'
+            this.saveSessionImmediate()
+          }
+        }, MAXIMIZE_ANIMATION_MS)
       }
+      
       this.bringToFront(id)
-      this.saveSessionImmediate()
     },
 
     minimizeWindow(id: WindowId): void {
       const w = this.windows.find((w) => w.id === id)
-      if (!w) return
-      w.displayState = 'minimized'
+      if (!w || w.animationState === 'minimizing') return
+      
+      // Start minimize animation
+      w.animationState = 'minimizing'
       if (this.focusedId === id) this.focusTopMost()
-      this.saveSessionImmediate()
+      
+      // After animation completes, set final state
+      setTimeout(() => {
+        const win = this.windows.find((win) => win.id === id)
+        if (win && win.animationState === 'minimizing') {
+          win.displayState = 'minimized'
+          win.animationState = 'none'
+          this.saveSessionImmediate()
+        }
+      }, MINIMIZE_ANIMATION_MS)
     },
 
     restoreWindow(id: WindowId): void {
       const w = this.windows.find((w) => w.id === id)
-      if (!w) return
+      if (!w || w.animationState === 'restoring') return
+      
+      // Set display state immediately so window is visible, then animate
       w.displayState = 'normal'
+      w.animationState = 'restoring'
       this.bringToFront(id)
-      this.saveSessionImmediate()
+      
+      // After animation completes, clear animation state
+      setTimeout(() => {
+        const win = this.windows.find((win) => win.id === id)
+        if (win && win.animationState === 'restoring') {
+          win.animationState = 'none'
+          this.saveSessionImmediate()
+        }
+      }, RESTORE_ANIMATION_MS)
     },
 
     toggleMinimize(id: WindowId): void {

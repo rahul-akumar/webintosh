@@ -1,7 +1,7 @@
 <template>
   <div
     class="os-window"
-    :class="{ 'active': isFocused, 'inactive': !isFocused }"
+    :class="windowClasses"
     :style="styleObject"
     @mousedown.stop="onFocus"
   >
@@ -99,6 +99,15 @@ const styleObject = computed<CSSProperties>(() => ({
 }))
 
 const isFocused = computed(() => store.focusedId === props.win.id)
+
+const windowClasses = computed(() => ({
+  'active': isFocused.value,
+  'inactive': !isFocused.value,
+  'minimizing': props.win.animationState === 'minimizing',
+  'restoring': props.win.animationState === 'restoring',
+  'maximizing': props.win.animationState === 'maximizing',
+  'unmaximizing': props.win.animationState === 'unmaximizing',
+}))
 
 function onStartDrag(e: MouseEvent) {
   store.closeMenu()
@@ -292,5 +301,55 @@ function onFocus() {
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+/* Minimize animation - scale down and fade towards dock */
+.os-window.minimizing {
+  animation: window-minimize 0.3s cubic-bezier(0.2, 0, 0, 1) forwards;
+  transform-origin: bottom center;
+  pointer-events: none;
+}
+
+/* Restore animation - scale up and fade from dock */
+.os-window.restoring {
+  animation: window-restore 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: bottom center;
+}
+
+@keyframes window-minimize {
+  0% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.4) translateY(80vh);
+  }
+}
+
+@keyframes window-restore {
+  0% {
+    opacity: 0;
+    transform: scale(0.4) translateY(80vh);
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Maximize/unmaximize transitions */
+.os-window.maximizing,
+.os-window.unmaximizing {
+  transition: left 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              top 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              width 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              height 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 </style>

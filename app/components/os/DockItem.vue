@@ -64,6 +64,27 @@ defineEmits<{
   background: rgba(0, 0, 0, 0.06);
   transform: translateY(-2px);
 }
+.dock-button:active {
+  animation: dock-bounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes dock-bounce {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  30% {
+    transform: translateY(-12px) scale(1.05);
+  }
+  50% {
+    transform: translateY(-8px) scale(1.02);
+  }
+  70% {
+    transform: translateY(-10px) scale(1.03);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
 
 /* Running indicator */
 .running-dot {

@@ -17,6 +17,11 @@ export type OSWindowKind = 'blank' | 'system' | 'app';
 export type WindowDisplayState = 'normal' | 'minimized' | 'maximized';
 
 /**
+ * Animation state for window transitions.
+ */
+export type WindowAnimationState = 'none' | 'opening' | 'closing' | 'minimizing' | 'restoring' | 'maximizing' | 'unmaximizing';
+
+/**
  * Valid resize edge directions.
  */
 export type ResizeEdge = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw';
@@ -39,6 +44,9 @@ export interface OSWindowModel {
 
   // Display state (replaces boolean flags)
   displayState: WindowDisplayState;
+
+  // Animation state for transitions
+  animationState?: WindowAnimationState;
 
   // For restore from maximize
   lastNormalRect?: OSWindowRect;
