@@ -1,11 +1,13 @@
 /**
- * Main OS store - all state and actions inlined for SSR compatibility.
+ * Main OS store - orchestrates window management and delegates to sub-stores.
  * Uses debounced session persistence (500ms).
  */
 import { defineStore } from 'pinia'
 import type { OSWindowModel, OSWindowRect, WindowId, ResizeEdge } from '../types/os'
 import type { MenuTemplate } from '../types/menu'
-import { useAssetUrl } from '../composables/useAssetUrl'
+import { useDragStore } from './drag'
+import { useMenuStore } from './menu'
+import { useSessionStore } from './session'
 import { STORAGE_KEYS } from '../constants/storage-keys'
 import { debounce } from '../utils/debounce'
 import { clamp, getViewport } from '../utils/math'
@@ -19,42 +21,20 @@ const SAVE_DEBOUNCE_MS = 500
 let debouncedSaveFn: ReturnType<typeof debounce> | null = null
 
 interface OSState {
+  // Window state (kept here as core OS concern)
   windows: OSWindowModel[]
   nextWindowId: number
   nextZ: number
   focusedId: WindowId | null
+  // OS config
   clock: string
   menuBarHeight: number
   desktopPadding: number
   snapThreshold: number
-  // Drag state (state machine)
-  drag: {
-    active: boolean
-    windowId: WindowId | null
-    startX: number
-    startY: number
-    originX: number
-    originY: number
-    resizing: boolean
-    edge: ResizeEdge | null
-    originW: number
-    originH: number
-  }
-  // Menu state
-  menu: {
-    openType: 'none' | 'menubar' | 'context'
-    menubarIndex: number | null
-    activePath: number[]
-    contextPos: { x: number; y: number } | null
-    contextTemplate: MenuTemplate | null
-  }
-  // Session state
-  wallpaper: { type: string; value: string } | null
-  theme: string
 }
 
 /**
- * Main OS store with all state inlined for SSR compatibility.
+ * Main OS store - orchestrates sub-stores for drag, menu, and session.
  */
 export const useOSStore = defineStore('os', {
   state: (): OSState => ({
@@ -66,27 +46,6 @@ export const useOSStore = defineStore('os', {
     menuBarHeight: 40,
     desktopPadding: 8,
     snapThreshold: 16,
-    drag: {
-      active: false,
-      windowId: null,
-      startX: 0,
-      startY: 0,
-      originX: 0,
-      originY: 0,
-      resizing: false,
-      edge: null,
-      originW: 0,
-      originH: 0,
-    },
-    menu: {
-      openType: 'none',
-      menubarIndex: null,
-      activePath: [],
-      contextPos: null,
-      contextTemplate: null,
-    },
-    wallpaper: null,
-    theme: 'glassmorphic-light',
   }),
 
   getters: {
@@ -108,6 +67,40 @@ export const useOSStore = defineStore('os', {
         title: this.activeAppId ? 'App' : 'Webintosh',
         sections: [],
       }
+    },
+
+    // --- Delegated getters from sub-stores ---
+    /** Current drag state (delegated to drag store) */
+    drag(): { active: boolean; windowId: WindowId | null; resizing: boolean; edge: ResizeEdge | null } {
+      const dragStore = useDragStore()
+      return {
+        active: dragStore.isActive,
+        windowId: dragStore.activeWindowId,
+        resizing: dragStore.isResizing,
+        edge: dragStore.resizeEdge,
+      }
+    },
+
+    /** Current menu state (delegated to menu store) */
+    menu(): { openType: 'none' | 'menubar' | 'context'; menubarIndex: number | null; activePath: number[]; contextPos: { x: number; y: number } | null; contextTemplate: MenuTemplate | null } {
+      const menuStore = useMenuStore()
+      return {
+        openType: menuStore.openType,
+        menubarIndex: menuStore.menubarIndex,
+        activePath: menuStore.activePath,
+        contextPos: menuStore.contextPos,
+        contextTemplate: menuStore.contextTemplate,
+      }
+    },
+
+    /** Wallpaper (delegated to session store) */
+    wallpaper(): { type: string; value: string } | null {
+      return useSessionStore().wallpaper
+    },
+
+    /** Theme (delegated to session store) */
+    theme(): string {
+      return useSessionStore().theme
     },
   },
 
@@ -133,6 +126,7 @@ export const useOSStore = defineStore('os', {
 
     _writeToStorage(): void {
       if (typeof localStorage === 'undefined') return
+      const sessionStore = useSessionStore()
       const snapshot = {
         windows: this.windows.map((w) => ({
           id: w.id,
@@ -150,8 +144,7 @@ export const useOSStore = defineStore('os', {
         })),
         nextWindowId: this.nextWindowId,
         nextZ: this.nextZ,
-        wallpaper: this.wallpaper,
-        theme: this.theme,
+        ...sessionStore.getSnapshot(),
       }
       try {
         localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(snapshot))
@@ -160,13 +153,11 @@ export const useOSStore = defineStore('os', {
 
     loadSession(): void {
       if (typeof localStorage === 'undefined') return
+      const sessionStore = useSessionStore()
       try {
         const raw = localStorage.getItem(STORAGE_KEYS.SESSION)
         if (!raw) {
-          this.wallpaper = {
-            type: 'video',
-            value: useAssetUrl('wallpapers/end-of-daylight.mp4') ?? '/wallpapers/end-of-daylight.mp4',
-          }
+          sessionStore.initDefaults()
           return
         }
         const parsed = JSON.parse(raw)
@@ -179,18 +170,8 @@ export const useOSStore = defineStore('os', {
         }
         if (typeof parsed?.nextWindowId === 'number') this.nextWindowId = parsed.nextWindowId
         if (typeof parsed?.nextZ === 'number') this.nextZ = parsed.nextZ
-        if ('wallpaper' in parsed) {
-          this.wallpaper = parsed.wallpaper
-        } else {
-          this.wallpaper = {
-            type: 'video',
-            value: useAssetUrl('wallpapers/end-of-daylight.mp4') ?? '/wallpapers/end-of-daylight.mp4',
-          }
-        }
-        if (typeof parsed?.theme === 'string') {
-          this.theme = parsed.theme
-          this.applyTheme(parsed.theme)
-        }
+        // Delegate session state loading
+        sessionStore.loadFromSnapshot(parsed)
         this.focusTopMost()
       } catch { /* ignore */ }
     },
@@ -243,6 +224,22 @@ export const useOSStore = defineStore('os', {
       this.saveSession()
     },
 
+    getViewportConstraints() {
+      const { vw, vh } = getViewport()
+      const pad = this.desktopPadding
+      return {
+        minW: MIN_W,
+        minH: MIN_H,
+        minX: pad,
+        minY: this.menuBarHeight,
+        maxX: vw - pad,
+        maxY: vh - pad,
+        vw,
+        vh,
+        pad,
+      }
+    },
+
     // --- Window CRUD ---
     openWindow(partial?: Partial<OSWindowModel> & { title?: string }): WindowId {
       const id = this.nextWindowId++
@@ -274,8 +271,9 @@ export const useOSStore = defineStore('os', {
     },
 
     closeWindow(id: WindowId): void {
-      if (this.drag.windowId === id) {
-        this.endDrag()
+      const dragStore = useDragStore()
+      if (dragStore.isInteractingWith(id)) {
+        dragStore.endInteraction()
       }
       this.windows = this.windows.filter((w) => w.id !== id)
       if (this.focusedId === id) {
@@ -305,97 +303,51 @@ export const useOSStore = defineStore('os', {
       this.nextZ = z
     },
 
-    // --- Dragging ---
+    // --- Dragging (delegates to drag store) ---
     startDrag(id: WindowId, clientX: number, clientY: number): void {
       const w = this.windows.find((w) => w.id === id)
       if (!w) return
-      this.drag.active = true
-      this.drag.resizing = false
-      this.drag.windowId = id
-      this.drag.startX = clientX
-      this.drag.startY = clientY
-      this.drag.originX = w.rect.x
-      this.drag.originY = w.rect.y
+      const dragStore = useDragStore()
+      dragStore.startDrag(id, clientX, clientY, w.rect.x, w.rect.y)
       this.bringToFront(id)
     },
 
     dragTo(clientX: number, clientY: number): void {
-      if (!this.drag.active || this.drag.windowId == null || this.drag.resizing) return
-      const w = this.windows.find((w) => w.id === this.drag.windowId)
+      const dragStore = useDragStore()
+      if (!dragStore.isDragging) return
+      const pos = dragStore.calculateDragPosition(clientX, clientY)
+      if (!pos) return
+      const w = this.windows.find((w) => w.id === dragStore.activeWindowId)
       if (!w) return
-      const dx = clientX - this.drag.startX
-      const dy = clientY - this.drag.startY
-      w.rect.x = this.drag.originX + dx
-      w.rect.y = this.drag.originY + dy
+      w.rect.x = pos.x
+      w.rect.y = pos.y
       this.ensureBounds(w)
     },
 
     endDrag(): void {
-      this.drag.active = false
-      this.drag.resizing = false
-      this.drag.windowId = null
-      this.drag.edge = null
+      const dragStore = useDragStore()
+      dragStore.endInteraction()
       this.saveSession()
     },
 
-    // --- Resizing ---
+    // --- Resizing (delegates to drag store) ---
     startResize(id: WindowId, edge: ResizeEdge | null, clientX: number, clientY: number): void {
       const w = this.windows.find((w) => w.id === id)
       if (!w || w.resizable === false || !edge) return
-      this.drag.active = true
-      this.drag.resizing = true
-      this.drag.edge = edge
-      this.drag.windowId = id
-      this.drag.startX = clientX
-      this.drag.startY = clientY
-      this.drag.originX = w.rect.x
-      this.drag.originY = w.rect.y
-      this.drag.originW = w.rect.width
-      this.drag.originH = w.rect.height
+      const dragStore = useDragStore()
+      dragStore.startResize(id, edge, clientX, clientY, { ...w.rect })
       this.bringToFront(id)
     },
 
     resizeTo(clientX: number, clientY: number): void {
-      if (!this.drag.active || !this.drag.resizing || this.drag.windowId == null) return
-      const w = this.windows.find((w) => w.id === this.drag.windowId)
+      const dragStore = useDragStore()
+      if (!dragStore.isResizing) return
+      const constraints = this.getViewportConstraints()
+      const newRect = dragStore.calculateResizeGeometry(clientX, clientY, constraints)
+      if (!newRect) return
+      const w = this.windows.find((w) => w.id === dragStore.activeWindowId)
       if (!w) return
-      const dx = clientX - this.drag.startX
-      const dy = clientY - this.drag.startY
-      const originX = this.drag.originX
-      const originY = this.drag.originY
-      const originW = this.drag.originW ?? w.rect.width
-      const originH = this.drag.originH ?? w.rect.height
-      const { vw, vh } = getViewport()
-      const pad = this.desktopPadding
-      const minX = pad
-      const minY = this.menuBarHeight
-      const eastEdge = originX + originW
-      const southEdge = originY + originH
-      let x = originX, y = originY, width = originW, height = originH
-      const edge = this.drag.edge
-      if (edge?.includes('e')) {
-        const maxWidthE = Math.max(MIN_W, vw - pad - originX)
-        width = clamp(originW + dx, MIN_W, maxWidthE)
-      }
-      if (edge?.includes('s')) {
-        const maxHeightS = Math.max(MIN_H, vh - pad - originY)
-        height = clamp(originH + dy, MIN_H, maxHeightS)
-      }
-      if (edge?.includes('w')) {
-        const maxWidthW = Math.max(MIN_W, eastEdge - minX)
-        width = clamp(originW - dx, MIN_W, maxWidthW)
-        x = eastEdge - width
-      }
-      if (edge?.includes('n')) {
-        const maxHeightN = Math.max(MIN_H, southEdge - minY)
-        height = clamp(originH - dy, MIN_H, maxHeightN)
-        y = southEdge - height
-      }
-      const maxX = vw - width - pad
-      const maxY = vh - height - pad
-      x = clamp(x, minX, Math.max(minX, maxX))
-      y = clamp(y, minY, Math.max(minY, maxY))
-      w.rect = { x: Math.round(x), y: Math.round(y), width: Math.floor(width), height: Math.floor(height) }
+      w.rect = newRect
     },
 
     endResize(): void {
@@ -456,55 +408,49 @@ export const useOSStore = defineStore('os', {
       this.saveSession()
     },
 
-    // --- Menu ---
+    // --- Menu (delegates to menu store) ---
     openMenubar(index?: number): void {
-      this.menu.openType = 'menubar'
-      this.menu.menubarIndex = typeof index === 'number' ? index : 0
-      this.menu.activePath = []
-      this.menu.contextPos = null
-      this.menu.contextTemplate = null
+      const menuStore = useMenuStore()
+      menuStore.openMenubar(index)
     },
 
     openContext(x: number, y: number, template: MenuTemplate): void {
-      this.menu.openType = 'context'
-      this.menu.menubarIndex = null
-      this.menu.activePath = []
-      this.menu.contextPos = { x, y }
-      this.menu.contextTemplate = template
+      const menuStore = useMenuStore()
+      menuStore.openContext(x, y, template)
     },
 
     setActivePath(path: number[]): void {
-      this.menu.activePath = Array.isArray(path) ? [...path] : []
+      const menuStore = useMenuStore()
+      menuStore.setActivePath(path)
     },
 
     closeMenu(): void {
-      this.menu.openType = 'none'
-      this.menu.menubarIndex = null
-      this.menu.activePath = []
-      this.menu.contextPos = null
-      this.menu.contextTemplate = null
+      const menuStore = useMenuStore()
+      menuStore.closeMenu()
     },
 
-    // --- Wallpaper & Theme ---
+    // --- Wallpaper & Theme (delegates to session store) ---
     setWallpaper(wallpaper: { type: string; value: string } | null): void {
-      this.wallpaper = wallpaper
+      const sessionStore = useSessionStore()
+      sessionStore.setWallpaper(wallpaper)
       this.saveSessionImmediate()
     },
 
     setTheme(theme: string): void {
-      this.theme = theme
-      this.applyTheme(theme)
+      const sessionStore = useSessionStore()
+      sessionStore.setTheme(theme)
       this.saveSessionImmediate()
     },
 
     applyTheme(theme: string): void {
-      if (typeof document === 'undefined') return
-      document.documentElement.setAttribute('data-theme', theme)
+      const sessionStore = useSessionStore()
+      sessionStore.applyTheme(theme)
     },
 
     initTheme(): void {
-      if (this.theme) {
-        this.applyTheme(this.theme)
+      const sessionStore = useSessionStore()
+      if (sessionStore.theme) {
+        sessionStore.applyTheme(sessionStore.theme)
       }
     },
   },
