@@ -5,70 +5,70 @@
       <!-- Text Formatting -->
       <div class="toolbar-group">
         <button 
-          @click="handleBold" 
-          :class="{ active: isFormatActive('bold') }"
+          :class="{ active: isFormatActive('bold') }" 
           title="Bold (Cmd+B)"
+          @click="handleBold"
         >
           <strong>B</strong>
         </button>
         <button 
-          @click="handleItalic" 
-          :class="{ active: isFormatActive('italic') }"
+          :class="{ active: isFormatActive('italic') }" 
           title="Italic (Cmd+I)"
+          @click="handleItalic"
         >
           <em>I</em>
         </button>
         <button 
-          @click="handleUnderline" 
-          :class="{ active: isFormatActive('underline') }"
+          :class="{ active: isFormatActive('underline') }" 
           title="Underline (Cmd+U)"
+          @click="handleUnderline"
         >
           <u>U</u>
         </button>
         <button 
-          @click="handleStrikethrough" 
-          :class="{ active: isFormatActive('strikeThrough') }"
+          :class="{ active: isFormatActive('strikeThrough') }" 
           title="Strikethrough"
+          @click="handleStrikethrough"
         >
           <s>S</s>
         </button>
       </div>
 
-      <div class="toolbar-divider"></div>
+      <div class="toolbar-divider"/>
 
       <!-- Text Alignment -->
       <div class="toolbar-group">
         <button 
-          @click="handleAlignLeft" 
-          :class="{ active: isFormatActive('justifyLeft') }"
+          :class="{ active: isFormatActive('justifyLeft') }" 
           title="Align Left"
+          @click="handleAlignLeft"
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
             <path d="M2 3h12v1H2zM2 6h8v1H2zM2 9h12v1H2zM2 12h8v1H2z"/>
           </svg>
         </button>
         <button 
-          @click="handleAlignCenter" 
-          :class="{ active: isFormatActive('justifyCenter') }"
+          :class="{ active: isFormatActive('justifyCenter') }" 
           title="Align Center"
+          @click="handleAlignCenter"
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
             <path d="M4 3h8v1H4zM2 6h12v1H2zM4 9h8v1H4zM2 12h12v1H2z"/>
           </svg>
         </button>
         <button 
-          @click="handleAlignRight" 
-          :class="{ active: isFormatActive('justifyRight') }"
+          :class="{ active: isFormatActive('justifyRight') }" 
           title="Align Right"
+          @click="handleAlignRight"
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
             <path d="M2 3h12v1H2zM6 6h8v1H6zM2 9h12v1H2zM6 12h8v1H6z"/>
           </svg>
         </button>
         <button 
-          @click="handleJustify" 
-          :class="{ active: isFormatActive('justifyFull') }"
+          :class="{ active: isFormatActive('justifyFull') }" 
           title="Justify"
+          @click="handleJustify"
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
             <path d="M2 3h12v1H2zM2 6h12v1H2zM2 9h12v1H2zM2 12h12v1H2z"/>
@@ -76,14 +76,14 @@
         </button>
       </div>
 
-      <div class="toolbar-divider"></div>
+      <div class="toolbar-divider"/>
 
       <!-- Lists -->
       <div class="toolbar-group">
         <button 
-          @click="handleBulletList" 
-          :class="{ active: isFormatActive('insertUnorderedList') }"
+          :class="{ active: isFormatActive('insertUnorderedList') }" 
           title="Bullet List"
+          @click="handleBulletList"
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
             <circle cx="3" cy="4" r="1"/>
@@ -93,9 +93,9 @@
           </svg>
         </button>
         <button 
-          @click="handleNumberedList" 
-          :class="{ active: isFormatActive('insertOrderedList') }"
+          :class="{ active: isFormatActive('insertOrderedList') }" 
           title="Numbered List"
+          @click="handleNumberedList"
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
             <text x="2" y="5" font-size="5" font-family="Arial">1</text>
@@ -106,14 +106,14 @@
         </button>
       </div>
 
-      <div class="toolbar-divider"></div>
+      <div class="toolbar-divider"/>
 
       <!-- Font Controls -->
       <div class="toolbar-group">
         <select 
           v-model="selectedFont" 
-          @change="changeFont"
           class="font-selector"
+          @change="changeFont"
         >
           <option value="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">System</option>
           <option value="'Helvetica Neue', Helvetica, Arial, sans-serif">Helvetica</option>
@@ -128,8 +128,8 @@
 
         <select 
           v-model="selectedSize" 
-          @change="changeFontSize"
           class="size-selector"
+          @change="changeFontSize"
         >
           <option value="1">8pt</option>
           <option value="2">10pt</option>
@@ -141,13 +141,13 @@
         </select>
       </div>
 
-      <div class="toolbar-divider"></div>
+      <div class="toolbar-divider"/>
 
       <!-- Additional Actions -->
       <div class="toolbar-group">
         <button 
-          @click="handleClearFormatting" 
-          title="Clear Formatting"
+          title="Clear Formatting" 
+          @click="handleClearFormatting"
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
             <path d="M8.5 2L3 7.5 4.5 9l2-2v7h2V7l2 2L12 7.5 8.5 2zM2 14h12v1H2z"/>
@@ -161,14 +161,13 @@
       ref="editor"
       class="editor"
       contenteditable="true"
-      @input="onInput"
-      @keydown="handleKeyDown"
-      @paste="handlePasteEvent"
       spellcheck="true"
       data-placeholder="Start typing..."
       :style="{ zoom: `${currentZoom}%` }"
-    >
-    </div>
+      @input="onInput"
+      @keydown="handleKeyDown"
+      @paste="handlePasteEvent"
+    />
 
     <!-- Save Modal -->
     <div v-if="showSaveModal" class="modal-overlay" @click.self="closeSaveModal">
@@ -182,13 +181,13 @@
           <div class="filename-input-wrapper">
             <input 
               id="filename"
+              ref="saveInput"
               v-model="saveFilename"
               type="text"
               placeholder="Untitled"
               @keyup.enter="saveDocument"
               @keyup.escape="closeSaveModal"
-              ref="saveInput"
-            />
+            >
             <span class="filename-extension">.md</span>
           </div>
         </div>

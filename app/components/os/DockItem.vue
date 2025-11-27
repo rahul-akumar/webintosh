@@ -2,11 +2,11 @@
   <li class="dock-item">
     <button
       class="dock-button"
-      @click="$emit('launch')"
-      @contextmenu.prevent="$emit('context', $event)"
       :title="title"
       aria-haspopup="true"
       draggable="true"
+      @click="$emit('launch')"
+      @contextmenu.prevent="$emit('context', $event)"
       @dragstart="$emit('drag-start', { id, ev: $event })"
       @dragover.prevent="$emit('drag-over', { id, ev: $event })"
       @drop.prevent="$emit('drop', { id, ev: $event })"
@@ -15,7 +15,7 @@
       <!-- Optional minimized count badge (shown when 2+ minimized windows exist) -->
       <span v-if="minimizedCount && minimizedCount > 1" class="count-badge" aria-hidden="true">{{ minimizedCount }}</span>
       <!-- Legacy running indicator kept for compatibility; can be removed when Dock shows minimized-only -->
-      <span v-if="running" class="running-dot" :class="{ hidden: minimized }" aria-hidden="true"></span>
+      <span v-if="running" class="running-dot" :class="{ hidden: minimized }" aria-hidden="true"/>
       <span class="sr-only">{{ title }}</span>
     </button>
   </li>

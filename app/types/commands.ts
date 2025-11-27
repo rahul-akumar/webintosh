@@ -9,17 +9,17 @@
  */
 export interface CommandPayloads {
   // OS-level commands
-  'os.openWindow': void
-  'os.openTestWindow': void
-  'os.closeFocused': void
-  'os.minimizeFocused': void
-  'os.maximizeFocused': void
+  'os.openWindow': undefined
+  'os.openTestWindow': undefined
+  'os.closeFocused': undefined
+  'os.minimizeFocused': undefined
+  'os.maximizeFocused': undefined
   'os.restoreWindowById': { id: number }
-  'os.cycleWindows': void
+  'os.cycleWindows': undefined
 
   // View commands
-  'view.toggleZoom': void
-  'view.toggleFullScreen': void
+  'view.toggleZoom': undefined
+  'view.toggleFullScreen': undefined
 
   // App-level commands
   'app.launch': { appId: string }
@@ -27,187 +27,187 @@ export interface CommandPayloads {
   'app.newDocument': { appId?: string }
 
   // System utilities
-  'system.showShortcuts': void
-  'system.showAbout': void
+  'system.showShortcuts': undefined
+  'system.showAbout': undefined
 
   // Desktop commands
-  'desktop.changeWallpaper': void
-  'desktop.cleanUpIcons': void
+  'desktop.changeWallpaper': undefined
+  'desktop.cleanUpIcons': undefined
   'desktop.sortIcons': { sortBy: 'name' | 'type' }
   'desktop.setIconDirection': { direction: 'left' | 'right' }
   'desktop.setIconSize': { size: 'small' | 'medium' | 'large' }
 
   // Edit commands (shared)
-  'edit.undo': void
-  'edit.redo': void
-  'edit.cut': void
-  'edit.copy': void
-  'edit.paste': void
-  'edit.selectAll': void
+  'edit.undo': undefined
+  'edit.redo': undefined
+  'edit.cut': undefined
+  'edit.copy': undefined
+  'edit.paste': undefined
+  'edit.selectAll': undefined
 
   // Document commands (shared)
-  'document.copy': void
-  'document.paste': void
-  'document.selectAll': void
+  'document.copy': undefined
+  'document.paste': undefined
+  'document.selectAll': undefined
 
   // TextEdit commands
-  'textedit.save': void
-  'textedit.open': void
-  'textedit.saveAs': void
-  'textedit.print': void
-  'textedit.undo': void
-  'textedit.redo': void
-  'textedit.cut': void
-  'textedit.copy': void
-  'textedit.paste': void
-  'textedit.pasteAndMatchStyle': void
-  'textedit.selectAll': void
-  'textedit.find': void
-  'textedit.findAndReplace': void
-  'textedit.findNext': void
-  'textedit.findPrevious': void
-  'textedit.bold': void
-  'textedit.italic': void
-  'textedit.underline': void
-  'textedit.strikethrough': void
-  'textedit.alignLeft': void
-  'textedit.alignCenter': void
-  'textedit.alignRight': void
-  'textedit.justify': void
-  'textedit.bulletList': void
-  'textedit.numberedList': void
-  'textedit.increaseIndent': void
-  'textedit.decreaseIndent': void
-  'textedit.showFonts': void
-  'textedit.fontSizeSmaller': void
-  'textedit.fontSizeLarger': void
-  'textedit.clearFormatting': void
-  'textedit.zoomIn': void
-  'textedit.zoomOut': void
-  'textedit.zoomReset': void
-  'textedit.toggleToolbar': void
-  'textedit.toggleRuler': void
-  'textedit.toggleInvisibles': void
-  'textedit.bringAllToFront': void
+  'textedit.save': undefined
+  'textedit.open': undefined
+  'textedit.saveAs': undefined
+  'textedit.print': undefined
+  'textedit.undo': undefined
+  'textedit.redo': undefined
+  'textedit.cut': undefined
+  'textedit.copy': undefined
+  'textedit.paste': undefined
+  'textedit.pasteAndMatchStyle': undefined
+  'textedit.selectAll': undefined
+  'textedit.find': undefined
+  'textedit.findAndReplace': undefined
+  'textedit.findNext': undefined
+  'textedit.findPrevious': undefined
+  'textedit.bold': undefined
+  'textedit.italic': undefined
+  'textedit.underline': undefined
+  'textedit.strikethrough': undefined
+  'textedit.alignLeft': undefined
+  'textedit.alignCenter': undefined
+  'textedit.alignRight': undefined
+  'textedit.justify': undefined
+  'textedit.bulletList': undefined
+  'textedit.numberedList': undefined
+  'textedit.increaseIndent': undefined
+  'textedit.decreaseIndent': undefined
+  'textedit.showFonts': undefined
+  'textedit.fontSizeSmaller': undefined
+  'textedit.fontSizeLarger': undefined
+  'textedit.clearFormatting': undefined
+  'textedit.zoomIn': undefined
+  'textedit.zoomOut': undefined
+  'textedit.zoomReset': undefined
+  'textedit.toggleToolbar': undefined
+  'textedit.toggleRuler': undefined
+  'textedit.toggleInvisibles': undefined
+  'textedit.bringAllToFront': undefined
 
   // Finder commands
-  'finder.newFolder': void
+  'finder.newFolder': undefined
   'finder.viewAs': { view: 'icons' | 'list' | 'columns' | 'gallery' }
   'finder.sortBy': { sortBy: 'name' | 'date' | 'size' | 'kind' }
-  'finder.togglePathBar': void
-  'finder.toggleStatusBar': void
-  'finder.toggleSidebar': void
-  'finder.toggleIconPreview': void
+  'finder.togglePathBar': undefined
+  'finder.toggleStatusBar': undefined
+  'finder.toggleSidebar': undefined
+  'finder.toggleIconPreview': undefined
   'finder.goTo': { path: string }
-  'finder.bringAllToFront': void
+  'finder.bringAllToFront': undefined
 
   // Help commands
-  'help.showFinderHelp': void
-  'help.shareApp': void
-  'help.showAboutFinder': void
+  'help.showFinderHelp': undefined
+  'help.shareApp': undefined
+  'help.showAboutFinder': undefined
 
   // TypingTest commands
-  'typingtest.newTest': void
-  'typingtest.restartTest': void
-  'typingtest.changeText': void
+  'typingtest.newTest': undefined
+  'typingtest.restartTest': undefined
+  'typingtest.changeText': undefined
   'typingtest.setDifficulty': { difficulty: 'easy' | 'medium' | 'hard' }
-  'typingtest.toggleSound': void
-  'typingtest.toggleKeyboard': void
+  'typingtest.toggleSound': undefined
+  'typingtest.toggleKeyboard': undefined
   'typingtest.setTheme': { theme: string }
-  'typingtest.toggleTimer': void
-  'typingtest.toggleLiveWPM': void
-  'typingtest.toggleLiveAccuracy': void
-  'typingtest.showSessionStats': void
-  'typingtest.toggleFullscreen': void
-  'typingtest.showTips': void
-  'typingtest.togglePracticeMode': void
-  'typingtest.toggleFocusMode': void
-  'typingtest.toggleNightMode': void
-  'typingtest.showAllTimeStats': void
-  'typingtest.showPersonalBest': void
-  'typingtest.showHistory': void
-  'typingtest.resetStats': void
-  'typingtest.exportStats': void
-  'typingtest.showTutorial': void
-  'typingtest.showFingerGuide': void
+  'typingtest.toggleTimer': undefined
+  'typingtest.toggleLiveWPM': undefined
+  'typingtest.toggleLiveAccuracy': undefined
+  'typingtest.showSessionStats': undefined
+  'typingtest.toggleFullscreen': undefined
+  'typingtest.showTips': undefined
+  'typingtest.togglePracticeMode': undefined
+  'typingtest.toggleFocusMode': undefined
+  'typingtest.toggleNightMode': undefined
+  'typingtest.showAllTimeStats': undefined
+  'typingtest.showPersonalBest': undefined
+  'typingtest.showHistory': undefined
+  'typingtest.resetStats': undefined
+  'typingtest.exportStats': undefined
+  'typingtest.showTutorial': undefined
+  'typingtest.showFingerGuide': undefined
 
   // KeyStation commands
-  'keystation.newSession': void
-  'keystation.startRecording': void
-  'keystation.stopRecording': void
-  'keystation.playRecording': void
-  'keystation.clearRecording': void
-  'keystation.exportAudio': void
-  'keystation.importMidi': void
-  'keystation.undo': void
-  'keystation.redo': void
-  'keystation.copyPattern': void
-  'keystation.pastePattern': void
-  'keystation.clearAll': void
+  'keystation.newSession': undefined
+  'keystation.startRecording': undefined
+  'keystation.stopRecording': undefined
+  'keystation.playRecording': undefined
+  'keystation.clearRecording': undefined
+  'keystation.exportAudio': undefined
+  'keystation.importMidi': undefined
+  'keystation.undo': undefined
+  'keystation.redo': undefined
+  'keystation.copyPattern': undefined
+  'keystation.pastePattern': undefined
+  'keystation.clearAll': undefined
   'keystation.setInstrument': { instrument: string }
   'keystation.setOscillator': { oscillator: string }
   'keystation.setReverb': { level: number }
   'keystation.setDelay': { level: number }
-  'keystation.toggleSustain': void
+  'keystation.toggleSustain': undefined
   'keystation.setOctave': { octave: number }
-  'keystation.octaveUp': void
-  'keystation.octaveDown': void
+  'keystation.octaveUp': undefined
+  'keystation.octaveDown': undefined
   'keystation.setVolume': { volume: number }
-  'keystation.volumeUp': void
-  'keystation.volumeDown': void
-  'keystation.resetAudio': void
-  'keystation.toggleWaveform': void
-  'keystation.toggleKeyLabels': void
-  'keystation.toggleOctaveLabels': void
-  'keystation.toggleCompactMode': void
-  'keystation.showKeyboardGuide': void
-  'keystation.toggleMidiLearn': void
-  'keystation.showDocumentation': void
+  'keystation.volumeUp': undefined
+  'keystation.volumeDown': undefined
+  'keystation.resetAudio': undefined
+  'keystation.toggleWaveform': undefined
+  'keystation.toggleKeyLabels': undefined
+  'keystation.toggleOctaveLabels': undefined
+  'keystation.toggleCompactMode': undefined
+  'keystation.showKeyboardGuide': undefined
+  'keystation.toggleMidiLearn': undefined
+  'keystation.showDocumentation': undefined
 
   // Yahoo Messenger commands
-  'yahooMessenger.signOut': void
-  'yahooMessenger.newMessage': void
-  'yahooMessenger.joinChannel': void
+  'yahooMessenger.signOut': undefined
+  'yahooMessenger.newMessage': undefined
+  'yahooMessenger.joinChannel': undefined
   'yahooMessenger.switchChannel': { channel: string }
-  'yahooMessenger.showDirectMessages': void
-  'yahooMessenger.clearChat': void
-  'yahooMessenger.clearAllChats': void
+  'yahooMessenger.showDirectMessages': undefined
+  'yahooMessenger.clearChat': undefined
+  'yahooMessenger.clearAllChats': undefined
   'yahooMessenger.setStatus': { status: 'online' | 'away' | 'busy' | 'invisible' }
   'yahooMessenger.setStatusMessage': { message: string }
-  'yahooMessenger.sendBuzz': void
+  'yahooMessenger.sendBuzz': undefined
   'yahooMessenger.insertEmoticon': { emoticon: string }
-  'yahooMessenger.toggleSounds': void
-  'yahooMessenger.toggleNotifications': void
-  'yahooMessenger.findInChat': void
-  'yahooMessenger.toggleSidebar': void
-  'yahooMessenger.toggleOnlineUsers': void
-  'yahooMessenger.toggleCompactMode': void
-  'yahooMessenger.zoomIn': void
-  'yahooMessenger.zoomOut': void
-  'yahooMessenger.resetZoom': void
-  'yahooMessenger.showAbout': void
-  'yahooMessenger.showWhatsNew': void
+  'yahooMessenger.toggleSounds': undefined
+  'yahooMessenger.toggleNotifications': undefined
+  'yahooMessenger.findInChat': undefined
+  'yahooMessenger.toggleSidebar': undefined
+  'yahooMessenger.toggleOnlineUsers': undefined
+  'yahooMessenger.toggleCompactMode': undefined
+  'yahooMessenger.zoomIn': undefined
+  'yahooMessenger.zoomOut': undefined
+  'yahooMessenger.resetZoom': undefined
+  'yahooMessenger.showAbout': undefined
+  'yahooMessenger.showWhatsNew': undefined
 
   // WhiteNoise commands
-  'whitenoise.stopAll': void
+  'whitenoise.stopAll': undefined
   'whitenoise.toggleSound': { soundId: string }
   'whitenoise.loadPreset': { presetId: string }
-  'whitenoise.savePreset': void
-  'whitenoise.managePresets': void
-  'whitenoise.masterVolumeUp': void
-  'whitenoise.masterVolumeDown': void
-  'whitenoise.muteAll': void
-  'whitenoise.fadeIn': void
-  'whitenoise.fadeOut': void
-  'whitenoise.toggleCompactMode': void
-  'whitenoise.toggleVolumeSliders': void
-  'whitenoise.showSoundInfo': void
-  'whitenoise.showTips': void
-  'whitenoise.showAudioHelp': void
+  'whitenoise.savePreset': undefined
+  'whitenoise.managePresets': undefined
+  'whitenoise.masterVolumeUp': undefined
+  'whitenoise.masterVolumeDown': undefined
+  'whitenoise.muteAll': undefined
+  'whitenoise.fadeIn': undefined
+  'whitenoise.fadeOut': undefined
+  'whitenoise.toggleCompactMode': undefined
+  'whitenoise.toggleVolumeSliders': undefined
+  'whitenoise.showSoundInfo': undefined
+  'whitenoise.showTips': undefined
+  'whitenoise.showAudioHelp': undefined
 
   // Chess commands
-  'chess.newGame': void
-  'chess.undoMove': void
+  'chess.newGame': undefined
+  'chess.undoMove': undefined
   'chess.setMode': { mode: 'pvp' | 'ai' }
   'chess.setDifficulty': { difficulty: 'easy' | 'medium' | 'hard' }
 }
@@ -222,7 +222,7 @@ export type CommandId = keyof CommandPayloads
  * Type-safe command handler signature.
  */
 export type CommandHandler<K extends CommandId> = 
-  CommandPayloads[K] extends void 
+  CommandPayloads[K] extends undefined 
     ? () => void 
     : (args: CommandPayloads[K]) => void
 
@@ -241,10 +241,202 @@ export function getArg<T>(args: unknown, key: string): T | undefined {
   return undefined
 }
 
+// Build a Set of valid commands at module load for O(1) lookup
+const VALID_COMMANDS: ReadonlySet<string> = new Set<CommandId>([
+  // OS-level commands
+  'os.openWindow',
+  'os.openTestWindow',
+  'os.closeFocused',
+  'os.minimizeFocused',
+  'os.maximizeFocused',
+  'os.restoreWindowById',
+  'os.cycleWindows',
+  // View commands
+  'view.toggleZoom',
+  'view.toggleFullScreen',
+  // App-level commands
+  'app.launch',
+  'app.newWindow',
+  'app.newDocument',
+  // System utilities
+  'system.showShortcuts',
+  'system.showAbout',
+  // Desktop commands
+  'desktop.changeWallpaper',
+  'desktop.cleanUpIcons',
+  'desktop.sortIcons',
+  'desktop.setIconDirection',
+  'desktop.setIconSize',
+  // Edit commands
+  'edit.undo',
+  'edit.redo',
+  'edit.cut',
+  'edit.copy',
+  'edit.paste',
+  'edit.selectAll',
+  // Document commands
+  'document.copy',
+  'document.paste',
+  'document.selectAll',
+  // TextEdit commands
+  'textedit.save',
+  'textedit.open',
+  'textedit.saveAs',
+  'textedit.print',
+  'textedit.undo',
+  'textedit.redo',
+  'textedit.cut',
+  'textedit.copy',
+  'textedit.paste',
+  'textedit.pasteAndMatchStyle',
+  'textedit.selectAll',
+  'textedit.find',
+  'textedit.findAndReplace',
+  'textedit.findNext',
+  'textedit.findPrevious',
+  'textedit.bold',
+  'textedit.italic',
+  'textedit.underline',
+  'textedit.strikethrough',
+  'textedit.alignLeft',
+  'textedit.alignCenter',
+  'textedit.alignRight',
+  'textedit.justify',
+  'textedit.bulletList',
+  'textedit.numberedList',
+  'textedit.increaseIndent',
+  'textedit.decreaseIndent',
+  'textedit.showFonts',
+  'textedit.fontSizeSmaller',
+  'textedit.fontSizeLarger',
+  'textedit.clearFormatting',
+  'textedit.zoomIn',
+  'textedit.zoomOut',
+  'textedit.zoomReset',
+  'textedit.toggleToolbar',
+  'textedit.toggleRuler',
+  'textedit.toggleInvisibles',
+  'textedit.bringAllToFront',
+  // Finder commands
+  'finder.newFolder',
+  'finder.viewAs',
+  'finder.sortBy',
+  'finder.togglePathBar',
+  'finder.toggleStatusBar',
+  'finder.toggleSidebar',
+  'finder.toggleIconPreview',
+  'finder.goTo',
+  'finder.bringAllToFront',
+  // Help commands
+  'help.showFinderHelp',
+  'help.shareApp',
+  'help.showAboutFinder',
+  // TypingTest commands
+  'typingtest.newTest',
+  'typingtest.restartTest',
+  'typingtest.changeText',
+  'typingtest.setDifficulty',
+  'typingtest.toggleSound',
+  'typingtest.toggleKeyboard',
+  'typingtest.setTheme',
+  'typingtest.toggleTimer',
+  'typingtest.toggleLiveWPM',
+  'typingtest.toggleLiveAccuracy',
+  'typingtest.showSessionStats',
+  'typingtest.toggleFullscreen',
+  'typingtest.showTips',
+  'typingtest.togglePracticeMode',
+  'typingtest.toggleFocusMode',
+  'typingtest.toggleNightMode',
+  'typingtest.showAllTimeStats',
+  'typingtest.showPersonalBest',
+  'typingtest.showHistory',
+  'typingtest.resetStats',
+  'typingtest.exportStats',
+  'typingtest.showTutorial',
+  'typingtest.showFingerGuide',
+  // KeyStation commands
+  'keystation.newSession',
+  'keystation.startRecording',
+  'keystation.stopRecording',
+  'keystation.playRecording',
+  'keystation.clearRecording',
+  'keystation.exportAudio',
+  'keystation.importMidi',
+  'keystation.undo',
+  'keystation.redo',
+  'keystation.copyPattern',
+  'keystation.pastePattern',
+  'keystation.clearAll',
+  'keystation.setInstrument',
+  'keystation.setOscillator',
+  'keystation.setReverb',
+  'keystation.setDelay',
+  'keystation.toggleSustain',
+  'keystation.setOctave',
+  'keystation.octaveUp',
+  'keystation.octaveDown',
+  'keystation.setVolume',
+  'keystation.volumeUp',
+  'keystation.volumeDown',
+  'keystation.resetAudio',
+  'keystation.toggleWaveform',
+  'keystation.toggleKeyLabels',
+  'keystation.toggleOctaveLabels',
+  'keystation.toggleCompactMode',
+  'keystation.showKeyboardGuide',
+  'keystation.toggleMidiLearn',
+  'keystation.showDocumentation',
+  // Yahoo Messenger commands
+  'yahooMessenger.signOut',
+  'yahooMessenger.newMessage',
+  'yahooMessenger.joinChannel',
+  'yahooMessenger.switchChannel',
+  'yahooMessenger.showDirectMessages',
+  'yahooMessenger.clearChat',
+  'yahooMessenger.clearAllChats',
+  'yahooMessenger.setStatus',
+  'yahooMessenger.setStatusMessage',
+  'yahooMessenger.sendBuzz',
+  'yahooMessenger.insertEmoticon',
+  'yahooMessenger.toggleSounds',
+  'yahooMessenger.toggleNotifications',
+  'yahooMessenger.findInChat',
+  'yahooMessenger.toggleSidebar',
+  'yahooMessenger.toggleOnlineUsers',
+  'yahooMessenger.toggleCompactMode',
+  'yahooMessenger.zoomIn',
+  'yahooMessenger.zoomOut',
+  'yahooMessenger.resetZoom',
+  'yahooMessenger.showAbout',
+  'yahooMessenger.showWhatsNew',
+  // WhiteNoise commands
+  'whitenoise.stopAll',
+  'whitenoise.toggleSound',
+  'whitenoise.loadPreset',
+  'whitenoise.savePreset',
+  'whitenoise.managePresets',
+  'whitenoise.masterVolumeUp',
+  'whitenoise.masterVolumeDown',
+  'whitenoise.muteAll',
+  'whitenoise.fadeIn',
+  'whitenoise.fadeOut',
+  'whitenoise.toggleCompactMode',
+  'whitenoise.toggleVolumeSliders',
+  'whitenoise.showSoundInfo',
+  'whitenoise.showTips',
+  'whitenoise.showAudioHelp',
+  // Chess commands
+  'chess.newGame',
+  'chess.undoMove',
+  'chess.setMode',
+  'chess.setDifficulty',
+])
+
 /**
  * Type guard to check if a string is a valid CommandId.
+ * Uses O(1) Set lookup for performance.
  */
 export function isValidCommand(cmd: string): cmd is CommandId {
-  // This is a runtime check - in practice, TypeScript ensures compile-time safety
-  return typeof cmd === 'string' && cmd.includes('.')
+  return VALID_COMMANDS.has(cmd)
 }

@@ -5,11 +5,11 @@
       <div class="game-info">
         <div class="player-info">
           <div class="player" :class="{ active: currentPlayer === 'white' }">
-            <div class="player-color white"></div>
+            <div class="player-color white"/>
             <span>{{ gameMode === 'ai' ? 'You' : 'Player 1' }}</span>
           </div>
           <div class="player" :class="{ active: currentPlayer === 'black' }">
-            <div class="player-color black"></div>
+            <div class="player-color black"/>
             <span>{{ gameMode === 'ai' ? `AI (${difficulty})` : 'Player 2' }}</span>
           </div>
         </div>
@@ -21,18 +21,18 @@
       </div>
       
       <div class="game-controls">
-        <select v-model="gameMode" @change="startNewGame" class="mode-select">
+        <select v-model="gameMode" class="mode-select" @change="startNewGame">
           <option value="ai">vs AI</option>
           <option value="player">vs Player</option>
         </select>
-        <select v-model="difficulty" @change="onDifficultyChange" class="difficulty-select" :disabled="gameMode === 'player'">
+        <select v-model="difficulty" class="difficulty-select" :disabled="gameMode === 'player'" @change="onDifficultyChange">
           <option value="easy">Easy</option>
           <option value="medium">Medium</option>
           <option value="hard">Hard</option>
         </select>
-        <button @click="startNewGame" class="control-btn">New Game</button>
-        <button @click="undoMove" :disabled="!canUndo" class="control-btn">Undo</button>
-        <button @click="showThemeModal = true" class="control-btn">Themes</button>
+        <button class="control-btn" @click="startNewGame">New Game</button>
+        <button :disabled="!canUndo" class="control-btn" @click="undoMove">Undo</button>
+        <button class="control-btn" @click="showThemeModal = true">Themes</button>
       </div>
     </div>
 
@@ -46,7 +46,7 @@
           <!-- White Captured Pieces -->
           <div class="captured-color-section">
             <div class="captured-label">
-              <div class="player-color white-dot"></div>
+              <div class="player-color white-dot"/>
               <span>White</span>
             </div>
             <div class="captured-pieces-display">
@@ -60,7 +60,7 @@
           <!-- Black Captured Pieces -->
           <div class="captured-color-section">
             <div class="captured-label">
-              <div class="player-color black-dot"></div>
+              <div class="player-color black-dot"/>
               <span>Black</span>
             </div>
             <div class="captured-pieces-display">
@@ -82,7 +82,7 @@
           </div>
           
           <!-- Main Board -->
-          <div class="chess-board" ref="boardEl">
+          <div ref="boardEl" class="chess-board">
             <div 
               v-for="(row, rowIndex) in board"
               :key="rowIndex"
@@ -147,8 +147,8 @@
           </div>
         </div>
         <div class="modal-actions">
-          <button @click="startNewGame" class="control-btn primary">New Game</button>
-          <button @click="gameOver = false" class="control-btn">Continue</button>
+          <button class="control-btn primary" @click="startNewGame">New Game</button>
+          <button class="control-btn" @click="gameOver = false">Continue</button>
         </div>
       </div>
     </div>
@@ -164,20 +164,20 @@
             <button 
               v-for="theme in boardThemes" 
               :key="theme.id"
-              @click="boardTheme = theme.id"
               class="theme-option"
               :class="{ active: boardTheme === theme.id }"
+              @click="boardTheme = theme.id"
             >
               <div class="theme-preview">
                 <div class="board-preview">
                   <div 
                     class="preview-square light" 
                     :style="{ backgroundColor: theme.lightColor }"
-                  ></div>
+                  />
                   <div 
                     class="preview-square dark" 
                     :style="{ backgroundColor: theme.darkColor }"
-                  ></div>
+                  />
                 </div>
               </div>
               <span>{{ theme.name }}</span>
@@ -191,9 +191,9 @@
             <button 
               v-for="theme in pieceThemes" 
               :key="theme.id"
-              @click="pieceTheme = theme.id"
               class="theme-option"
               :class="{ active: pieceTheme === theme.id }"
+              @click="pieceTheme = theme.id"
             >
               <div class="theme-preview">
                 <div class="piece-preview">
@@ -207,7 +207,7 @@
         </div>
         
         <div class="modal-actions">
-          <button @click="showThemeModal = false" class="control-btn primary">Done</button>
+          <button class="control-btn primary" @click="showThemeModal = false">Done</button>
         </div>
       </div>
     </div>
@@ -216,9 +216,6 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
-import { useMenuCommand } from '~/utils/menuCommands'
-import { createChessMenuTemplate } from './chessMenu'
-import { useOSStore } from '../../../stores/os'
 import type { CommandId } from '../../../types/menu'
 
 // Types
@@ -385,7 +382,7 @@ function isOpponentPiece(piece: ChessPiece | null, color: PieceColor): boolean {
   return piece !== null && piece.color !== color
 }
 
-function isSameColorPiece(piece: ChessPiece | null, color: PieceColor): boolean {
+function _isSameColorPiece(piece: ChessPiece | null, color: PieceColor): boolean {
   return piece !== null && piece.color === color
 }
 
@@ -756,7 +753,8 @@ function startMoveAnimation(from: Position, to: Position, piece: ChessPiece): bo
 
 function playMoveSound() {
   try {
-    const AudioContextClass: any = (window as any).AudioContext || (window as any).webkitAudioContext
+    type AudioContextConstructor = typeof AudioContext
+    const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: AudioContextConstructor }).webkitAudioContext
     if (!AudioContextClass) return
     const ctx = new AudioContextClass()
     if (ctx.state === 'suspended') ctx.resume()
@@ -775,7 +773,9 @@ function playMoveSound() {
     osc.start()
     osc.stop(ctx.currentTime + 0.13)
     setTimeout(() => ctx.close(), 180)
-  } catch {}
+  } catch {
+    // Audio API not available or blocked - silently ignore
+  }
 }
 
 function undoMove() {
@@ -974,7 +974,7 @@ function generateMoveNotation(move: Move): string {
   const { from, to, piece, capturedPiece } = move
   
   // Convert position to algebraic notation
-  const fromSquare = `${files[from.col]}${8 - from.row}`
+  const _fromSquare = `${files[from.col]}${8 - from.row}`
   const toSquare = `${files[to.col]}${8 - to.row}`
   
   let notation = ''
@@ -1055,14 +1055,14 @@ onMounted(() => {
     if (canUndo.value) undoMove()
   })
 
-  register('chess.setMode' as CommandId, (args?: any) => {
-    const mode = args?.mode === 'player' ? 'player' : 'ai'
+  register('chess.setMode' as CommandId, (args) => {
+    const mode = (args as { mode?: string })?.mode === 'player' ? 'player' : 'ai'
     gameMode.value = mode
     startNewGame()
   })
 
-  register('chess.setDifficulty' as CommandId, (args?: any) => {
-    const level = args?.level
+  register('chess.setDifficulty' as CommandId, (args) => {
+    const level = (args as { difficulty?: string })?.difficulty
     if (level === 'easy' || level === 'medium' || level === 'hard') {
       difficulty.value = level
       onDifficultyChange()
@@ -1070,7 +1070,6 @@ onMounted(() => {
   })
 
   // Ensure OS knows about app-specific menubar
-  const os = useOSStore()
   // No explicit call needed; MenuBar resolves by focused app id.
 
   startNewGame()

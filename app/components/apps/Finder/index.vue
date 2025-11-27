@@ -7,8 +7,8 @@
         <button
           v-for="folder in folders"
           :key="folder.id"
-          @click="selectedFolder = folder.id"
           :class="['sidebar-item', { active: selectedFolder === folder.id }]"
+          @click="selectedFolder = folder.id"
         >
           <span class="sidebar-icon">{{ folder.icon }}</span>
           <span class="sidebar-label">{{ folder.name }}</span>
@@ -58,7 +58,7 @@
               :src="file.iconPath" 
               :alt="file.name"
               class="file-icon-img"
-            />
+            >
             <span v-else class="file-icon-emoji">{{ file.iconEmoji || '📄' }}</span>
           </div>
           <div class="file-name">{{ file.name }}</div>
@@ -76,7 +76,7 @@ import { useOSStore } from '../../../stores/os'
 defineOptions({ name: 'FinderApp' })
 
 const appsStore = useAppsStore()
-const osStore = useOSStore()
+const _osStore = useOSStore()
 
 const selectedFolder = ref('documents')
 const selectedFile = ref<string | null>(null)
@@ -103,7 +103,16 @@ const getApplicationFiles = () => {
   }))
 }
 
-const filesData: Record<string, any[]> = {
+interface FileItem {
+  id: string
+  name: string
+  iconPath?: string
+  iconEmoji?: string
+  type: string
+  appId?: string
+}
+
+const filesData: Record<string, FileItem[]> = {
   applications: getApplicationFiles(),
   documents: [
     { id: 'doc-1', name: 'Welcome.txt', iconEmoji: '📄', type: 'file' },
@@ -137,7 +146,7 @@ const files = computed(() => {
   return filesData[selectedFolder.value] || []
 })
 
-const openFile = (file: any) => {
+const openFile = (file: FileItem) => {
   // If it's an app, launch it using the apps store
   if (file.type === 'app' && file.appId) {
     appsStore.launchOrFocus(file.appId)

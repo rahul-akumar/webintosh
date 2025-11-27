@@ -7,16 +7,16 @@
   >
     <div class="os-window-header" @mousedown.stop="onStartDrag" @touchstart.stop="onTouchStartDrag" @dblclick.stop="onTitlebarDblClick">
       <div class="os-window-controls">
-        <button class="os-window-control close" v-if="win.closable" @click.stop="store.closeWindow(win.id)" aria-label="Close"></button>
-        <button class="os-window-control minimize" v-if="win.minimizable !== false" @click.stop="store.toggleMinimize(win.id)" aria-label="Minimize"></button>
+        <button v-if="win.closable" class="os-window-control close" aria-label="Close" @click.stop="store.closeWindow(win.id)"/>
+        <button v-if="win.minimizable !== false" class="os-window-control minimize" aria-label="Minimize" @click.stop="store.toggleMinimize(win.id)"/>
         <button 
-          class="os-window-control maximize" 
-          :class="{ disabled: win.maximizable === false }"
           v-if="win.resizable !== false" 
-          @click.stop="handleMaximize" 
-          aria-label="Maximize"
+          class="os-window-control maximize"
+          :class="{ disabled: win.maximizable === false }" 
+          aria-label="Maximize" 
           :disabled="win.maximizable === false"
-        ></button>
+          @click.stop="handleMaximize"
+        />
       </div>
       <div class="os-window-title">{{ win.title }}</div>
     </div>
@@ -34,12 +34,19 @@
 
     <div class="os-window-content">
       <slot>
-        <!-- Dynamic app content from registry -->
-        <component 
-          v-if="appComponent" 
-          :is="appComponent" 
-          :window-id="win.id"
-        />
+        <!-- Dynamic app content from registry with error boundary -->
+        <Suspense v-if="appComponent">
+          <component 
+            :is="appComponent" 
+            :window-id="win.id"
+          />
+          <template #fallback>
+            <div class="app-loading">
+              <span class="loading-spinner"/>
+              <span>Loading...</span>
+            </div>
+          </template>
+        </Suspense>
         <!-- Placeholder content for unknown apps -->
         <p v-else>This is a window body (id: {{ win.id }})</p>
       </slot>
@@ -260,4 +267,30 @@ function onFocus() {
 .handle-nw { top: -4px; left:  -4px; width: 12px; height: 12px; cursor: nw-resize; }
 .handle-se { bottom: -4px; right: -4px; width: 12px; height: 12px; cursor: se-resize; }
 .handle-sw { bottom: -4px; left:  -4px; width: 12px; height: 12px; cursor: sw-resize; }
+
+/* App loading state */
+.app-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: 100%;
+  min-height: 120px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--border-window);
+  border-top-color: var(--text-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
 </style>

@@ -48,7 +48,7 @@
         >
           <div class="menu-item-left">
             <!-- Reserve checkmark space so submenu rows align with regular items -->
-            <span class="checkmark" aria-hidden="true"></span>
+            <span class="checkmark" aria-hidden="true"/>
             <span class="label">{{ entry.label }}</span>
           </div>
           <div class="menu-item-right">
@@ -175,7 +175,7 @@ function move(delta: 1 | -1) {
   focusIndex(nextIdx)
 }
 
-function accelToText(a?: Accelerator): string {
+function _accelToText(a?: Accelerator): string {
   if (!a) return ''
   const parts: string[] = []
   if (a.ctrl) parts.push('Ctrl')

@@ -21,7 +21,7 @@
         v-else-if="wallpaperType === 'gif'"
         :src="wallpaperSrc"
         class="wallpaper-image"
-      />
+      >
     </div>
 
     <!-- MenuBar positioned over wallpaper -->

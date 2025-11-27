@@ -30,7 +30,7 @@
         <!-- Volume Control -->
         <div class="control-group">
           <label>Volume</label>
-          <input type="range" v-model="volume" min="0" max="100" @input="updateVolume" />
+          <input v-model="volume" type="range" min="0" max="100" @input="updateVolume" >
           <span class="value">{{ volume }}</span>
         </div>
 
@@ -38,9 +38,9 @@
         <div class="control-group">
           <label>Octave</label>
           <div class="octave-buttons">
-            <button @click="changeOctave(-1)" :disabled="currentOctave <= 1">-</button>
+            <button :disabled="currentOctave <= 1" @click="changeOctave(-1)">-</button>
             <span class="octave-display">C{{ currentOctave }}</span>
-            <button @click="changeOctave(1)" :disabled="currentOctave >= 7">+</button>
+            <button :disabled="currentOctave >= 7" @click="changeOctave(1)">+</button>
           </div>
         </div>
       </div>
@@ -49,19 +49,19 @@
         <!-- Effects -->
         <div class="control-group">
           <label>Reverb</label>
-          <input type="range" v-model="reverb" min="0" max="100" />
+          <input v-model="reverb" type="range" min="0" max="100" >
           <span class="value">{{ reverb }}</span>
         </div>
 
         <div class="control-group">
           <label>Delay</label>
-          <input type="range" v-model="delay" min="0" max="100" />
+          <input v-model="delay" type="range" min="0" max="100" >
           <span class="value">{{ delay }}</span>
         </div>
 
         <div class="control-group">
           <label>Sustain</label>
-          <button @click="toggleSustain" :class="['sustain-button', { active: sustainOn }]">
+          <button :class="['sustain-button', { active: sustainOn }]" @click="toggleSustain">
             {{ sustainOn ? 'ON' : 'OFF' }}
           </button>
         </div>
@@ -69,10 +69,10 @@
         <!-- Recording Controls -->
         <div class="control-group">
           <label>Recording</label>
-          <button @click="toggleRecording" :class="['record-button', { recording: isRecording }]">
+          <button :class="['record-button', { recording: isRecording }]" @click="toggleRecording">
             {{ isRecording ? '⏺ Stop' : '⏺ Record' }}
           </button>
-          <button v-if="recordedNotes.length > 0" @click="playRecording" class="play-button">
+          <button v-if="recordedNotes.length > 0" class="play-button" @click="playRecording">
             ▶ Play
           </button>
         </div>
@@ -81,8 +81,8 @@
 
     <!-- Display -->
     <div class="display-panel">
-      <div class="waveform-display" ref="waveformDisplay">
-        <canvas ref="waveformCanvas"></canvas>
+      <div ref="waveformDisplay" class="waveform-display">
+        <canvas ref="waveformCanvas"/>
         <div class="oscillator-type-indicator">{{ selectedOscillatorType.toUpperCase() }}</div>
       </div>
       <div class="info-display">
@@ -95,7 +95,8 @@
     <div class="keyboard-container">
       <div class="keyboard">
         <!-- White Keys -->
-        <div v-for="(note, index) in whiteKeys" :key="`white-${index}`"
+        <div
+v-for="(note, index) in whiteKeys" :key="`white-${index}`"
           :class="['key', 'white-key', { active: activeKeys.has(note.key) }]" @mousedown="playNote(note)"
           @mouseup="stopNote(note)" @mouseleave="stopNote(note)">
           <span class="key-label">{{ note.label }}</span>
@@ -103,7 +104,8 @@
         </div>
 
         <!-- Black Keys -->
-        <div v-for="(note, index) in blackKeys" :key="`black-${index}`"
+        <div
+v-for="(note, index) in blackKeys" :key="`black-${index}`"
           :class="['key', 'black-key', { active: activeKeys.has(note.key) }]" :style="{ left: note.position }"
           @mousedown="playNote(note)" @mouseup="stopNote(note)" @mouseleave="stopNote(note)">
           <span class="key-label">{{ note.label }}</span>
@@ -136,7 +138,13 @@ const sustainOn = ref(false)
 const activeKeys = ref(new Set<string>())
 const currentNote = ref('')
 const isRecording = ref(false)
-const recordedNotes = ref<Array<{ note: any, time: number }>>([])
+interface NoteEvent {
+  key: string
+  note: string
+  octave: number
+  octaveOffset?: number
+}
+const recordedNotes = ref<Array<{ note: NoteEvent, time: number }>>([])
 const recordingStartTime = ref(0)
 
 // Canvas refs
@@ -185,7 +193,9 @@ const blackKeys = computed(() => [
 
 // Initialize audio context
 const initAudio = () => {
-  audioContext.value = new (window.AudioContext || (window as any).webkitAudioContext)()
+  type AudioContextConstructor = typeof AudioContext
+  const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: AudioContextConstructor }).webkitAudioContext
+  audioContext.value = new AudioContextClass()
 
   // Create master gain
   masterGainNode.value = audioContext.value.createGain()
@@ -303,8 +313,14 @@ const getInstrumentSettings = (instrument: string) => {
   }
 }
 
+interface PlayableNote {
+  key: string
+  note: string
+  octaveOffset?: number
+}
+
 // Play a note
-const playNote = (note: any) => {
+const playNote = (note: PlayableNote) => {
   if (!audioContext.value || !masterGainNode.value) {
     initAudio()
   }
@@ -378,7 +394,7 @@ const playNote = (note: any) => {
 }
 
 // Stop a note
-const stopNote = (note: any) => {
+const stopNote = (note: PlayableNote) => {
   if (!audioContext.value || sustainOn.value) return
 
   const noteKey = note.key

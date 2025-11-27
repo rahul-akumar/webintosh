@@ -1,4 +1,4 @@
-import { ref, reactive } from 'vue';
+import { ref, readonly } from 'vue';
 
 export interface Notification {
   id: string;
@@ -133,7 +133,6 @@ export const useNotifications = () => {
 
   // Test notification (for debugging)
   const testNotification = () => {
-    console.log('[Notifications] Testing notification system...');
     return showNotification({
       title: 'Test Notification',
       message: 'This is a test. If you see this, notifications are working!',

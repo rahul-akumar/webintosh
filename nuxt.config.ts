@@ -69,7 +69,6 @@ export default defineNuxtConfig({
     screens: { sm: 640, md: 768, lg: 1024, xl: 1280 }
   },
 
-  // @ts-ignore - nuxt-gtag module types
   gtag: {
     id: 'G-1V0QJF0D55',
     config: { anonymize_ip: true }

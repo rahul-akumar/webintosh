@@ -8,23 +8,12 @@ import type { MenuTemplate } from '../types/menu'
 import { useAssetUrl } from '../composables/useAssetUrl'
 import { STORAGE_KEYS } from '../constants/storage-keys'
 import { debounce } from '../utils/debounce'
+import { clamp, getViewport } from '../utils/math'
 
 // Constants
 const MIN_W = 240
 const MIN_H = 160
 const SAVE_DEBOUNCE_MS = 500
-
-function clamp(n: number, min: number, max: number): number {
-  return Math.max(min, Math.min(max, n))
-}
-
-function getViewport(): { vw: number; vh: number } {
-  if (typeof window !== 'undefined' && typeof document !== 'undefined') {
-    const docEl = document.documentElement
-    return { vw: docEl.clientWidth, vh: docEl.clientHeight }
-  }
-  return { vw: 1280, vh: 800 }
-}
 
 // Module-level debounced save
 let debouncedSaveFn: ReturnType<typeof debounce> | null = null
@@ -183,7 +172,7 @@ export const useOSStore = defineStore('os', {
         const parsed = JSON.parse(raw)
         if (Array.isArray(parsed?.windows)) {
           // Migrate old format to new displayState
-          this.windows = parsed.windows.map((w: any) => ({
+          this.windows = parsed.windows.map((w: OSWindowModel & { minimized?: boolean; maximized?: boolean }) => ({
             ...w,
             displayState: w.displayState ?? (w.minimized ? 'minimized' : w.maximized ? 'maximized' : 'normal'),
           }))

@@ -1,23 +1,18 @@
 // Yahoo Messenger Firebase Types and Utilities
+import type {
+  Timestamp
+} from 'firebase/firestore';
 import { 
   collection, 
   addDoc, 
-  query, 
-  orderBy, 
-  onSnapshot, 
-  where, 
   serverTimestamp,
   doc,
   setDoc,
-  getDoc,
   updateDoc,
-  limit,
-  Timestamp
 } from 'firebase/firestore';
 import { 
   signInAnonymously, 
   updateProfile, 
-  onAuthStateChanged,
   signOut
 } from 'firebase/auth';
 import type { User } from 'firebase/auth';
@@ -99,7 +94,7 @@ export const getTimeAgo = (timestamp: Timestamp | null): string => {
 export const playMessageSound = () => {
   try {
     // Create a simple notification sound using Web Audio API
-    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     
     if (!AudioContextClass) {
       console.warn('Web Audio API not supported');
@@ -187,11 +182,8 @@ export const sendChannelMessage = async (
     type
   };
   
-  console.log('Sending channel message:', messageData);
-  
   try {
-    const docRef = await addDoc(collection(db, 'messages'), messageData);
-    console.log('Message sent with ID:', docRef.id);
+    await addDoc(collection(db, 'messages'), messageData);
   } catch (error) {
     console.error('Error sending message:', error);
     throw error;

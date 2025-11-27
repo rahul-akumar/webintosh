@@ -44,7 +44,7 @@ export interface OSWindowModel {
   lastNormalRect?: OSWindowRect;
 
   // Custom metadata for app initialization
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -70,25 +70,6 @@ export type WindowInteractionState =
       originRect: OSWindowRect;
     };
 
-/**
- * @deprecated Use WindowInteractionState instead.
- * Kept for backward compatibility during migration.
- */
-export interface DragState {
-  active: boolean;
-  windowId: WindowId | null;
-  startX: number;
-  startY: number;
-  originX: number;
-  originY: number;
-
-  // Resize support
-  resizing?: boolean;
-  edge?: ResizeEdge | null;
-  originW?: number;
-  originH?: number;
-}
-
 export interface OSMenuState {
   // Generic menu open state
   openType: 'none' | 'menubar' | 'context';
@@ -104,7 +85,7 @@ export interface OSState {
   windows: OSWindowModel[];
   nextWindowId: number;
   nextZ: number;
-  drag: DragState;
+  interaction: WindowInteractionState;
   menu: OSMenuState;
   focusedId?: WindowId | null;
   clock: string;

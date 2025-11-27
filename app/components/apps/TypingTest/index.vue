@@ -36,29 +36,29 @@
           ref="hiddenInput"
           type="text"
           class="hidden-input"
-          @input="handleInput"
-          @keydown="handleKeyDown"
           :disabled="isComplete"
           autofocus
-        />
+          @input="handleInput"
+          @keydown="handleKeyDown"
+        >
         <div class="typed-text">
           <span>{{ userInput }}</span>
-          <span class="cursor" v-if="!isComplete && currentIndex < testText.length">|</span>
+          <span v-if="!isComplete && currentIndex < testText.length" class="cursor">|</span>
         </div>
       </div>
 
       <!-- Controls -->
       <div class="controls">
-        <button @click="startNewTest" class="control-btn primary">
+        <button class="control-btn primary" @click="startNewTest">
           {{ !hasStarted ? 'Start Test' : 'New Test' }}
         </button>
-        <button @click="changeText" :disabled="hasStarted && !isComplete" class="control-btn">
+        <button :disabled="hasStarted && !isComplete" class="control-btn" @click="changeText">
           Change Text
         </button>
-        <button @click="toggleSound" class="control-btn" :class="{ active: soundEnabled }">
+        <button class="control-btn" :class="{ active: soundEnabled }" @click="toggleSound">
           Sound: {{ soundEnabled ? 'ON' : 'OFF' }}
         </button>
-        <select v-model="selectedDifficulty" @change="changeText" class="difficulty-select" :disabled="hasStarted && !isComplete">
+        <select v-model="selectedDifficulty" class="difficulty-select" :disabled="hasStarted && !isComplete" @change="changeText">
           <option value="easy">Easy</option>
           <option value="medium">Medium</option>
           <option value="hard">Hard</option>
@@ -86,12 +86,12 @@
             <span class="result-value">{{ testText.length }}</span>
           </div>
         </div>
-        <button @click="startNewTest" class="control-btn primary">Try Again</button>
+        <button class="control-btn primary" @click="startNewTest">Try Again</button>
       </div>
     </div>
 
     <!-- Keyboard Visualization -->
-    <div class="keyboard-container" v-if="showKeyboard">
+    <div v-if="showKeyboard" class="keyboard-container">
       <!-- Number Row -->
       <div class="keyboard-row">
         <div 
@@ -203,11 +203,11 @@ const testPhrases = {
 }
 
 // Props for window integration
-const props = defineProps<{
+defineProps<{
   windowId?: number
 }>()
 
-const osStore = useOSStore()
+const _osStore = useOSStore()
 
 // State
 const testText = ref('')
@@ -345,7 +345,9 @@ function formatTime(seconds: number): string {
 
 function initAudioContext() {
   if (!audioContext.value) {
-    audioContext.value = new (window.AudioContext || (window as any).webkitAudioContext)()
+    type AudioContextConstructor = typeof AudioContext
+    const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: AudioContextConstructor }).webkitAudioContext
+    audioContext.value = new AudioContextClass()
     // Resume context to handle autoplay policies
     if (audioContext.value.state === 'suspended') {
       audioContext.value.resume()

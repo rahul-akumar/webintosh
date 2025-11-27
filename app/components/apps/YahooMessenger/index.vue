@@ -6,8 +6,8 @@
         <img src="/icons/apps/yahooMessenger.png" alt="Yahoo Messenger" class="logo">
         <h2>Yahoo! Messenger</h2>
         <p>Enter your name to join</p>
-        <input v-model="username" @keyup.enter="login" placeholder="Your name" class="username-input">
-        <button @click="login" :disabled="!username.trim()" class="login-btn">
+        <input v-model="username" placeholder="Your name" class="username-input" @keyup.enter="login">
+        <button :disabled="!username.trim()" class="login-btn" @click="login">
           Sign In
         </button>
       </div>
@@ -24,21 +24,21 @@
             <div class="username">{{ currentUser.displayName }}</div>
             <div class="status-indicator online">Online</div>
           </div>
-          <button @click="logout" class="logout-btn" title="Sign Out">
+          <button class="logout-btn" title="Sign Out" @click="logout">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-              <polyline points="16 17 21 12 16 7"></polyline>
-              <line x1="21" y1="12" x2="9" y2="12"></line>
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              <polyline points="16 17 21 12 16 7"/>
+              <line x1="21" y1="12" x2="9" y2="12"/>
             </svg>
           </button>
         </div>
 
         <!-- Chat Mode Toggle -->
         <div class="chat-mode-toggle">
-          <button @click="chatMode = 'channels'" :class="{ active: chatMode === 'channels' }">
+          <button :class="{ active: chatMode === 'channels' }" @click="chatMode = 'channels'">
             Channels
           </button>
-          <button @click="chatMode = 'direct'" :class="{ active: chatMode === 'direct' }">
+          <button :class="{ active: chatMode === 'direct' }" @click="chatMode = 'direct'">
             Direct Messages
           </button>
         </div>
@@ -46,8 +46,9 @@
         <!-- Channels List -->
         <div v-if="chatMode === 'channels'" class="channels-list">
           <div class="section-header">CHANNELS</div>
-          <div v-for="channel in channels" :key="channel.id" @click="selectChannel(channel)"
-            :class="['channel-item', { active: selectedChannel?.id === channel.id }]">
+          <div
+v-for="channel in channels" :key="channel.id" :class="['channel-item', { active: selectedChannel?.id === channel.id }]"
+            @click="selectChannel(channel)">
             <span class="channel-icon">#</span>
             <span class="channel-name">{{ channel.name }}</span>
             <span v-if="(unreadCounts[channel.id] ?? 0) > 0" class="unread-badge">{{ unreadCounts[channel.id] }}</span>
@@ -58,10 +59,11 @@
         <div v-else class="direct-messages-list">
           <div class="section-header">
             DIRECT MESSAGES
-            <button @click="showNewDMModal = true" class="add-dm-btn">+</button>
+            <button class="add-dm-btn" @click="showNewDMModal = true">+</button>
           </div>
-          <div v-for="dm in directMessages" :key="dm.id" @click="selectDirectMessage(dm)"
-            :class="['dm-item', { active: selectedDM?.id === dm.id }]">
+          <div
+v-for="dm in directMessages" :key="dm.id" :class="['dm-item', { active: selectedDM?.id === dm.id }]"
+            @click="selectDirectMessage(dm)">
             <div class="dm-avatar" :style="{ background: getUserAvatarColor(dm.otherUser) }">{{
               getInitials(dm.otherUser) }}</div>
             <div class="dm-info">
@@ -135,18 +137,19 @@
         <!-- Message Input -->
         <div v-if="selectedChannel || selectedDM" class="message-input-container">
           <div class="emoticons">
-            <button v-for="emoji in emoticons" :key="emoji" @click="insertEmoji(emoji)" class="emoji-btn">
+            <button v-for="emoji in emoticons" :key="emoji" class="emoji-btn" @click="insertEmoji(emoji)">
               {{ emoji }}
             </button>
           </div>
           <div class="input-row">
-            <button @click="sendBuzz" class="buzz-btn" title="Send BUZZ!">
+            <button class="buzz-btn" title="Send BUZZ!" @click="sendBuzz">
               BUZZ!
             </button>
-            <input v-model="messageText" @keyup.enter="sendMessage"
-              :placeholder="`Message ${chatMode === 'channels' ? '#' + selectedChannel?.name : selectedDM?.otherUser}`"
-              class="message-input">
-            <button @click="sendMessage" :disabled="!messageText.trim()" class="send-btn">
+            <input
+v-model="messageText" :placeholder="`Message ${chatMode === 'channels' ? '#' + selectedChannel?.name : selectedDM?.otherUser}`"
+              class="message-input"
+              @keyup.enter="sendMessage">
+            <button :disabled="!messageText.trim()" class="send-btn" @click="sendMessage">
               Send
             </button>
           </div>
@@ -160,14 +163,15 @@
         <h3>Start Direct Message</h3>
         <p>Select a user to message:</p>
         <div class="user-list">
-          <div v-for="user in availableUsersForDM" :key="user.uid" @click="startDirectMessage(user)"
-            class="user-option">
+          <div
+v-for="user in availableUsersForDM" :key="user.uid" class="user-option"
+            @click="startDirectMessage(user)">
             <div class="user-avatar" :style="{ background: getUserAvatarColor(user.displayName) }">{{
               getInitials(user.displayName) }}</div>
             <span>{{ user.displayName }}</span>
           </div>
         </div>
-        <button @click="showNewDMModal = false" class="cancel-btn">Cancel</button>
+        <button class="cancel-btn" @click="showNewDMModal = false">Cancel</button>
       </div>
     </div>
   </div>
@@ -178,14 +182,13 @@ import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
 import {
   collection,
   query,
-  orderBy,
   onSnapshot,
   where,
-  serverTimestamp,
   doc,
+  limit,
   getDoc,
   updateDoc,
-  limit
+  serverTimestamp
 } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import type { User } from 'firebase/auth';
@@ -213,9 +216,6 @@ import {
 import { useNotifications } from '~/composables/useNotifications';
 import { useGlobalChat } from '~/composables/useGlobalChat';
 import { clearChannelMessages } from '~/utils/clearChatData';
-import { createYahooMessengerMenuTemplate } from './yahooMessengerMenu';
-import { useMenuCommand } from '~/utils/menuCommands';
-import { useOSStore } from '../../../stores/os';
 
 // State
 const currentUser = ref<User | null>(null);
@@ -260,16 +260,17 @@ const login = async () => {
   try {
     await loginUser(username.value);
     startPresenceUpdates();
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Login error:', error);
     let errorMessage = 'Failed to sign in. ';
+    const err = error as { code?: string; message?: string };
 
-    if (error.code === 'permission-denied') {
+    if (err.code === 'permission-denied') {
       errorMessage += 'Firebase permissions error. Please check Firestore rules.';
-    } else if (error.code === 'unavailable') {
+    } else if (err.code === 'unavailable') {
       errorMessage += 'Firebase is unavailable. Check your internet connection.';
     } else {
-      errorMessage += error.message || 'Please try again.';
+      errorMessage += err.message || 'Please try again.';
     }
 
     alert(errorMessage);
@@ -667,8 +668,8 @@ const registerMenuCommands = () => {
     if (channels[0]) selectChannel(channels[0]);
   });
 
-  register('yahooMessenger.switchChannel', (args: any) => {
-    const channel = channels.find(c => c.id === args.channel);
+  register('yahooMessenger.switchChannel', (args?: { channel?: string }) => {
+    const channel = channels.find(c => c.id === args?.channel);
     if (channel) selectChannel(channel);
   });
 
@@ -681,7 +682,7 @@ const registerMenuCommands = () => {
   });
 
   // Status menu commands
-  register('yahooMessenger.setStatus', (_args: any) => {
+  register('yahooMessenger.setStatus', (_args?: { status?: string }) => {
     // TODO: Implement status changes
   });
 
@@ -690,8 +691,8 @@ const registerMenuCommands = () => {
     sendBuzz();
   });
 
-  register('yahooMessenger.insertEmoticon', (args: any) => {
-    insertEmoji(args.emoticon);
+  register('yahooMessenger.insertEmoticon', (args?: { emoticon?: string }) => {
+    if (args?.emoticon) insertEmoji(args.emoticon);
   });
 
   register('yahooMessenger.toggleSounds', () => {

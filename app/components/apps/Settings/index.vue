@@ -4,18 +4,18 @@
     <div class="settings-sidebar">
       <div class="sidebar-header">
         <input 
-          type="search" 
+          v-model="searchQuery" 
+          type="search"
           placeholder="Search"
           class="search-input"
-          v-model="searchQuery"
-        />
+        >
       </div>
       <nav class="sidebar-nav">
         <button
           v-for="item in filteredNavItems"
           :key="item.id"
-          @click="activePanel = item.id"
           :class="['nav-item', { active: activePanel === item.id }]"
+          @click="activePanel = item.id"
         >
           <span class="nav-icon">{{ item.icon }}</span>
           <span class="nav-label">{{ item.label }}</span>
@@ -48,7 +48,7 @@
                 v-else-if="currentWallpaperType === 'gif'"
                 :src="currentWallpaperSrc"
                 class="preview-image"
-              />
+              >
               <span v-else-if="!currentWallpaper" class="preview-placeholder">No wallpaper set</span>
             </div>
           </div>
@@ -62,10 +62,10 @@
                 <button
                   v-for="wallpaper in staticWallpapers"
                   :key="wallpaper.id"
-                  @click="setWallpaper(wallpaper)"
                   class="wallpaper-item"
                   :style="{ backgroundImage: wallpaper.type === 'image' ? `url(${wallpaper.value})` : wallpaper.value }"
                   :title="wallpaper.name"
+                  @click="setWallpaper(wallpaper)"
                 >
                   <span class="wallpaper-name">{{ wallpaper.name }}</span>
                 </button>
@@ -79,10 +79,10 @@
                 <button
                   v-for="wallpaper in dynamicWallpapers"
                   :key="wallpaper.id"
-                  @click="setWallpaper(wallpaper)"
                   class="wallpaper-item dynamic"
                   :style="{ background: wallpaper.value }"
                   :title="wallpaper.name"
+                  @click="setWallpaper(wallpaper)"
                 >
                   <span class="wallpaper-icon">🌅</span>
                   <span class="wallpaper-name">{{ wallpaper.name }}</span>
@@ -97,9 +97,9 @@
                 <button
                   v-for="wallpaper in liveWallpapers"
                   :key="wallpaper.id"
-                  @click="setWallpaper(wallpaper)"
                   class="wallpaper-item live"
                   :title="wallpaper.name"
+                  @click="setWallpaper(wallpaper)"
                 >
                   <!-- Video thumbnail for video wallpapers -->
                   <video 
@@ -116,8 +116,8 @@
                     v-else-if="wallpaper.type === 'gif'"
                     :src="wallpaper.value"
                     class="wallpaper-thumbnail-image"
-                  />
-                  <span class="wallpaper-icon" v-else>🎬</span>
+                  >
+                  <span v-else class="wallpaper-icon">🎬</span>
                   <span class="wallpaper-name">{{ wallpaper.name }}</span>
                 </button>
               </div>
@@ -130,10 +130,10 @@
                 <button
                   v-for="color in solidColors"
                   :key="color.id"
-                  @click="setWallpaper(color)"
                   class="wallpaper-item color"
                   :style="{ background: color.value }"
                   :title="color.name"
+                  @click="setWallpaper(color)"
                 >
                   <span class="wallpaper-name">{{ color.name }}</span>
                 </button>
@@ -147,10 +147,10 @@
                 <button
                   v-for="gradient in gradients"
                   :key="gradient.id"
-                  @click="setWallpaper(gradient)"
                   class="wallpaper-item gradient"
                   :style="{ background: gradient.value }"
                   :title="gradient.name"
+                  @click="setWallpaper(gradient)"
                 >
                   <span class="wallpaper-name">{{ gradient.name }}</span>
                 </button>
@@ -162,17 +162,17 @@
               <h3 class="option-title">Add custom wallpaper</h3>
               <div class="upload-section">
                 <input
+                  id="wallpaper-upload"
                   type="file"
                   accept="image/*"
-                  @change="handleFileUpload"
-                  id="wallpaper-upload"
                   class="file-input"
-                />
+                  @change="handleFileUpload"
+                >
                 <label for="wallpaper-upload" class="upload-button">
                   <span class="upload-icon">📁</span>
                   <span>Upload</span>
                 </label>
-                <label @click="handleUrlInput" class="upload-button">
+                <label class="upload-button" @click="handleUrlInput">
                   <span class="upload-icon">🔗</span>
                   <span>Add URL</span>
                 </label>
@@ -207,13 +207,13 @@
             <div class="theme-grid">
               <!-- Glassmorphic Light -->
               <button
-                @click="setTheme('glassmorphic-light')"
                 :class="['theme-option', { active: currentTheme === 'glassmorphic-light' }]"
+                @click="setTheme('glassmorphic-light')"
               >
                 <div class="theme-preview glassmorphic-light">
-                  <div class="preview-menubar"></div>
-                  <div class="preview-window"></div>
-                  <div class="preview-dock"></div>
+                  <div class="preview-menubar"/>
+                  <div class="preview-window"/>
+                  <div class="preview-dock"/>
                 </div>
                 <span class="theme-name">Glassmorphic Light</span>
                 <span class="theme-description">Modern translucent design</span>
@@ -221,13 +221,13 @@
 
               <!-- Glassmorphic Dark -->
               <button
-                @click="setTheme('glassmorphic-dark')"
                 :class="['theme-option', { active: currentTheme === 'glassmorphic-dark' }]"
+                @click="setTheme('glassmorphic-dark')"
               >
                 <div class="theme-preview glassmorphic-dark">
-                  <div class="preview-menubar"></div>
-                  <div class="preview-window"></div>
-                  <div class="preview-dock"></div>
+                  <div class="preview-menubar"/>
+                  <div class="preview-window"/>
+                  <div class="preview-dock"/>
                 </div>
                 <span class="theme-name">Glassmorphic Dark</span>
                 <span class="theme-description">Modern dark translucent</span>
@@ -235,13 +235,13 @@
 
               <!-- Oldschool Light -->
               <button
-                @click="setTheme('oldschool-light')"
                 :class="['theme-option', { active: currentTheme === 'oldschool-light' }]"
+                @click="setTheme('oldschool-light')"
               >
                 <div class="theme-preview oldschool-light">
-                  <div class="preview-menubar"></div>
-                  <div class="preview-window"></div>
-                  <div class="preview-dock"></div>
+                  <div class="preview-menubar"/>
+                  <div class="preview-window"/>
+                  <div class="preview-dock"/>
                 </div>
                 <span class="theme-name">Classic Light</span>
                 <span class="theme-description">Traditional solid design</span>
@@ -249,13 +249,13 @@
 
               <!-- Oldschool Dark -->
               <button
-                @click="setTheme('oldschool-dark')"
                 :class="['theme-option', { active: currentTheme === 'oldschool-dark' }]"
+                @click="setTheme('oldschool-dark')"
               >
                 <div class="theme-preview oldschool-dark">
-                  <div class="preview-menubar"></div>
-                  <div class="preview-window"></div>
-                  <div class="preview-dock"></div>
+                  <div class="preview-menubar"/>
+                  <div class="preview-window"/>
+                  <div class="preview-dock"/>
                 </div>
                 <span class="theme-name">Classic Dark</span>
                 <span class="theme-description">Traditional dark solid</span>
@@ -268,12 +268,12 @@
             <h2 class="section-title">Accent Color</h2>
             <p class="section-description">Customize system accent colors (coming soon)</p>
             <div class="color-grid disabled">
-              <div class="color-option" style="background: #007AFF"></div>
-              <div class="color-option" style="background: #AF52DE"></div>
-              <div class="color-option" style="background: #FF3B30"></div>
-              <div class="color-option" style="background: #FF9500"></div>
-              <div class="color-option" style="background: #34C759"></div>
-              <div class="color-option" style="background: #5AC8FA"></div>
+              <div class="color-option" style="background: #007AFF"/>
+              <div class="color-option" style="background: #AF52DE"/>
+              <div class="color-option" style="background: #FF3B30"/>
+              <div class="color-option" style="background: #FF9500"/>
+              <div class="color-option" style="background: #34C759"/>
+              <div class="color-option" style="background: #5AC8FA"/>
             </div>
           </div>
         </div>
@@ -296,7 +296,11 @@ const winModel = inject<OSWindowModel | null>('window', null)
 const osStore = useOSStore()
 const searchQuery = ref('')
 const activePanel = ref('wallpaper')
-const currentWallpaper = ref<any>(null)
+interface WallpaperConfig {
+  type: string
+  value: string | undefined
+}
+const currentWallpaper = ref<WallpaperConfig | null>(null)
 const currentTheme = ref('glassmorphic-light')
 
 // Navigation items
@@ -350,13 +354,7 @@ const previewStyle = computed(() => {
   // Video and GIF are handled by elements, not CSS
   if (type === 'video' || type === 'gif') return {}
   
-  // Handle legacy string format
-  if (typeof currentWallpaper.value === 'string') {
-    if (currentWallpaper.value.startsWith('url(')) {
-      return { backgroundImage: currentWallpaper.value }
-    }
-    return { background: currentWallpaper.value }
-  }
+  // currentWallpaper is always an object now, no need for legacy string handling
   
   // Handle new object format
   if (currentWallpaper.value.type === 'image') {
@@ -427,7 +425,10 @@ onMounted(() => {
 })
 
 // Set wallpaper with proper structure
-const setWallpaper = (wallpaperConfig: any) => {
+const setWallpaper = (wallpaperConfig: WallpaperConfig) => {
+  // Skip if value is undefined
+  if (!wallpaperConfig.value) return
+  
   // Create structured wallpaper object
   const wallpaperObject = {
     type: wallpaperConfig.type,

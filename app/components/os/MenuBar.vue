@@ -46,15 +46,15 @@
         :origin="dropdownOrigin"
         :z="2000"
         @executed="onExecuted"
-        @navLeft="onNavLeft"
-        @navRight="onNavRight"
+        @nav-left="onNavLeft"
+        @nav-right="onNavRight"
       />
     </Teleport>
   </header>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useOSStore } from '../../stores/os'
 import { useAppsStore } from '../../stores/apps'
 import { getSystemMenuTemplate, getAppMenuTemplate } from './menus'

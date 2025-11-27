@@ -7,8 +7,8 @@
     >
       <OsDockItem
         v-for="it in items"
-        :key="it.id"
         :id="it.id"
+        :key="it.id"
         :title="it.title"
         :icon="it.icon"
         :emoji="it.emoji"

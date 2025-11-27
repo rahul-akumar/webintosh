@@ -22,7 +22,7 @@ const registry: Partial<Record<CommandId, AnyCommandHandler>> = {}
  */
 export function execute<K extends CommandId>(
   command: K,
-  ...args: CommandPayloads[K] extends void ? [] : [CommandPayloads[K]]
+  ...args: CommandPayloads[K] extends undefined ? [] : [CommandPayloads[K]]
 ): void {
   const handler = registry[command]
   if (typeof handler === 'function') {
@@ -30,13 +30,13 @@ export function execute<K extends CommandId>(
       handler(args[0])
     } catch (err) {
       if (import.meta.dev) {
-        // eslint-disable-next-line no-console
+         
         console.warn(`[menuCommands] Error executing "${command}":`, err)
       }
     }
   } else {
     if (import.meta.dev) {
-      // eslint-disable-next-line no-console
+       
       console.warn(`[menuCommands] Unknown command "${command}"`)
     }
   }
@@ -48,7 +48,7 @@ export function execute<K extends CommandId>(
  */
 export function register<K extends CommandId>(
   command: K,
-  handler: CommandPayloads[K] extends void ? () => void : (args: CommandPayloads[K]) => void
+  handler: CommandPayloads[K] extends undefined ? () => void : (args: CommandPayloads[K]) => void
 ): void {
   registry[command] = handler as AnyCommandHandler
 }

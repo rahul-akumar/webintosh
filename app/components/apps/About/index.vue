@@ -5,8 +5,8 @@
       <button 
         v-for="tab in tabs" 
         :key="tab.id"
-        @click="activeTab = tab.id"
         :class="['tab', { active: activeTab === tab.id }]"
+        @click="activeTab = tab.id"
       >
         {{ tab.label }}
       </button>
@@ -31,7 +31,8 @@
           <div class="about-info">
             <div v-for="(item, key) in config.info" :key="key" class="info-row">
               <span class="info-label">{{ item.label }}:</span>
-              <a v-if="item.url" 
+              <a
+v-if="item.url" 
                  :href="item.url" 
                  target="_blank" 
                  rel="noopener noreferrer"

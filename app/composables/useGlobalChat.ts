@@ -7,8 +7,8 @@ import {
   limit,
   type Timestamp
 } from 'firebase/firestore';
-import { onAuthStateChanged, type Unsubscribe } from 'firebase/auth';
-import type { User } from 'firebase/auth';
+import type { User, Unsubscribe } from 'firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 import { db, auth } from '../config/firebase';
 import { useNotifications } from './useNotifications';
 

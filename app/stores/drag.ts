@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import type { WindowInteractionState, WindowId, ResizeEdge, OSWindowRect } from '../types/os'
+import { clamp } from '../utils/math'
 
 /**
  * Drag store manages window drag and resize interactions using a state machine.
@@ -175,9 +176,3 @@ export const useDragStore = defineStore('drag', {
     },
   },
 })
-
-// --- Utility ---
-
-function clamp(n: number, min: number, max: number): number {
-  return Math.max(min, Math.min(max, n))
-}

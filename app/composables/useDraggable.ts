@@ -72,7 +72,7 @@ export function useDraggable(options: DraggableOptions = {}): DraggableReturn {
   let startPointerY = 0
   let startPosX = 0
   let startPosY = 0
-  let isTouchDrag = false
+  let _isTouchDrag = false
 
   function clampToBounds(x: number, y: number): { x: number; y: number } {
     let clampedX = x
@@ -159,7 +159,7 @@ export function useDraggable(options: DraggableOptions = {}): DraggableReturn {
     if (leftButtonOnly && e.button !== 0) return
 
     e.preventDefault()
-    isTouchDrag = false
+    _isTouchDrag = false
 
     startPointerX = e.clientX
     startPointerY = e.clientY
@@ -181,7 +181,7 @@ export function useDraggable(options: DraggableOptions = {}): DraggableReturn {
 
     // Prevent default to avoid scrolling
     e.preventDefault()
-    isTouchDrag = true
+    _isTouchDrag = true
 
     startPointerX = pos.clientX
     startPointerY = pos.clientY

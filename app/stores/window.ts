@@ -1,20 +1,9 @@
 import { defineStore } from 'pinia'
 import type { OSWindowModel, OSWindowRect, WindowId, WindowDisplayState } from '../types/os'
+import { clamp, getViewport } from '../utils/math'
 
 const MIN_W = 240
 const MIN_H = 160
-
-function clamp(n: number, min: number, max: number): number {
-  return Math.max(min, Math.min(max, n))
-}
-
-function getViewport(): { vw: number; vh: number } {
-  if (typeof window !== 'undefined' && typeof document !== 'undefined') {
-    const docEl = document.documentElement
-    return { vw: docEl.clientWidth, vh: docEl.clientHeight }
-  }
-  return { vw: 1280, vh: 800 }
-}
 
 export interface WindowState {
   windows: OSWindowModel[]
@@ -278,9 +267,9 @@ export const useWindowStore = defineStore('window', {
       this.windows = windows.map((w) => {
         if (!w.displayState) {
           // Migration from old format
-          if ((w as any).minimized) {
+          if ((w as OSWindowModel & { minimized?: boolean }).minimized) {
             w.displayState = 'minimized'
-          } else if ((w as any).maximized) {
+          } else if ((w as OSWindowModel & { maximized?: boolean }).maximized) {
             w.displayState = 'maximized'
           } else {
             w.displayState = 'normal'

@@ -6,13 +6,13 @@
         <label class="control-label">Master Volume</label>
         <div class="slider-group">
           <input
-            type="range"
             v-model="masterVolume"
-            @input="updateMasterVolume"
+            type="range"
             min="0"
             max="100"
             class="slider"
-          />
+            @input="updateMasterVolume"
+          >
           <span class="slider-value">{{ masterVolume }}%</span>
         </div>
       </div>
@@ -27,7 +27,7 @@
             class="sound-card"
             :class="{ active: sound.active }"
           >
-            <button @click="toggleSound(sound)" class="sound-toggle">
+            <button class="sound-toggle" @click="toggleSound(sound)">
               <span class="sound-icon">{{ sound.icon }}</span>
               <span class="sound-name">{{ sound.name }}</span>
             </button>
@@ -36,14 +36,14 @@
               <div class="control-row">
                 <label class="control-label">Volume</label>
                 <input
-                  type="range"
                   v-model="sound.volume"
-                  @input="updateSoundVolume(sound)"
+                  type="range"
                   min="0"
                   max="100"
                   class="slider"
                   :disabled="!sound.active"
-                />
+                  @input="updateSoundVolume(sound)"
+                >
                 <span class="slider-value">{{ sound.volume }}%</span>
               </div>
             </div>
@@ -54,27 +54,27 @@
       <div class="presets-section">
         <h3 class="section-title">Presets</h3>
         <div class="preset-buttons">
-          <button @click="loadPreset('focus')" class="preset-button">
+          <button class="preset-button" @click="loadPreset('focus')">
             <span class="preset-icon">🎯</span>
             <span>Focus</span>
           </button>
-          <button @click="loadPreset('sleep')" class="preset-button">
+          <button class="preset-button" @click="loadPreset('sleep')">
             <span class="preset-icon">😴</span>
             <span>Sleep</span>
           </button>
-          <button @click="loadPreset('nature')" class="preset-button">
+          <button class="preset-button" @click="loadPreset('nature')">
             <span class="preset-icon">🌳</span>
             <span>Nature</span>
           </button>
-          <button @click="loadPreset('city')" class="preset-button">
+          <button class="preset-button" @click="loadPreset('city')">
             <span class="preset-icon">🏙️</span>
             <span>City Life</span>
           </button>
-          <button @click="loadPreset('storm')" class="preset-button">
+          <button class="preset-button" @click="loadPreset('storm')">
             <span class="preset-icon">⛈️</span>
             <span>Stormy Night</span>
           </button>
-          <button @click="stopAll" class="preset-button stop-button">
+          <button class="preset-button stop-button" @click="stopAll">
             <span class="preset-icon">⏹️</span>
             <span>Stop All</span>
           </button>
