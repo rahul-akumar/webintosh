@@ -69,7 +69,7 @@ v-for="dm in directMessages" :key="dm.id" :class="['dm-item', { active: selected
             <div class="dm-info">
               <div class="dm-name">{{ dm.otherUser }}</div>
               <div class="dm-status" :class="{ online: dm.online }">
-                {{ dm.online ? 'Online' : getTimeAgo(dm.lastSeen || null) }}
+                {{ dm.online ? 'Online' : (dm.lastSeen ? formatTime(dm.lastSeen) : 'offline') }}
               </div>
             </div>
           </div>
@@ -100,7 +100,7 @@ v-for="dm in directMessages" :key="dm.id" :class="['dm-item', { active: selected
               getInitials(selectedDM.otherUser) }}</div>
             <span class="chat-title">{{ selectedDM.otherUser }}</span>
             <span class="chat-status" :class="{ online: selectedDM.online }">
-              {{ selectedDM.online ? 'Online' : 'Last seen ' + getTimeAgo(selectedDM.lastSeen || null) }}
+              {{ selectedDM.online ? 'Online' : (selectedDM.lastSeen ? 'Last seen ' + formatTime(selectedDM.lastSeen) : 'Offline') }}
             </span>
           </template>
           <template v-else>
@@ -204,7 +204,6 @@ import {
   emoticons,
   getInitials,
   formatTime,
-  getTimeAgo,
   playMessageSound,
   loginUser,
   logoutUser,

@@ -218,15 +218,3 @@ export function useDraggable(options: DraggableOptions = {}): DraggableReturn {
     setPosition,
   }
 }
-
-/**
- * Helper to calculate viewport bounds for draggable elements
- */
-export function getViewportBounds(elementWidth: number, elementHeight: number, padding = 0) {
-  return {
-    minX: padding,
-    maxX: (typeof window !== 'undefined' ? window.innerWidth : 1280) - elementWidth - padding,
-    minY: padding,
-    maxY: (typeof window !== 'undefined' ? window.innerHeight : 768) - elementHeight - padding,
-  }
-}

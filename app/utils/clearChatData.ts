@@ -51,35 +51,3 @@ export const clearAllDirectMessages = async (): Promise<number> => {
   return snapshot.size;
 };
 
-interface ClearAllResult {
-  messages: number;
-  conversations: number;
-  users: number;
-}
-
-/**
- * Clear ALL chat data (use with caution!)
- * Removes all messages, DM conversations, and user presence records
- */
-export const clearAllChatData = async (): Promise<ClearAllResult> => {
-  // Clear all messages
-  const messagesSnapshot = await getDocs(collection(db, 'messages'));
-  const messageDeletes = messagesSnapshot.docs.map(d => deleteDoc(doc(db, 'messages', d.id)));
-  await Promise.all(messageDeletes);
-  
-  // Clear all direct message metadata
-  const dmSnapshot = await getDocs(collection(db, 'directMessages'));
-  const dmDeletes = dmSnapshot.docs.map(d => deleteDoc(doc(db, 'directMessages', d.id)));
-  await Promise.all(dmDeletes);
-  
-  // Clear all user presence data
-  const usersSnapshot = await getDocs(collection(db, 'users'));
-  const userDeletes = usersSnapshot.docs.map(d => deleteDoc(doc(db, 'users', d.id)));
-  await Promise.all(userDeletes);
-  
-  return {
-    messages: messagesSnapshot.size,
-    conversations: dmSnapshot.size,
-    users: usersSnapshot.size
-  };
-};

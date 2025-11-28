@@ -219,14 +219,6 @@ export interface CommandPayloads {
 export type CommandId = keyof CommandPayloads
 
 /**
- * Type-safe command handler signature.
- */
-export type CommandHandler<K extends CommandId> = 
-  CommandPayloads[K] extends undefined 
-    ? () => void 
-    : (args: CommandPayloads[K]) => void
-
-/**
  * Generic command handler that accepts unknown args (for internal registry).
  */
 export type AnyCommandHandler = (args?: unknown) => void

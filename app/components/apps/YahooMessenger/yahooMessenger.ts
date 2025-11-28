@@ -86,10 +86,6 @@ export const formatTime = (timestamp: Timestamp | null): string => {
   return date.toLocaleDateString();
 };
 
-export const getTimeAgo = (timestamp: Timestamp | null): string => {
-  if (!timestamp) return 'offline';
-  return formatTime(timestamp);
-};
 
 export const playMessageSound = () => {
   try {

@@ -29,10 +29,3 @@ export function getViewport(): { vw: number; vh: number } {
 export function lerp(a: number, b: number, t: number): number {
   return a + (b - a) * t
 }
-
-/**
- * Round to nearest pixel (integer).
- */
-export function snapToPixel(n: number): number {
-  return Math.round(n)
-}
