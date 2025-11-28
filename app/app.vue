@@ -1,6 +1,7 @@
 <template>
   <ClientOnly>
     <Analytics />
+    <OsBootScreen />
   </ClientOnly>
   <div>
     <!-- Markup shared across all pages, ex: NavBar -->
