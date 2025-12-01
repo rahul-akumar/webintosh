@@ -8,7 +8,7 @@ import { createDockMenuForApp } from "./dockMenu";
 import { createFinderMenuTemplate } from "../../apps/Finder/finderMenu";
 import { createTextEditMenuTemplate } from "../../apps/TextEdit/textEditMenu";
 import { createTypingTestMenuTemplate } from "../../apps/TypingTest/typingTestMenu";
-import { createYahooMessengerMenuTemplate } from "../../apps/YahooMessenger/yahooMessengerMenu";
+// YahooMessenger now uses convention-based menu.ts
 import { createWhiteNoiseMenuTemplate } from "../../apps/WhiteNoise/whiteNoiseMenu";
 import { createChessMenuTemplate } from "../../apps/Chess/chessMenu";
 
@@ -41,7 +41,6 @@ const legacyMenus: Record<string, () => MenuTemplate> = {
   finder: createFinderMenuTemplate,
   textedit: createTextEditMenuTemplate,
   typingtest: createTypingTestMenuTemplate,
-  yahoomessenger: createYahooMessengerMenuTemplate,
   whitenoise: createWhiteNoiseMenuTemplate,
   chess: createChessMenuTemplate,
 };
