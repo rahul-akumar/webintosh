@@ -1,7 +1,7 @@
 <template>
   <div class="display-panel">
     <div class="waveform-display">
-      <canvas ref="canvasRef"/>
+      <canvas ref="canvasRef" />
       <div class="oscillator-type-indicator">{{ oscillatorType.toUpperCase() }}</div>
     </div>
     <div class="info-display">
@@ -12,9 +12,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, watch } from 'vue'
 
-const props = defineProps<{
+defineProps<{
   oscillatorType: OscillatorType
   currentNote: string
 }>()
