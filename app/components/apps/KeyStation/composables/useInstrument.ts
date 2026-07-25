@@ -13,12 +13,16 @@ import type {
 } from '../types/keystation'
 import { NOTE_FREQUENCIES } from '../types/keystation'
 
-export function useInstrument(
-  audioNodes: Ref<AudioNodes>,
-  reverb: Ref<number>,
-  delay: Ref<number>,
+export interface InstrumentContext {
+  audioNodes: Ref<AudioNodes>
+  reverb: Ref<number>
+  delay: Ref<number>
   initAudio: () => void
-) {
+}
+
+export function useInstrument(ctx: InstrumentContext) {
+  const { audioNodes, reverb, delay, initAudio } = ctx
+
   const selectedInstrument = ref<InstrumentType>('piano')
   const selectedOscillatorType = ref<OscillatorType>('sine')
   const currentOctave = ref(4)

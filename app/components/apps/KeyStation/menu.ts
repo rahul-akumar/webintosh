@@ -277,19 +277,6 @@ export function createMenuTemplate(): MenuTemplate {
         accel: { key: 'Z', alt: true }
       }),
       Menu.sep('view.sep1'),
-      Menu.item('view.showWaveform', 'Show Waveform', {
-        command: 'keystation.toggleWaveform',
-        checked: true
-      }),
-      Menu.item('view.showKeyLabels', 'Show Key Labels', {
-        command: 'keystation.toggleKeyLabels',
-        checked: true
-      }),
-      Menu.item('view.showOctaveLabels', 'Show Octave Labels', {
-        command: 'keystation.toggleOctaveLabels',
-        checked: true
-      }),
-      Menu.sep('view.sep2'),
       Menu.item('view.compactMode', 'Compact Mode', {
         command: 'keystation.toggleCompactMode',
         enabled: false

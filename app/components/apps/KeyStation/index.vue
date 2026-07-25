@@ -38,6 +38,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { register } from '../../../utils/menuCommands'
+import { useOSStore } from '../../../stores/os'
 import type { InstrumentType, PlayableNote } from './types/keystation'
 
 // Components
@@ -52,9 +53,19 @@ import { useWaveform } from './composables/useWaveform'
 import { useRecording } from './composables/useRecording'
 import { useKeyboardInput } from './composables/useKeyboardInput'
 
+// App id for the (unlisted) Keyboard Layout Guide window - registered as a
+// component in config/apps.ts but not in appRegistry, so it never appears in
+// the Dock/Desktop/app launcher.
+const KEYBOARD_GUIDE_APP_ID = 'keystation-keyboard-guide'
+
 // Initialize composables
 const audio = useAudioContext()
-const instrument = useInstrument(audio.audioNodes, audio.reverb, audio.delay, audio.initAudio)
+const instrument = useInstrument({
+  audioNodes: audio.audioNodes,
+  reverb: audio.reverb,
+  delay: audio.delay,
+  initAudio: audio.initAudio,
+})
 
 // Create wrapper functions for recording that include the record callback
 const handleNoteOn = (note: PlayableNote) => {
@@ -164,14 +175,28 @@ const registerMenuCommands = () => {
 
   register('keystation.resetAudio', () => audio.resetAudio())
 
-  // View menu (placeholders)
-  register('keystation.toggleWaveform', () => {})
-  register('keystation.toggleKeyLabels', () => {})
-  register('keystation.toggleOctaveLabels', () => {})
-
   // Help menu
   register('keystation.showKeyboardGuide', () => {
-    alert('Keyboard Layout:\n\nWhite Keys: A S D F G H J K L\nBlack Keys: W E T Y U\nSustain: Space\n\nOctave Up: ]\nOctave Down: [')
+    const os = useOSStore()
+    const existing = os.windows.find((w) => w.appId === KEYBOARD_GUIDE_APP_ID)
+    if (existing) {
+      if (existing.displayState === 'minimized') os.restoreWindow(existing.id)
+      else os.bringToFront(existing.id)
+      return
+    }
+    os.openWindow({
+      appId: KEYBOARD_GUIDE_APP_ID,
+      title: 'Keyboard Layout Guide',
+      kind: 'system',
+      rect: { x: 140, y: 120, width: 380, height: 360 },
+      maximizable: false,
+      // This window's appId is intentionally outside appRegistry (see the
+      // comment above), so Dock.vue can never render a button for it -
+      // minimizing it would make it vanish with no way back. `minimizable`
+      // is existing OSWindowModel/openWindow surface (see maximizable above),
+      // not new here.
+      minimizable: false,
+    })
   })
 }
 

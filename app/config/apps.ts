@@ -66,6 +66,10 @@ export const APP_COMPONENTS: Record<string, Component> = {
   about: defineAsyncComponent(() => import('../components/apps/About/index.vue')),
   settings: defineAsyncComponent(() => import('../components/apps/Settings/index.vue')),
   keystation: defineAsyncComponent(() => import('../components/apps/KeyStation/index.vue')),
+  // Unlisted helper window content for KeyStation's Keyboard Layout Guide -
+  // intentionally not in appRegistry above, so it never appears in the
+  // Dock/Desktop/app launcher; it's only ever opened directly by appId.
+  'keystation-keyboard-guide': defineAsyncComponent(() => import('../components/apps/KeyStation/components/KeyboardGuideDialog.vue')),
 }
 
 /**
