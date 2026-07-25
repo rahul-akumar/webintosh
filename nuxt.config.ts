@@ -33,7 +33,7 @@ export default defineNuxtConfig({
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { name: 'description', content: 'A retro-inspired web desktop (Webintosh) with apps like Typing Test and an ambient noise mixer.' },
+        { name: 'description', content: 'A retro-inspired web desktop (Webintosh) with apps like TextEdit and KeyStation.' },
         { name: 'theme-color', content: '#007AFF' },
         { property: 'og:type', content: 'website' },
         { property: 'og:title', content: 'Webintosh' },

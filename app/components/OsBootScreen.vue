@@ -98,10 +98,7 @@ const assetsToPreload = [
   'icons/system/settings.png',
   'icons/system/apple.png',
   'icons/apps/textEdit.png',
-  'icons/apps/typingTest.png',
   'icons/apps/keyStation.png',
-  'icons/apps/noiseMixer.png',
-  'icons/apps/chess.png',
 ]
 
 async function preloadAssets() {

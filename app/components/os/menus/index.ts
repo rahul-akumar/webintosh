@@ -7,10 +7,6 @@ import { createDockMenuForApp } from "./dockMenu";
 // Legacy imports (will be removed as apps migrate to convention)
 import { createFinderMenuTemplate } from "../../apps/Finder/finderMenu";
 import { createTextEditMenuTemplate } from "../../apps/TextEdit/textEditMenu";
-import { createTypingTestMenuTemplate } from "../../apps/TypingTest/typingTestMenu";
-// YahooMessenger now uses convention-based menu.ts
-import { createWhiteNoiseMenuTemplate } from "../../apps/WhiteNoise/whiteNoiseMenu";
-import { createChessMenuTemplate } from "../../apps/Chess/chessMenu";
 
 // Convention-based menu discovery using Vite's import.meta.glob
 // Apps that follow convention: export createMenuTemplate() from menu.ts
@@ -40,9 +36,6 @@ for (const [path, module] of Object.entries(menuModules)) {
 const legacyMenus: Record<string, () => MenuTemplate> = {
   finder: createFinderMenuTemplate,
   textedit: createTextEditMenuTemplate,
-  typingtest: createTypingTestMenuTemplate,
-  whitenoise: createWhiteNoiseMenuTemplate,
-  chess: createChessMenuTemplate,
 };
 
 /**

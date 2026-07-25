@@ -113,24 +113,6 @@ export const useNotifications = () => {
     return showNotification({ title, message, type });
   };
 
-  // Show a message notification for chat
-  const notifyMessage = (
-    senderName: string, 
-    message: string, 
-    channelName?: string,
-    appId: string = 'yahooMessenger'
-  ) => {
-    const title = channelName ? `${senderName} in #${channelName}` : senderName;
-    return showNotification({
-      title,
-      message,
-      type: 'message',
-      icon: '/icons/apps/yahooMessenger.png',
-      duration: 4000,
-      appId
-    });
-  };
-
   // Test notification (for debugging)
   const testNotification = () => {
     return showNotification({
@@ -148,7 +130,6 @@ export const useNotifications = () => {
     dismissNotification,
     clearAllNotifications,
     notify,
-    notifyMessage,
     testNotification
   };
 };

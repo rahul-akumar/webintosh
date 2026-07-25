@@ -52,7 +52,7 @@
 <script setup lang="ts">
 import { useOSStore } from "../stores/os";
 import { useAppsStore } from "../stores/apps";
-import { onMounted, onUnmounted, computed } from "vue";
+import { onMounted, computed } from "vue";
 import { registerDefaultCommands } from "../utils/menuCommands";
 import { appRegistry } from "../config/apps";
 
@@ -103,14 +103,7 @@ const wallpaperStyle = computed(() => {
   };
 });
 
-// Hold reference for cleanup when dynamically initializing global chat
-let globalChatApi: { initializeGlobalListeners: () => void; stopAllListeners: () => void } | null = null;
-
-onUnmounted(() => {
-  globalChatApi?.stopAllListeners?.();
-});
-
-onMounted(async () => {
+onMounted(() => {
   // Register menu commands
   registerDefaultCommands();
 
@@ -119,11 +112,6 @@ onMounted(async () => {
 
   // Apply saved theme
   store.initTheme();
-
-  // Start global chat notifications (client-only import to avoid SSR issues)
-  const mod = await import('../composables/useGlobalChat');
-  globalChatApi = mod.useGlobalChat();
-  globalChatApi.initializeGlobalListeners();
 
   // Load persisted session first
 

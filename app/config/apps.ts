@@ -46,44 +46,12 @@ export const appRegistry: AppDescriptor[] = [
     defaultRect: { x: 100, y: 80, width: 900, height: 600 },
   },
   {
-    id: 'typingtest',
-    title: 'Typing Test 2000',
-    icon: 'icons/apps/typingTest.png',
-    emoji: '⌨️',
-    kind: 'app',
-    defaultRect: { x: 100, y: 80, width: 900, height: 620 },
-  },
-  {
     id: 'keystation',
     title: 'KeyStation',
     icon: 'icons/apps/keyStation.png',
     emoji: '🎹',
     kind: 'app',
     defaultRect: { x: 100, y: 80, width: 960, height: 600 },
-  },
-  {
-    id: 'yahoomessenger',
-    title: 'Yahoo! Messenger',
-    icon: 'icons/apps/yahooMessenger.png',
-    emoji: 'Yahoo!',
-    kind: 'app',
-    defaultRect: { x: 100, y: 80, width: 960, height: 600 },
-  },
-  {
-    id: 'whitenoise',
-    title: 'Noise Mixer',
-    icon: 'icons/apps/noiseMixer.png',
-    emoji: '🎧',
-    kind: 'app',
-    defaultRect: { x: 100, y: 80, width: 900, height: 700 },
-  },
-  {
-    id: 'chess',
-    title: 'Chess',
-    icon: 'icons/apps/chess.png',
-    emoji: '♟️',
-    kind: 'app',
-    defaultRect: { x: 100, y: 80, width: 1000, height: 744 },
   },
 ];
 
@@ -97,11 +65,7 @@ export const APP_COMPONENTS: Record<string, Component> = {
   shortcuts: defineAsyncComponent(() => import('../components/apps/Shortcuts/index.vue')),
   about: defineAsyncComponent(() => import('../components/apps/About/index.vue')),
   settings: defineAsyncComponent(() => import('../components/apps/Settings/index.vue')),
-  typingtest: defineAsyncComponent(() => import('../components/apps/TypingTest/index.vue')),
   keystation: defineAsyncComponent(() => import('../components/apps/KeyStation/index.vue')),
-  yahoomessenger: defineAsyncComponent(() => import('../components/apps/YahooMessenger/index.vue')),
-  whitenoise: defineAsyncComponent(() => import('../components/apps/WhiteNoise/index.vue')),
-  chess: defineAsyncComponent(() => import('../components/apps/Chess/index.vue')),
 }
 
 /**

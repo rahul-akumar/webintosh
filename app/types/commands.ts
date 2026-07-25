@@ -106,31 +106,6 @@ export interface CommandPayloads {
   'help.shareApp': undefined
   'help.showAboutFinder': undefined
 
-  // TypingTest commands
-  'typingtest.newTest': undefined
-  'typingtest.restartTest': undefined
-  'typingtest.changeText': undefined
-  'typingtest.setDifficulty': { difficulty: 'easy' | 'medium' | 'hard' }
-  'typingtest.toggleSound': undefined
-  'typingtest.toggleKeyboard': undefined
-  'typingtest.setTheme': { theme: string }
-  'typingtest.toggleTimer': undefined
-  'typingtest.toggleLiveWPM': undefined
-  'typingtest.toggleLiveAccuracy': undefined
-  'typingtest.showSessionStats': undefined
-  'typingtest.toggleFullscreen': undefined
-  'typingtest.showTips': undefined
-  'typingtest.togglePracticeMode': undefined
-  'typingtest.toggleFocusMode': undefined
-  'typingtest.toggleNightMode': undefined
-  'typingtest.showAllTimeStats': undefined
-  'typingtest.showPersonalBest': undefined
-  'typingtest.showHistory': undefined
-  'typingtest.resetStats': undefined
-  'typingtest.exportStats': undefined
-  'typingtest.showTutorial': undefined
-  'typingtest.showFingerGuide': undefined
-
   // KeyStation commands
   'keystation.newSession': undefined
   'keystation.startRecording': undefined
@@ -156,60 +131,10 @@ export interface CommandPayloads {
   'keystation.volumeUp': undefined
   'keystation.volumeDown': undefined
   'keystation.resetAudio': undefined
-  'keystation.toggleWaveform': undefined
-  'keystation.toggleKeyLabels': undefined
-  'keystation.toggleOctaveLabels': undefined
   'keystation.toggleCompactMode': undefined
   'keystation.showKeyboardGuide': undefined
   'keystation.toggleMidiLearn': undefined
   'keystation.showDocumentation': undefined
-
-  // Yahoo Messenger commands
-  'yahooMessenger.signOut': undefined
-  'yahooMessenger.newMessage': undefined
-  'yahooMessenger.joinChannel': undefined
-  'yahooMessenger.switchChannel': { channel: string }
-  'yahooMessenger.showDirectMessages': undefined
-  'yahooMessenger.clearChat': undefined
-  'yahooMessenger.clearAllChats': undefined
-  'yahooMessenger.setStatus': { status: 'online' | 'away' | 'busy' | 'invisible' }
-  'yahooMessenger.setStatusMessage': { message: string }
-  'yahooMessenger.sendBuzz': undefined
-  'yahooMessenger.insertEmoticon': { emoticon: string }
-  'yahooMessenger.toggleSounds': undefined
-  'yahooMessenger.toggleNotifications': undefined
-  'yahooMessenger.findInChat': undefined
-  'yahooMessenger.toggleSidebar': undefined
-  'yahooMessenger.toggleOnlineUsers': undefined
-  'yahooMessenger.toggleCompactMode': undefined
-  'yahooMessenger.zoomIn': undefined
-  'yahooMessenger.zoomOut': undefined
-  'yahooMessenger.resetZoom': undefined
-  'yahooMessenger.showAbout': undefined
-  'yahooMessenger.showWhatsNew': undefined
-
-  // WhiteNoise commands
-  'whitenoise.stopAll': undefined
-  'whitenoise.toggleSound': { soundId: string }
-  'whitenoise.loadPreset': { presetId: string }
-  'whitenoise.savePreset': undefined
-  'whitenoise.managePresets': undefined
-  'whitenoise.masterVolumeUp': undefined
-  'whitenoise.masterVolumeDown': undefined
-  'whitenoise.muteAll': undefined
-  'whitenoise.fadeIn': undefined
-  'whitenoise.fadeOut': undefined
-  'whitenoise.toggleCompactMode': undefined
-  'whitenoise.toggleVolumeSliders': undefined
-  'whitenoise.showSoundInfo': undefined
-  'whitenoise.showTips': undefined
-  'whitenoise.showAudioHelp': undefined
-
-  // Chess commands
-  'chess.newGame': undefined
-  'chess.undoMove': undefined
-  'chess.setMode': { mode: 'pvp' | 'ai' }
-  'chess.setDifficulty': { difficulty: 'easy' | 'medium' | 'hard' }
 }
 
 /**
@@ -323,30 +248,6 @@ const VALID_COMMANDS: ReadonlySet<string> = new Set<CommandId>([
   'help.showFinderHelp',
   'help.shareApp',
   'help.showAboutFinder',
-  // TypingTest commands
-  'typingtest.newTest',
-  'typingtest.restartTest',
-  'typingtest.changeText',
-  'typingtest.setDifficulty',
-  'typingtest.toggleSound',
-  'typingtest.toggleKeyboard',
-  'typingtest.setTheme',
-  'typingtest.toggleTimer',
-  'typingtest.toggleLiveWPM',
-  'typingtest.toggleLiveAccuracy',
-  'typingtest.showSessionStats',
-  'typingtest.toggleFullscreen',
-  'typingtest.showTips',
-  'typingtest.togglePracticeMode',
-  'typingtest.toggleFocusMode',
-  'typingtest.toggleNightMode',
-  'typingtest.showAllTimeStats',
-  'typingtest.showPersonalBest',
-  'typingtest.showHistory',
-  'typingtest.resetStats',
-  'typingtest.exportStats',
-  'typingtest.showTutorial',
-  'typingtest.showFingerGuide',
   // KeyStation commands
   'keystation.newSession',
   'keystation.startRecording',
@@ -372,57 +273,10 @@ const VALID_COMMANDS: ReadonlySet<string> = new Set<CommandId>([
   'keystation.volumeUp',
   'keystation.volumeDown',
   'keystation.resetAudio',
-  'keystation.toggleWaveform',
-  'keystation.toggleKeyLabels',
-  'keystation.toggleOctaveLabels',
   'keystation.toggleCompactMode',
   'keystation.showKeyboardGuide',
   'keystation.toggleMidiLearn',
   'keystation.showDocumentation',
-  // Yahoo Messenger commands
-  'yahooMessenger.signOut',
-  'yahooMessenger.newMessage',
-  'yahooMessenger.joinChannel',
-  'yahooMessenger.switchChannel',
-  'yahooMessenger.showDirectMessages',
-  'yahooMessenger.clearChat',
-  'yahooMessenger.clearAllChats',
-  'yahooMessenger.setStatus',
-  'yahooMessenger.setStatusMessage',
-  'yahooMessenger.sendBuzz',
-  'yahooMessenger.insertEmoticon',
-  'yahooMessenger.toggleSounds',
-  'yahooMessenger.toggleNotifications',
-  'yahooMessenger.findInChat',
-  'yahooMessenger.toggleSidebar',
-  'yahooMessenger.toggleOnlineUsers',
-  'yahooMessenger.toggleCompactMode',
-  'yahooMessenger.zoomIn',
-  'yahooMessenger.zoomOut',
-  'yahooMessenger.resetZoom',
-  'yahooMessenger.showAbout',
-  'yahooMessenger.showWhatsNew',
-  // WhiteNoise commands
-  'whitenoise.stopAll',
-  'whitenoise.toggleSound',
-  'whitenoise.loadPreset',
-  'whitenoise.savePreset',
-  'whitenoise.managePresets',
-  'whitenoise.masterVolumeUp',
-  'whitenoise.masterVolumeDown',
-  'whitenoise.muteAll',
-  'whitenoise.fadeIn',
-  'whitenoise.fadeOut',
-  'whitenoise.toggleCompactMode',
-  'whitenoise.toggleVolumeSliders',
-  'whitenoise.showSoundInfo',
-  'whitenoise.showTips',
-  'whitenoise.showAudioHelp',
-  // Chess commands
-  'chess.newGame',
-  'chess.undoMove',
-  'chess.setMode',
-  'chess.setDifficulty',
 ])
 
 /**
