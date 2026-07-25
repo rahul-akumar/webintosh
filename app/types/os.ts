@@ -107,10 +107,6 @@ export interface OSState {
    */
   desktopPadding: number;
   /**
-   * Distance in px from an edge to trigger snap.
-   */
-  snapThreshold: number;
-  /**
    * Desktop wallpaper object with type and value or null for default background
    */
   wallpaper?: { type: string; value: string } | null;

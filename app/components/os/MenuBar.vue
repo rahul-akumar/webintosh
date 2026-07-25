@@ -86,7 +86,10 @@ const activeTemplate = computed(() => {
 const activeAppName = computed(() => {
   const appId = store.activeAppId
   if (!appId) return 'Webintosh'
-  return apps.registry[appId]?.title ?? 'App'
+  // Apps outside appRegistry (e.g. KeyStation's Keyboard Layout Guide helper
+  // window) have no registry entry - fall back to the focused window's own
+  // title rather than the generic "App" placeholder.
+  return apps.registry[appId]?.title ?? store.focused?.title ?? 'App'
 })
 
 const isMenubarOpen = computed(() => store.menu.openType === 'menubar')

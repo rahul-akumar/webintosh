@@ -11,6 +11,7 @@ import { useSessionStore } from './session'
 import { STORAGE_KEYS } from '../constants/storage-keys'
 import { debounce } from '../utils/debounce'
 import { clamp, getViewport } from '../utils/math'
+import { hasAppComponent } from '../config/apps'
 
 // Constants
 const MIN_W = 240
@@ -20,8 +21,11 @@ const MINIMIZE_ANIMATION_MS = 300
 const RESTORE_ANIMATION_MS = 300
 const MAXIMIZE_ANIMATION_MS = 250
 
-// Module-level debounced save
-let debouncedSaveFn: ReturnType<typeof debounce> | null = null
+// Per-store-instance debounced save, keyed by store instance (not Pinia
+// state - a function in state would pollute devtools serialization, and a
+// single module-level singleton would leak `this` across store re-creation,
+// breaking test isolation).
+const debouncedSaveFns = new WeakMap<object, ReturnType<typeof debounce>>()
 
 interface OSState {
   // Window state (kept here as core OS concern)
@@ -33,7 +37,6 @@ interface OSState {
   clock: string
   menuBarHeight: number
   desktopPadding: number
-  snapThreshold: number
 }
 
 /**
@@ -48,7 +51,6 @@ export const useOSStore = defineStore('os', {
     clock: '',
     menuBarHeight: 40,
     desktopPadding: 8,
-    snapThreshold: 16,
   }),
 
   getters: {
@@ -110,12 +112,14 @@ export const useOSStore = defineStore('os', {
   actions: {
     // --- Session persistence (debounced) ---
     _getDebouncedSave() {
-      if (!debouncedSaveFn) {
-        debouncedSaveFn = debounce(() => {
+      let fn = debouncedSaveFns.get(this)
+      if (!fn) {
+        fn = debounce(() => {
           this._writeToStorage()
         }, SAVE_DEBOUNCE_MS)
+        debouncedSaveFns.set(this, fn)
       }
-      return debouncedSaveFn
+      return fn
     },
 
     saveSession(): void {
@@ -165,11 +169,18 @@ export const useOSStore = defineStore('os', {
         }
         const parsed = JSON.parse(raw)
         if (Array.isArray(parsed?.windows)) {
-          // Migrate old format to new displayState
-          this.windows = parsed.windows.map((w: OSWindowModel & { minimized?: boolean; maximized?: boolean }) => ({
-            ...w,
-            displayState: w.displayState ?? (w.minimized ? 'minimized' : w.maximized ? 'maximized' : 'normal'),
-          }))
+          // Migrate old format to new displayState, then drop windows whose
+          // appId no longer resolves to a registered app (e.g. a culled app
+          // left behind in a stale saved session) to avoid ghost windows.
+          // Checked against the static app registry, not the apps store:
+          // loadSession() runs before registerApps(), so the store would
+          // still be empty here.
+          this.windows = parsed.windows
+            .map((w: OSWindowModel & { minimized?: boolean; maximized?: boolean }) => ({
+              ...w,
+              displayState: w.displayState ?? (w.minimized ? 'minimized' : w.maximized ? 'maximized' : 'normal'),
+            }))
+            .filter((w: OSWindowModel) => !w.appId || hasAppComponent(w.appId))
         }
         if (typeof parsed?.nextWindowId === 'number') this.nextWindowId = parsed.nextWindowId
         if (typeof parsed?.nextZ === 'number') this.nextZ = parsed.nextZ
@@ -185,8 +196,12 @@ export const useOSStore = defineStore('os', {
     },
 
     focusTopMost(): void {
+      // Exclude windows mid-minimize too: minimizeWindow() calls this
+      // synchronously, before displayState flips to 'minimized' (that only
+      // happens once the animation timeout fires), so without this the
+      // window being minimized would just re-select itself as "topmost".
       const candidates = this.windows
-        .filter((w) => w.displayState !== 'minimized')
+        .filter((w) => w.displayState !== 'minimized' && w.animationState !== 'minimizing')
         .sort((a, b) => a.zIndex - b.zIndex)
       const top = candidates[candidates.length - 1] ?? null
       this.focusedId = top ? top.id : null
@@ -362,7 +377,12 @@ export const useOSStore = defineStore('os', {
     toggleMaximize(id: WindowId): void {
       const w = this.windows.find((w) => w.id === id)
       if (!w) return
-      
+
+      // Respect the maximizable flag here, at the single chokepoint - not
+      // just in the UI (button/dblclick guards in Window.vue) - so the
+      // Window menu's Zoom command and its accelerator can't bypass it too.
+      if (w.maximizable === false) return
+
       // Skip if already animating
       if (w.animationState === 'maximizing' || w.animationState === 'unmaximizing') return
       
@@ -416,7 +436,14 @@ export const useOSStore = defineStore('os', {
     minimizeWindow(id: WindowId): void {
       const w = this.windows.find((w) => w.id === id)
       if (!w || w.animationState === 'minimizing') return
-      
+
+      // Respect the minimizable flag here, at the single chokepoint used by
+      // the window control button, toggleMinimize(), the Window menu's
+      // Minimize command, and its accelerator - so none of those paths can
+      // orphan a window whose appId has no Dock entry (e.g. KeyStation's
+      // Keyboard Layout Guide) by minimizing it with no way back.
+      if (w.minimizable === false) return
+
       // Start minimize animation
       w.animationState = 'minimizing'
       if (this.focusedId === id) this.focusTopMost()
