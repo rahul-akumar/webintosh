@@ -6,7 +6,6 @@
 .cache
 dist
 test-results
-tests
 plan
 
 # Node dependencies
@@ -27,6 +26,5 @@ logs
 !.env.example
 repo-structure.md
 copilot-commit-message-instructions.md
-playwright.config.ts
 .cursor/rules/nuxt.mdc
 warp.md
