@@ -41,6 +41,7 @@
     "happy-dom": "^20.11.1",
     "tailwindcss": "^4.1.12",
     "typescript": "^5.9.2",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.10",
+    "vue-tsc": "^3.3.8"
   }
 }

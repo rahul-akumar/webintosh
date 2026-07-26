@@ -22,8 +22,23 @@ export async function seedBooted(page: Page): Promise<void> {
 /**
  * Console messages that are expected dev-time noise, unrelated to the OS
  * under test (analytics/gtag scripts warning or failing to load locally).
+ *
+ * The last three entries are dev-server-only noise surfaced by the offline
+ * e2e spec (tests/e2e/offline.spec.ts): with the network simulated offline,
+ * Vite's HMR client can't reach its websocket, and any resource the service
+ * worker deliberately doesn't cache (e.g. the large wallpaper .mp4s) fails
+ * to load - both expected, neither indicating an app bug. Scoped to the
+ * literal browser-level failure text so a real app console.error still
+ * fails the assertion.
  */
-const IGNORED_CONSOLE_PATTERNS = [/gtag/i, /vercel\/analytics/i, /analytics/i]
+const IGNORED_CONSOLE_PATTERNS = [
+  /gtag/i,
+  /vercel\/analytics/i,
+  /analytics/i,
+  /\[vite\] failed to connect to websocket/i,
+  /WebSocket connection to '.*\/_nuxt\/.*' failed/i,
+  /net::ERR_INTERNET_DISCONNECTED/,
+]
 
 export function isIgnorableConsoleText(text: string): boolean {
   return IGNORED_CONSOLE_PATTERNS.some((re) => re.test(text))

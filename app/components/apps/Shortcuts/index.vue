@@ -46,10 +46,26 @@
     </div>
 
     <div class="shortcuts-section">
+      <h3>Launcher &amp; App Switcher</h3>
+      <div class="shortcut-item">
+        <span class="keys">{{ isMac ? '⌃Space' : 'Ctrl + Space' }}</span>
+        <span class="description">Open App Launcher</span>
+      </div>
+      <div class="shortcut-item">
+        <span class="keys">{{ isMac ? '⌥Tab (hold ⌥)' : 'Ctrl + Tab (hold Ctrl)' }}</span>
+        <span class="description">Switch Apps (release to focus)</span>
+      </div>
+      <p class="section-note">
+        Any of Cmd/Ctrl/Alt works with Space and Tab - use whichever combo
+        your browser doesn't reserve.
+      </p>
+    </div>
+
+    <div class="shortcuts-section">
       <h3>Navigation</h3>
       <div class="shortcut-item">
         <span class="keys">Esc</span>
-        <span class="description">Cancel drag/resize, Close menus</span>
+        <span class="description">Cancel drag/resize, Close menus &amp; overlays</span>
       </div>
     </div>
   </div>
@@ -107,6 +123,12 @@ h2 {
 .description {
   font-size: 14px;
   color: #1d1d1f;
+}
+
+.section-note {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #888;
 }
 
 .note {

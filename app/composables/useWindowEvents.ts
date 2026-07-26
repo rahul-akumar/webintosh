@@ -1,5 +1,6 @@
 import { onMounted, onUnmounted } from 'vue'
 import { useOSStore } from '../stores/os'
+import { useOverlayStore } from '../stores/overlay'
 import { execute, registerDefaultCommands } from '../utils/menuCommands'
 import { useKeyboardShortcuts } from './useKeyboardShortcuts'
 
@@ -18,6 +19,7 @@ function getTouchPosition(e: TouchEvent): { clientX: number; clientY: number } |
  */
 export function useWindowEvents() {
   const store = useOSStore()
+  const overlay = useOverlayStore()
   const { isModifierPressed } = useKeyboardShortcuts()
 
   let resizeTimer: number | undefined
@@ -75,13 +77,47 @@ export function useWindowEvents() {
   // --- Keyboard handler ---
 
   function onKeyDown(e: KeyboardEvent) {
-    // ESC: cancel drag/resize and close menus
+    // ESC: overlays first, then cancel drag/resize and close menus
     if (e.key === 'Escape') {
+      if (overlay.activeOverlay !== null) {
+        overlay.closeAll()
+        e.preventDefault()
+        return
+      }
       store.cancelDrag()
       store.closeMenu()
       e.preventDefault()
       return
     }
+
+    // Overlay hotkeys accept ANY of meta/ctrl/alt, deliberately looser than
+    // isModifierPressed below: browsers/OSes reserve different combos per
+    // platform (macOS swallows Cmd+Space/Cmd+Tab, Chrome reserves Ctrl+Tab,
+    // Windows reserves Alt+Tab), so we take whichever modifier gets through
+    // - e.g. Option+Tab is the only Tab combo a macOS browser delivers, and
+    // isModifierPressed would reject it.
+    const anyOverlayModifier = e.metaKey || e.ctrlKey || e.altKey
+    if (anyOverlayModifier) {
+      // Space matched via e.code: Option+Space produces U+00A0 in e.key.
+      if (e.code === 'Space') {
+        overlay.toggleLauncher()
+        e.preventDefault()
+        return
+      }
+      if (e.key === 'Tab') {
+        if (overlay.isSwitcherOpen) {
+          overlay.switcherNext(e.shiftKey ? -1 : 1)
+        } else {
+          overlay.switcherStart(e.shiftKey)
+        }
+        e.preventDefault()
+        return
+      }
+    }
+
+    // While an overlay is open it owns the keyboard; don't let plain typing
+    // fall through to window shortcuts.
+    if (overlay.activeOverlay !== null) return
 
     // Platform-aware modifier shortcuts
     const hasModifier = isModifierPressed(e) || e.metaKey || e.ctrlKey
@@ -131,6 +167,21 @@ export function useWindowEvents() {
     }
   }
 
+  // --- Switcher hold-modifier semantics ---
+
+  // Releasing the initiating modifier commits the cmd+tab-style selection;
+  // losing window focus (e.g. a real OS app switch) cancels it.
+  function onKeyUp(e: KeyboardEvent) {
+    if (!overlay.isSwitcherOpen) return
+    if (e.key === 'Meta' || e.key === 'Control' || e.key === 'Alt') {
+      overlay.switcherCommit()
+    }
+  }
+
+  function onWindowBlur() {
+    if (overlay.isSwitcherOpen) overlay.switcherCancel()
+  }
+
   // --- Lifecycle ---
 
   onMounted(() => {
@@ -144,6 +195,8 @@ export function useWindowEvents() {
     window.addEventListener('touchcancel', onTouchEnd)
     // Keyboard
     window.addEventListener('keydown', onKeyDown)
+    window.addEventListener('keyup', onKeyUp)
+    window.addEventListener('blur', onWindowBlur)
     // Viewport resize
     window.addEventListener('resize', onViewportResize)
   })
@@ -158,6 +211,8 @@ export function useWindowEvents() {
     window.removeEventListener('touchcancel', onTouchEnd)
     // Keyboard
     window.removeEventListener('keydown', onKeyDown)
+    window.removeEventListener('keyup', onKeyUp)
+    window.removeEventListener('blur', onWindowBlur)
     // Viewport resize
     window.removeEventListener('resize', onViewportResize)
     if (resizeTimer) window.clearTimeout(resizeTimer)

@@ -46,6 +46,14 @@
       />
       <OsNotifications />
     </main>
+
+    <!-- OS-level overlays: siblings of OsMenuBar on purpose. `.os-desktop-area`
+         is a z-index:1 stacking context, so anything mounted inside <main>
+         paints under the menu bar (z-index:100) regardless of its own
+         z-index. These use position:fixed + var(--z-overlay) to cover the
+         full viewport including the menu bar. -->
+    <OsLauncher />
+    <OsAppSwitcher />
   </div>
 </template>
 

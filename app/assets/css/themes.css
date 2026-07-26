@@ -26,6 +26,7 @@
   --z-menubar: 400;
   --z-context-menu: 500;
   --z-modal: 600;
+  --z-overlay: 600;
   --z-notification: 700;
   --z-tooltip: 800;
 }
