@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { WindowInteractionState, WindowId, ResizeEdge, OSWindowRect } from '../types/os'
+import type { WindowInteractionState, WindowId, ResizeEdge, OSWindowRect, SnapZone } from '../types/os'
 import { clamp } from '../utils/math'
 
 /**
@@ -34,6 +34,14 @@ export const useDragStore = defineStore('drag', {
       }
       return null
     },
+
+    /** Current snap zone the pointer is over while dragging, if any */
+    snapCandidate: (state): SnapZone | null => {
+      if (state.interaction.mode === 'dragging') {
+        return state.interaction.snapCandidate
+      }
+      return null
+    },
   },
 
   actions: {
@@ -48,7 +56,32 @@ export const useDragStore = defineStore('drag', {
         startY: clientY,
         originX,
         originY,
+        snapCandidate: null,
       }
+    },
+
+    /**
+     * Rebase the drag origin mid-drag: the next calculateDragPosition() call
+     * will measure deltas from (clientX, clientY) against (originX, originY)
+     * instead of the drag's original start point. Used when unsnapping a
+     * window under the cursor, so the just-restored rect isn't immediately
+     * jumped by the drag delta accumulated while it was still snapped.
+     */
+    rebaseDragOrigin(clientX: number, clientY: number, originX: number, originY: number): void {
+      if (this.interaction.mode !== 'dragging') return
+      this.interaction.startX = clientX
+      this.interaction.startY = clientY
+      this.interaction.originX = originX
+      this.interaction.originY = originY
+    },
+
+    /**
+     * Update the current snap candidate zone while dragging (no-op outside
+     * dragging mode).
+     */
+    setSnapCandidate(zone: SnapZone | null): void {
+      if (this.interaction.mode !== 'dragging') return
+      this.interaction.snapCandidate = zone
     },
 
     /**

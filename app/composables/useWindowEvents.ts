@@ -77,7 +77,7 @@ export function useWindowEvents() {
   function onKeyDown(e: KeyboardEvent) {
     // ESC: cancel drag/resize and close menus
     if (e.key === 'Escape') {
-      store.endDrag()
+      store.cancelDrag()
       store.closeMenu()
       e.preventDefault()
       return

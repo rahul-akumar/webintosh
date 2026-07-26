@@ -107,6 +107,7 @@ const windowClasses = computed(() => ({
   'restoring': props.win.animationState === 'restoring',
   'maximizing': props.win.animationState === 'maximizing',
   'unmaximizing': props.win.animationState === 'unmaximizing',
+  'snapping': props.win.animationState === 'snapping',
 }))
 
 function onStartDrag(e: MouseEvent) {
@@ -351,5 +352,13 @@ function onFocus() {
               top 0.25s cubic-bezier(0.16, 1, 0.3, 1),
               width 0.25s cubic-bezier(0.16, 1, 0.3, 1),
               height 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Snap-apply transition (edge-snapping a dragged window into place) */
+.os-window.snapping {
+  transition: left 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              top 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              width 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              height 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 </style>

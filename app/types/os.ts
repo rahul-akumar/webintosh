@@ -19,12 +19,17 @@ export type WindowDisplayState = 'normal' | 'minimized' | 'maximized';
 /**
  * Animation state for window transitions.
  */
-export type WindowAnimationState = 'none' | 'opening' | 'closing' | 'minimizing' | 'restoring' | 'maximizing' | 'unmaximizing';
+export type WindowAnimationState = 'none' | 'opening' | 'closing' | 'minimizing' | 'restoring' | 'maximizing' | 'unmaximizing' | 'snapping';
 
 /**
  * Valid resize edge directions.
  */
 export type ResizeEdge = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw';
+
+/**
+ * Edge-snap zone a window can be snapped to.
+ */
+export type SnapZone = 'left' | 'right' | 'top';
 
 export interface OSWindowModel {
   id: WindowId;
@@ -51,6 +56,12 @@ export interface OSWindowModel {
   // For restore from maximize
   lastNormalRect?: OSWindowRect;
 
+  // Edge-snap state: which zone the window is snapped to, and the rect it
+  // had immediately before snapping (restored when dragged away again).
+  // Kept separate from lastNormalRect so zoom/maximize semantics are untouched.
+  snapped?: SnapZone;
+  preSnapRect?: OSWindowRect;
+
   // Custom metadata for app initialization
   metadata?: Record<string, unknown>;
 }
@@ -68,6 +79,7 @@ export type WindowInteractionState =
       startY: number;
       originX: number;
       originY: number;
+      snapCandidate: SnapZone | null;
     }
   | {
       mode: 'resizing';

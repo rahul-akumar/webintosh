@@ -3,7 +3,7 @@
  * Uses debounced session persistence (500ms).
  */
 import { defineStore } from 'pinia'
-import type { OSWindowModel, OSWindowRect, WindowId, ResizeEdge } from '../types/os'
+import type { OSWindowModel, OSWindowRect, WindowId, ResizeEdge, SnapZone } from '../types/os'
 import type { MenuTemplate } from '../types/menu'
 import { useDragStore } from './drag'
 import { useMenuStore } from './menu'
@@ -11,6 +11,7 @@ import { useSessionStore } from './session'
 import { STORAGE_KEYS } from '../constants/storage-keys'
 import { debounce } from '../utils/debounce'
 import { clamp, getViewport } from '../utils/math'
+import { getSnapZone, getSnapRect, SNAP_THRESHOLD } from '../utils/snap'
 import { hasAppComponent } from '../config/apps'
 
 // Constants
@@ -20,6 +21,7 @@ const SAVE_DEBOUNCE_MS = 500
 const MINIMIZE_ANIMATION_MS = 300
 const RESTORE_ANIMATION_MS = 300
 const MAXIMIZE_ANIMATION_MS = 250
+const SNAP_ANIMATION_MS = 200
 
 // Per-store-instance debounced save, keyed by store instance (not Pinia
 // state - a function in state would pollute devtools serialization, and a
@@ -107,6 +109,25 @@ export const useOSStore = defineStore('os', {
     theme(): string {
       return useSessionStore().theme
     },
+
+    /**
+     * Resolve the target rect for a snap zone, using the same viewport/pad/
+     * min-size constants endDrag applies on release - so the preview overlay
+     * (WindowManager.vue) always matches exactly what dropping will produce.
+     */
+    previewRectForZone() {
+      return (zone: SnapZone): OSWindowRect => {
+        const { vw, vh } = getViewport()
+        return getSnapRect(zone, {
+          vw,
+          vh,
+          pad: this.desktopPadding,
+          menuBarHeight: this.menuBarHeight,
+          minW: MIN_W,
+          minH: MIN_H,
+        })
+      }
+    },
   },
 
   actions: {
@@ -148,6 +169,8 @@ export const useOSStore = defineStore('os', {
           closable: w.closable ?? true,
           displayState: w.displayState ?? 'normal',
           lastNormalRect: w.lastNormalRect ?? null,
+          snapped: w.snapped ?? null,
+          preSnapRect: w.preSnapRect ?? null,
         })),
         nextWindowId: this.nextWindowId,
         nextZ: this.nextZ,
@@ -236,8 +259,23 @@ export const useOSStore = defineStore('os', {
     },
 
     realignAllToBounds(): void {
+      const { vw, vh } = getViewport()
       for (const w of this.windows) {
-        this.ensureBounds(w)
+        if (w.snapped) {
+          // Re-apply the snap rect instead of clamping, so halves keep
+          // tiling the new viewport exactly - clamping after the fact would
+          // fight the snap rect and leave stale half-sizes.
+          w.rect = getSnapRect(w.snapped, {
+            vw,
+            vh,
+            pad: this.desktopPadding,
+            menuBarHeight: this.menuBarHeight,
+            minW: MIN_W,
+            minH: MIN_H,
+          })
+        } else {
+          this.ensureBounds(w)
+        }
       }
       this.saveSession()
     },
@@ -334,16 +372,92 @@ export const useOSStore = defineStore('os', {
     dragTo(clientX: number, clientY: number): void {
       const dragStore = useDragStore()
       if (!dragStore.isDragging) return
-      const pos = dragStore.calculateDragPosition(clientX, clientY)
-      if (!pos) return
       const w = this.windows.find((w) => w.id === dragStore.activeWindowId)
       if (!w) return
+
+      // Unsnap under the cursor: any pointer movement during a drag of a
+      // snapped window restores its pre-snap size, keeping the pointer's
+      // proportional x-position in the title bar and its y-offset, then
+      // rebases the drag origin so the normal move below doesn't jump the
+      // window using stale start coordinates.
+      if (w.snapped && w.preSnapRect) {
+        const xFraction = w.rect.width > 0 ? (clientX - w.rect.x) / w.rect.width : 0.5
+        const yOffset = clientY - w.rect.y
+        const newWidth = w.preSnapRect.width
+        const newHeight = w.preSnapRect.height
+        const newX = clientX - xFraction * newWidth
+        const newY = clientY - yOffset
+        w.rect = { x: newX, y: newY, width: newWidth, height: newHeight }
+        w.snapped = undefined
+        w.preSnapRect = undefined
+        dragStore.rebaseDragOrigin(clientX, clientY, newX, newY)
+      }
+
+      const pos = dragStore.calculateDragPosition(clientX, clientY)
+      if (!pos) return
       w.rect.x = pos.x
       w.rect.y = pos.y
       this.ensureBounds(w)
+
+      // Track the snap candidate under the pointer (resizable windows only -
+      // snapping is a resize).
+      const zone = w.resizable === false ? null : getSnapZone(clientX, clientY, getViewport().vw, SNAP_THRESHOLD)
+      dragStore.setSnapCandidate(zone)
     },
 
     endDrag(): void {
+      const dragStore = useDragStore()
+      const windowId = dragStore.activeWindowId
+      const candidate = dragStore.snapCandidate
+      const w = windowId != null ? this.windows.find((w) => w.id === windowId) : undefined
+
+      dragStore.endInteraction()
+
+      if (w && candidate) {
+        w.preSnapRect = { ...w.rect }
+        w.snapped = candidate
+        // A snap always lands the window in a normal, partial-screen state -
+        // even if it was still 'maximized' (its header stays draggable while
+        // maximized). Left uncleared, this would strand the window reporting
+        // 'maximized' while snapped, and a later unmaximize would restore
+        // lastNormalRect but skip clearing snapped/preSnapRect, leaving a
+        // stale unsnap ready to balloon the window on the next drag.
+        w.displayState = 'normal'
+        w.animationState = 'snapping'
+
+        const targetRect = getSnapRect(candidate, {
+          vw: getViewport().vw,
+          vh: getViewport().vh,
+          pad: this.desktopPadding,
+          menuBarHeight: this.menuBarHeight,
+          minW: MIN_W,
+          minH: MIN_H,
+        })
+
+        // Use requestAnimationFrame to ensure the 'snapping' transition class
+        // is applied before the rect changes (mirrors toggleMaximize).
+        requestAnimationFrame(() => {
+          w.rect = targetRect
+        })
+
+        setTimeout(() => {
+          const win = this.windows.find((win) => win.id === windowId)
+          if (win && win.animationState === 'snapping') {
+            win.animationState = 'none'
+            this.saveSessionImmediate()
+          }
+        }, SNAP_ANIMATION_MS)
+      }
+
+      this.saveSession()
+    },
+
+    /**
+     * Cancel the active drag/resize without applying a pending snap (used by
+     * the ESC key path). Unlike endDrag(), a live snap candidate is dropped,
+     * not applied - the window stays wherever dragTo() last left it.
+     */
+    cancelDrag(): void {
       const dragStore = useDragStore()
       dragStore.endInteraction()
       this.saveSession()
@@ -353,6 +467,9 @@ export const useOSStore = defineStore('os', {
     startResize(id: WindowId, edge: ResizeEdge | null, clientX: number, clientY: number): void {
       const w = this.windows.find((w) => w.id === id)
       if (!w || w.resizable === false || !edge) return
+      // Manual geometry change ends snap; the rect itself is left as-is.
+      w.snapped = undefined
+      w.preSnapRect = undefined
       const dragStore = useDragStore()
       dragStore.startResize(id, edge, clientX, clientY, { ...w.rect })
       this.bringToFront(id)
@@ -390,8 +507,12 @@ export const useOSStore = defineStore('os', {
       const pad = this.desktopPadding
       
       if (w.displayState !== 'maximized') {
-        // Maximizing
-        w.lastNormalRect = { ...w.rect }
+        // Maximizing. If the window is snapped, seed lastNormalRect from its
+        // true pre-snap geometry (not the snapped rect) so unmaximize
+        // returns there, then clear the snap flags.
+        w.lastNormalRect = w.snapped && w.preSnapRect ? { ...w.preSnapRect } : { ...w.rect }
+        w.snapped = undefined
+        w.preSnapRect = undefined
         w.animationState = 'maximizing'
         
         // Use requestAnimationFrame to ensure animation class is applied before rect changes
@@ -411,9 +532,14 @@ export const useOSStore = defineStore('os', {
           }
         }, MAXIMIZE_ANIMATION_MS)
       } else {
-        // Unmaximizing
+        // Unmaximizing. Defensively clear snap fields too - normally already
+        // undefined (the maximizing branch above clears them), but a window
+        // dragged into a snap zone while still maximized could otherwise
+        // leave them set, priming a stale unsnap on the next drag.
+        w.snapped = undefined
+        w.preSnapRect = undefined
         w.animationState = 'unmaximizing'
-        
+
         requestAnimationFrame(() => {
           if (w.lastNormalRect) {
             w.rect = { ...w.lastNormalRect }

@@ -9,6 +9,7 @@ const MIN_H = 160
 const MINIMIZE_ANIMATION_MS = 300
 const RESTORE_ANIMATION_MS = 300
 const MAXIMIZE_ANIMATION_MS = 250
+const SNAP_ANIMATION_MS = 200
 const SAVE_DEBOUNCE_MS = 500
 
 function stubViewport(vw: number, vh: number) {
@@ -284,6 +285,246 @@ describe('stores/os - bounds clamping', () => {
     expect(w.rect.width).toBeGreaterThanOrEqual(MIN_W)
     expect(w.rect.height).toBeGreaterThanOrEqual(MIN_H)
   })
+
+  it('realignAllToBounds re-snaps a snapped window to the new viewport\'s zone rect instead of merely clamping', () => {
+    const os = useOSStore()
+    const id = os.openWindow({ rect: { x: 300, y: 100, width: 400, height: 300 } })
+
+    os.startDrag(id, 350, 120)
+    os.dragTo(6, 130)
+    os.endDrag()
+    const snapped = os.windows.find((w) => w.id === id)!
+    expect(snapped.snapped).toBe('left')
+    expect(snapped.rect).toEqual({ x: 8, y: 40, width: 592, height: 752 }) // at the original 1200x800 viewport
+
+    stubViewport(1000, 700)
+    os.realignAllToBounds()
+
+    const w = os.windows.find((w) => w.id === id)!
+    // New work area: width 1000-16=984 -> left half floor(984/2)=492; height 700-40-8=652.
+    // A plain clamp would have left the old 592-wide rect merely repositioned/clipped,
+    // not re-tiled to exactly half of the new work width.
+    expect(w.rect).toEqual({ x: 8, y: 40, width: 492, height: 652 })
+    expect(w.snapped).toBe('left') // still snapped, just re-tiled
+  })
+})
+
+describe('stores/os - edge snapping', () => {
+  it('dragging to the left edge and releasing snaps the window and stashes preSnapRect', () => {
+    const os = useOSStore()
+    const id = os.openWindow({ rect: { x: 300, y: 100, width: 400, height: 300 } })
+
+    os.startDrag(id, 350, 120)
+    os.dragTo(6, 130)
+    const midDrag = os.windows.find((w) => w.id === id)!
+    expect(midDrag.rect).toEqual({ x: 8, y: 110, width: 400, height: 300 })
+
+    os.endDrag()
+
+    const w = os.windows.find((w) => w.id === id)!
+    expect(w.snapped).toBe('left')
+    expect(w.preSnapRect).toEqual({ x: 8, y: 110, width: 400, height: 300 })
+    expect(w.rect).toEqual({ x: 8, y: 40, width: 592, height: 752 })
+  })
+
+  it('endDrag applying a snap transitions through a "snapping" animation state before settling to "none"', () => {
+    const os = useOSStore()
+    const id = os.openWindow({ rect: { x: 300, y: 100, width: 400, height: 300 } })
+
+    os.startDrag(id, 350, 120)
+    os.dragTo(6, 130)
+    os.endDrag()
+
+    // rAF is stubbed to run synchronously, so the rect already reflects the
+    // snap target even though the animation state hasn't settled yet.
+    let w = os.windows.find((w) => w.id === id)!
+    expect(w.animationState).toBe('snapping')
+    expect(w.rect).toEqual({ x: 8, y: 40, width: 592, height: 752 })
+
+    vi.advanceTimersByTime(SNAP_ANIMATION_MS)
+    w = os.windows.find((w) => w.id === id)!
+    expect(w.animationState).toBe('none')
+  })
+
+  it('endDrag never snaps when the pointer never entered a snap zone', () => {
+    const os = useOSStore()
+    const id = os.openWindow({ rect: { x: 300, y: 100, width: 400, height: 300 } })
+
+    os.startDrag(id, 350, 120)
+    os.dragTo(400, 150) // mid-desktop, well clear of any edge
+    os.endDrag()
+
+    const w = os.windows.find((w) => w.id === id)!
+    expect(w.snapped).toBeUndefined()
+    expect(w.preSnapRect).toBeUndefined()
+    expect(w.rect).toEqual({ x: 350, y: 130, width: 400, height: 300 })
+  })
+
+  it('cancelDrag (ESC) drops a pending snap candidate instead of applying it', () => {
+    const os = useOSStore()
+    const id = os.openWindow({ rect: { x: 300, y: 100, width: 400, height: 300 } })
+
+    os.startDrag(id, 350, 120)
+    os.dragTo(6, 130) // in the left snap zone - candidate would apply on endDrag
+    const midDrag = os.windows.find((w) => w.id === id)!
+    expect(midDrag.rect).toEqual({ x: 8, y: 110, width: 400, height: 300 })
+
+    os.cancelDrag()
+
+    const w = os.windows.find((w) => w.id === id)!
+    expect(w.snapped).toBeUndefined()
+    expect(w.preSnapRect).toBeUndefined()
+    expect(w.rect).toEqual({ x: 8, y: 110, width: 400, height: 300 }) // left wherever dragTo put it
+    expect(os.drag.active).toBe(false)
+  })
+
+  it('dragging a snapped window restores its exact pre-snap dimensions, keeps the pointer proportionally placed, and continues the drag', () => {
+    const os = useOSStore()
+    const id = os.openWindow({ rect: { x: 300, y: 100, width: 400, height: 300 } })
+
+    // Snap left first.
+    os.startDrag(id, 350, 120)
+    os.dragTo(6, 130)
+    os.endDrag()
+    const snapped = os.windows.find((w) => w.id === id)!
+    expect(snapped.rect).toEqual({ x: 8, y: 40, width: 592, height: 752 })
+
+    // Grab exactly at the snapped window's horizontal midpoint (50% across
+    // its 592px width) and move the pointer - x unchanged, y moves - which
+    // is enough to trigger unsnap (no dead zone).
+    const midX = snapped.rect.x + snapped.rect.width / 2 // 304
+    os.startDrag(id, midX, 60)
+    os.dragTo(midX, 200)
+
+    const w = os.windows.find((w) => w.id === id)!
+    expect(w.snapped).toBeUndefined()
+    expect(w.preSnapRect).toBeUndefined()
+    expect(w.rect.width).toBe(400) // pre-snap size restored exactly
+    expect(w.rect.height).toBe(300)
+    // Pointer was at the 50% mark, so the restored (400px) window is centered under it.
+    expect(w.rect.x).toBe(midX - 400 / 2) // 104
+    // Window top carries over unchanged from the snapped rect at unsnap time.
+    expect(w.rect.y).toBe(40)
+
+    // The drag continues normally from here (real deltas apply). `w` is a
+    // live reference, so snapshot the pre-move values before mutating it.
+    const beforeX = w.rect.x
+    const beforeY = w.rect.y
+    os.dragTo(midX + 50, 250)
+    expect(w.rect.x).toBe(beforeX + 50)
+    expect(w.rect.y).toBe(beforeY + 50)
+  })
+
+  it('startResize clears snap state but leaves the rect as-is', () => {
+    const os = useOSStore()
+    const id = os.openWindow({ rect: { x: 300, y: 100, width: 400, height: 300 } })
+
+    os.startDrag(id, 350, 120)
+    os.dragTo(6, 130)
+    os.endDrag()
+    const snapped = os.windows.find((w) => w.id === id)!
+    expect(snapped.snapped).toBe('left')
+    const rectAtSnap = { ...snapped.rect }
+
+    os.startResize(id, 'se', snapped.rect.x, snapped.rect.y)
+
+    const w = os.windows.find((w) => w.id === id)!
+    expect(w.snapped).toBeUndefined()
+    expect(w.preSnapRect).toBeUndefined()
+    expect(w.rect).toEqual(rectAtSnap) // geometry untouched by clearing snap state
+  })
+
+  it('maximizing a snapped window then unmaximizing returns the true pre-snap rect (not the snapped rect)', () => {
+    const os = useOSStore()
+    const id = os.openWindow({ rect: { x: 300, y: 100, width: 400, height: 300 } })
+
+    os.startDrag(id, 350, 120)
+    os.dragTo(6, 130)
+    os.endDrag()
+    const snapped = os.windows.find((w) => w.id === id)!
+    expect(snapped.snapped).toBe('left')
+    const preSnap = { ...snapped.preSnapRect! }
+    expect(preSnap).toEqual({ x: 8, y: 110, width: 400, height: 300 })
+
+    os.toggleMaximize(id)
+    vi.advanceTimersByTime(MAXIMIZE_ANIMATION_MS)
+    const maximized = os.windows.find((w) => w.id === id)!
+    expect(maximized.displayState).toBe('maximized')
+    expect(maximized.snapped).toBeUndefined()
+    expect(maximized.preSnapRect).toBeUndefined()
+    expect(maximized.lastNormalRect).toEqual(preSnap) // seeded from preSnapRect, not the snapped rect
+
+    os.toggleMaximize(id)
+    vi.advanceTimersByTime(MAXIMIZE_ANIMATION_MS)
+    const restored = os.windows.find((w) => w.id === id)!
+    expect(restored.displayState).toBe('normal')
+    expect(restored.rect).toEqual(preSnap)
+  })
+
+  it('dragging a maximized window into a snap zone normalizes displayState to normal (not left dangling as maximized)', () => {
+    const os = useOSStore()
+    const id = os.openWindow({ rect: { x: 300, y: 100, width: 400, height: 300 } })
+
+    os.toggleMaximize(id)
+    vi.advanceTimersByTime(MAXIMIZE_ANIMATION_MS)
+    const maximized = os.windows.find((w) => w.id === id)!
+    expect(maximized.displayState).toBe('maximized')
+
+    // The maximized window's header is still draggable - drag it into the
+    // left snap zone and release.
+    os.startDrag(id, maximized.rect.x + 50, maximized.rect.y + 10)
+    os.dragTo(6, maximized.rect.y + 10)
+    os.endDrag()
+
+    const w = os.windows.find((w) => w.id === id)!
+    expect(w.snapped).toBe('left')
+    expect(w.displayState).toBe('normal') // no longer stuck reporting 'maximized'
+  })
+
+  it('unmaximizing a window whose snap fields are (defensively) still set clears them, so a later nudge does not balloon it', () => {
+    const os = useOSStore()
+    const id = os.openWindow({ rect: { x: 300, y: 100, width: 400, height: 300 } })
+    os.toggleMaximize(id)
+    vi.advanceTimersByTime(MAXIMIZE_ANIMATION_MS)
+
+    // Simulate the corrupted state a pre-fix endDrag could leave behind:
+    // displayState 'maximized' with stale snap fields dangling from a drag
+    // that happened while still maximized.
+    const w = os.windows.find((w) => w.id === id)!
+    w.snapped = 'left'
+    w.preSnapRect = { x: 8, y: 40, width: 1264, height: 672 }
+
+    os.toggleMaximize(id) // unmaximize
+    vi.advanceTimersByTime(MAXIMIZE_ANIMATION_MS)
+
+    const restored = os.windows.find((w) => w.id === id)!
+    expect(restored.displayState).toBe('normal')
+    expect(restored.snapped).toBeUndefined()
+    expect(restored.preSnapRect).toBeUndefined()
+    expect(restored.rect).toEqual({ x: 300, y: 100, width: 400, height: 300 }) // true lastNormalRect
+
+    // A small nudge afterward must not balloon the window via a stale unsnap.
+    os.startDrag(id, restored.rect.x + 50, restored.rect.y + 10)
+    os.dragTo(restored.rect.x + 60, restored.rect.y + 10) // tiny 10px move
+    const nudged = os.windows.find((w) => w.id === id)!
+    expect(nudged.rect.width).toBe(restored.rect.width)
+    expect(nudged.rect.height).toBe(restored.rect.height)
+  })
+
+  it('a non-resizable window never snaps (snapping is a resize)', () => {
+    const os = useOSStore()
+    const id = os.openWindow({ resizable: false, rect: { x: 300, y: 100, width: 400, height: 300 } })
+
+    os.startDrag(id, 350, 120)
+    os.dragTo(6, 130) // pointer sits in the left snap zone throughout
+    const beforeEndDrag = { ...os.windows.find((w) => w.id === id)!.rect }
+    os.endDrag()
+
+    const w = os.windows.find((w) => w.id === id)!
+    expect(w.snapped).toBeUndefined()
+    expect(w.preSnapRect).toBeUndefined()
+    expect(w.rect).toEqual(beforeEndDrag) // endDrag left the rect exactly as dragTo did
+  })
 })
 
 describe('stores/os - session persistence', () => {
@@ -313,6 +554,26 @@ describe('stores/os - session persistence', () => {
     expect(os2.windows).toHaveLength(1)
     expect(os2.windows[0]!.id).toBe(id)
     expect(os2.windows[0]!.appId).toBe('keystation')
+  })
+
+  it('session snapshot roundtrips snapped/preSnapRect', () => {
+    const os1 = useOSStore()
+    const id = os1.openWindow({ rect: { x: 300, y: 100, width: 400, height: 300 } })
+    os1.startDrag(id, 350, 120)
+    os1.dragTo(6, 130)
+    os1.endDrag()
+    const snapped = os1.windows.find((w) => w.id === id)!
+    expect(snapped.snapped).toBe('left')
+    const preSnapRect = { ...snapped.preSnapRect! }
+    os1.saveSessionImmediate()
+
+    setActivePinia(createPinia())
+    const os2 = useOSStore()
+    os2.loadSession()
+
+    const w = os2.windows.find((w) => w.id === id)!
+    expect(w.snapped).toBe('left')
+    expect(w.preSnapRect).toEqual(preSnapRect)
   })
 
   it('loadSession migrates legacy minimized/maximized booleans to displayState', () => {
