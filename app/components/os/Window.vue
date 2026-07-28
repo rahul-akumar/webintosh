@@ -159,9 +159,13 @@ function onFocus() {
   background: var(--bg-window);
   backdrop-filter: blur(var(--blur-amount));
   -webkit-backdrop-filter: blur(var(--blur-amount));
-  border: 1px solid var(--border-window);
+  border: var(--window-border-width) solid var(--border-window);
   border-radius: var(--window-border-radius);
-  box-shadow: var(--shadow-window);
+  /* The frame padding is where a beveled theme draws its raised edge:
+     an inset shadow paints under child boxes, so it needs bare padding
+     to be visible. Both are no-ops in the default (flat) themes. */
+  padding: var(--window-frame-width);
+  box-shadow: var(--bevel-raised), var(--shadow-window);
   position: absolute;
   display: flex;
   flex-direction: column;
@@ -172,13 +176,17 @@ function onFocus() {
   z-index: var(--z-window-active);
 }
 
+.os-window.inactive .os-window-header {
+  background: var(--bg-window-header-inactive);
+}
+
 .os-window.inactive .os-window-control {
   background: var(--bg-window-action-inactive);
-  border-color: var(--border-window);
+  border-color: var(--border-control-inactive);
 }
 
 .os-window.inactive .os-window-title {
-  color: var(--text-secondary);
+  color: var(--text-window-title-inactive);
 }
 
 .os-window-header {
@@ -207,28 +215,58 @@ function onFocus() {
 }
 
 .os-window-control {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  width: var(--control-size);
+  height: var(--control-size);
+  border-radius: var(--radius-control);
+  border: 1px solid var(--border-control);
+  box-shadow: var(--bevel-raised-thin);
   cursor: pointer;
   transition: opacity var(--transition-fast);
+  display: grid;
+  place-items: center;
+  padding: 0;
+  font-size: 10px;
+  line-height: 1;
+  /* Glyphs are opt-in per theme: the default themes render traffic
+     lights, whose content is an empty string. */
+  color: var(--control-glyph-color);
+}
+
+.os-window-control::after {
+  content: '';
+  display: block;
 }
 
 .os-window-control:hover {
   opacity: 0.8;
 }
 
+.os-window-control:active {
+  box-shadow: var(--bevel-sunken-thin);
+}
+
 .os-window-control.close {
-  background: #FF5F57;
+  background: var(--control-close-bg);
+}
+
+.os-window-control.close::after {
+  content: var(--control-close-glyph);
 }
 
 .os-window-control.minimize {
-  background: #FFBD2E;
+  background: var(--control-minimize-bg);
+}
+
+.os-window-control.minimize::after {
+  content: var(--control-minimize-glyph);
 }
 
 .os-window-control.maximize {
-  background: #28CA42;
+  background: var(--control-maximize-bg);
+}
+
+.os-window-control.maximize::after {
+  content: var(--control-maximize-glyph);
 }
 
 .os-window-control.disabled {
@@ -246,7 +284,7 @@ function onFocus() {
   text-align: center;
   font-size: 13px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--text-window-title);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

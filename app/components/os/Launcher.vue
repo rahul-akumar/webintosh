@@ -119,11 +119,15 @@ function launchSelected(): void {
   max-width: 90vw;
   max-height: 60vh;
   overflow: hidden;
+  /* Bare frame padding so a beveled theme has somewhere to draw its
+     raised edge - the input and result list would otherwise paint over
+     an inset shadow. No-op in the flat themes. */
+  padding: var(--window-frame-width);
   background: var(--bg-context-menu);
   backdrop-filter: blur(var(--blur-amount));
   -webkit-backdrop-filter: blur(var(--blur-amount));
-  border-radius: 14px;
-  box-shadow: var(--shadow-dock);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--bevel-raised), var(--shadow-dock);
   /* Don't inherit body's #111: unselected rows must follow the theme. */
   color: var(--text-primary);
 }
@@ -134,6 +138,7 @@ function launchSelected(): void {
   padding: 16px 20px;
   border: 0;
   border-bottom: 1px solid var(--border-dock);
+  box-shadow: var(--bevel-sunken);
   background: var(--bg-input);
   color: var(--text-primary);
   font-size: 20px;
@@ -156,7 +161,7 @@ function launchSelected(): void {
   align-items: center;
   gap: 12px;
   padding: 8px 10px;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition: background-color var(--transition-fast);
 }

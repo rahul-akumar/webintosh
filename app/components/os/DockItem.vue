@@ -54,7 +54,7 @@ defineEmits<{
   cursor: pointer;
   width: 48px;
   height: 48px;
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   display: grid;
   place-items: center;
   position: relative;
@@ -62,7 +62,11 @@ defineEmits<{
 }
 .dock-button:hover {
   background: rgba(0, 0, 0, 0.06);
+  box-shadow: var(--bevel-raised-thin);
   transform: translateY(-2px);
+}
+.dock-button:active {
+  box-shadow: var(--bevel-sunken-thin);
 }
 .dock-button:active {
   animation: dock-bounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);

@@ -260,6 +260,20 @@
                 <span class="theme-name">Classic Dark</span>
                 <span class="theme-description">Traditional dark solid</span>
               </button>
+
+              <!-- Retro 95 -->
+              <button
+                :class="['theme-option', { active: currentTheme === 'retro-95' }]"
+                @click="setTheme('retro-95')"
+              >
+                <div class="theme-preview retro-95">
+                  <div class="preview-menubar"/>
+                  <div class="preview-window"/>
+                  <div class="preview-dock"/>
+                </div>
+                <span class="theme-name">Retro 95</span>
+                <span class="theme-description">Beveled silver and teal</span>
+              </button>
             </div>
           </div>
 
@@ -503,6 +517,7 @@ const setTheme = (theme: string) => {
   padding: 6px 10px;
   border: 1px solid var(--border-input);
   border-radius: var(--button-border-radius);
+  box-shadow: var(--bevel-sunken);
   background: var(--bg-input);
   color: var(--text-primary);
   font-size: 13px;
@@ -580,7 +595,7 @@ const setTheme = (theme: string) => {
   border: 1px solid var(--border-window);
   border-radius: var(--window-border-radius);
   padding: 20px;
-  box-shadow: var(--shadow-button);
+  box-shadow: var(--bevel-raised), var(--shadow-button);
 }
 
 .section-title {
@@ -594,6 +609,7 @@ const setTheme = (theme: string) => {
   width: 100%;
   height: 180px;
   border-radius: var(--button-border-radius);
+  box-shadow: var(--bevel-sunken);
   background-size: cover;
   background-position: center;
   background-color: var(--bg-input);
@@ -619,7 +635,7 @@ const setTheme = (theme: string) => {
   border: 1px solid var(--border-window);
   border-radius: var(--window-border-radius);
   padding: 20px;
-  box-shadow: var(--shadow-button);
+  box-shadow: var(--bevel-raised), var(--shadow-button);
 }
 
 .option-title {
@@ -698,9 +714,10 @@ const setTheme = (theme: string) => {
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  background: var(--color-primary);
-  color: white;
+  background: var(--bg-accent-button);
+  color: var(--text-accent-button);
   border-radius: var(--button-border-radius);
+  box-shadow: var(--bevel-raised);
   cursor: pointer;
   font-size: 13px;
   transition: background var(--transition-fast);
@@ -734,7 +751,7 @@ const setTheme = (theme: string) => {
   border: 1px solid var(--border-window);
   border-radius: var(--window-border-radius);
   padding: 20px;
-  box-shadow: var(--shadow-button);
+  box-shadow: var(--bevel-raised), var(--shadow-button);
 }
 
 .section-description {
@@ -754,6 +771,7 @@ const setTheme = (theme: string) => {
   background: var(--bg-window);
   border: 2px solid var(--border-window);
   border-radius: var(--window-border-radius);
+  box-shadow: var(--bevel-raised);
   padding: 12px;
   cursor: pointer;
   transition: all var(--transition-fast);
@@ -765,7 +783,7 @@ const setTheme = (theme: string) => {
 .theme-option:hover {
   border-color: var(--color-primary);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-button);
+  box-shadow: var(--bevel-raised), var(--shadow-button);
 }
 
 .theme-option.active {
@@ -776,6 +794,158 @@ const setTheme = (theme: string) => {
 .theme-option.active .theme-name,
 .theme-option.active .theme-description {
   color: var(--text-selection);
+}
+
+/* Theme swatches.
+   The frame is chrome, so it follows the *active* theme; everything
+   inside it is a picture of the theme on offer and is therefore
+   hardcoded to that theme's own palette. */
+.theme-preview {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid var(--border-window);
+  border-radius: var(--button-border-radius);
+}
+
+.preview-menubar {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 13%;
+}
+
+.preview-window {
+  position: absolute;
+  left: 16%;
+  top: 28%;
+  width: 62%;
+  height: 46%;
+  overflow: hidden;
+}
+
+/* Titlebar strip inside the miniature window */
+.preview-window::before {
+  content: '';
+  display: block;
+  height: 26%;
+}
+
+.preview-dock {
+  position: absolute;
+  left: 50%;
+  bottom: 6%;
+  transform: translateX(-50%);
+  width: 58%;
+  height: 13%;
+}
+
+/* Glassmorphic Light */
+.theme-preview.glassmorphic-light {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+.theme-preview.glassmorphic-light .preview-menubar {
+  background: rgba(255, 255, 255, 0.6);
+}
+.theme-preview.glassmorphic-light .preview-window {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 4px;
+}
+.theme-preview.glassmorphic-light .preview-window::before {
+  background: rgba(255, 255, 255, 0.5);
+}
+.theme-preview.glassmorphic-light .preview-dock {
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 999px;
+}
+
+/* Glassmorphic Dark */
+.theme-preview.glassmorphic-dark {
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+}
+.theme-preview.glassmorphic-dark .preview-menubar {
+  background: rgba(18, 18, 18, 0.6);
+}
+.theme-preview.glassmorphic-dark .preview-window {
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+.theme-preview.glassmorphic-dark .preview-window::before {
+  background: rgba(28, 28, 28, 0.8);
+}
+.theme-preview.glassmorphic-dark .preview-dock {
+  background: rgba(18, 18, 18, 0.4);
+  border-radius: 999px;
+}
+
+/* Classic Light */
+.theme-preview.oldschool-light {
+  background: #5B7C99;
+}
+.theme-preview.oldschool-light .preview-menubar {
+  background: linear-gradient(180deg, #FFFFFF 0%, #E3E3E3 100%);
+}
+.theme-preview.oldschool-light .preview-window {
+  background: #ECECEC;
+  border: 1px solid #B3B3B3;
+  border-radius: 3px;
+}
+.theme-preview.oldschool-light .preview-window::before {
+  background: linear-gradient(180deg, #FFFFFF 0%, #D8D8D8 100%);
+}
+.theme-preview.oldschool-light .preview-dock {
+  background: rgba(245, 245, 245, 0.95);
+  border-radius: 4px;
+}
+
+/* Classic Dark */
+.theme-preview.oldschool-dark {
+  background: #1E1E1E;
+}
+.theme-preview.oldschool-dark .preview-menubar {
+  background: linear-gradient(180deg, #2D2D30 0%, #252526 100%);
+}
+.theme-preview.oldschool-dark .preview-window {
+  background: #2D2D30;
+  border: 1px solid #464647;
+  border-radius: 3px;
+}
+.theme-preview.oldschool-dark .preview-window::before {
+  background: linear-gradient(180deg, #3C3C3C 0%, #2D2D30 100%);
+}
+.theme-preview.oldschool-dark .preview-dock {
+  background: rgba(45, 45, 48, 0.95);
+  border-radius: 4px;
+}
+
+/* Retro 95 - teal field, silver chrome, navy titlebar, everything square */
+.theme-preview.retro-95 {
+  background: #008080;
+}
+.theme-preview.retro-95 .preview-menubar {
+  background: #C0C0C0;
+  box-shadow: inset 0 1px 0 0 #FFFFFF, inset 0 -1px 0 0 #808080;
+}
+.theme-preview.retro-95 .preview-window {
+  background: #C0C0C0;
+  border-radius: 0;
+  padding: 2px;
+  box-shadow:
+    inset 1px 1px 0 0 #DFDFDF,
+    inset -1px -1px 0 0 #000000,
+    inset 2px 2px 0 0 #FFFFFF,
+    inset -2px -2px 0 0 #808080;
+}
+.theme-preview.retro-95 .preview-window::before {
+  background: linear-gradient(90deg, #000080 0%, #1084D0 100%);
+  height: 30%;
+}
+.theme-preview.retro-95 .preview-dock {
+  background: #C0C0C0;
+  border-radius: 0;
+  box-shadow: inset 1px 1px 0 0 #FFFFFF, inset -1px -1px 0 0 #808080;
 }
 
 .theme-name {
@@ -802,7 +972,7 @@ const setTheme = (theme: string) => {
 .color-option {
   width: 32px;
   height: 32px;
-  border-radius: 50%;
+  border-radius: var(--radius-control);
   border: 2px solid transparent;
   cursor: pointer;
   transition: all var(--transition-fast);

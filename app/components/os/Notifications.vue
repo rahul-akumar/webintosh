@@ -124,7 +124,7 @@ const handleAction = (notification: ReadonlyNotification, action: Readonly<Notif
   -webkit-backdrop-filter: blur(var(--blur-amount, 20px));
   border: 1px solid var(--border-notification, rgba(0, 0, 0, 0.1));
   border-radius: var(--notification-border-radius, 8px);
-  box-shadow: var(--shadow-notification, 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05));
+  box-shadow: var(--bevel-raised), var(--shadow-notification, 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05));
   pointer-events: auto;
   cursor: pointer;
   transition: all var(--transition-normal, 0.2s) ease;
@@ -132,7 +132,7 @@ const handleAction = (notification: ReadonlyNotification, action: Readonly<Notif
 
 .notification:hover {
   transform: translateX(-5px);
-  box-shadow: var(--shadow-notification-hover, 0 6px 16px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.1));
+  box-shadow: var(--bevel-raised), var(--shadow-notification-hover, 0 6px 16px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.1));
 }
 
 /* Type-specific colors */

@@ -92,8 +92,8 @@ const previewStyle = computed<CSSProperties>(() => {
   pointer-events: none;
   /* z-index is set inline (previewStyle) - derived from the dragged window's
      actual zIndex, not a fixed number here. */
-  background: color-mix(in srgb, var(--accent-color, #0a84ff) 25%, transparent);
-  border: 2px solid color-mix(in srgb, var(--accent-color, #0a84ff) 70%, transparent);
+  background: color-mix(in srgb, var(--accent-color) 25%, transparent);
+  border: 2px solid color-mix(in srgb, var(--accent-color) 70%, transparent);
   border-radius: var(--window-border-radius, 8px);
   transition: opacity 0.1s ease-out;
 }
@@ -108,7 +108,7 @@ const previewStyle = computed<CSSProperties>(() => {
   backdrop-filter: blur(var(--blur-amount));
   -webkit-backdrop-filter: blur(var(--blur-amount));
   border: 1px solid var(--border-window);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 2px 6px;
   z-index: 10000;
 }

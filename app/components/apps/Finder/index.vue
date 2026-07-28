@@ -240,7 +240,7 @@ const openFile = (file: FileItem) => {
 /* Toolbar */
 .finder-toolbar {
   height: 44px;
-  background: var(--bg-window-header);
+  background: var(--bg-toolbar);
   backdrop-filter: blur(var(--blur-amount));
   -webkit-backdrop-filter: blur(var(--blur-amount));
   border-bottom: 1px solid var(--border-window-header);
@@ -265,6 +265,7 @@ const openFile = (file: FileItem) => {
   background: var(--bg-button);
   border: 1px solid var(--border-button);
   border-radius: var(--button-border-radius);
+  box-shadow: var(--bevel-raised-thin);
   color: var(--text-primary);
   cursor: pointer;
   transition: all var(--transition-fast);

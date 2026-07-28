@@ -194,7 +194,7 @@ function handleTouchStart(e: TouchEvent) {
   background: transparent;
   border: 0;
   cursor: inherit;
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   display: grid;
   place-items: center;
   gap: 6px;

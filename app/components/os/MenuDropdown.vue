@@ -250,9 +250,9 @@ function onKeydown(e: KeyboardEvent) {
   background: var(--bg-system);
   backdrop-filter: blur(var(--blur-amount));
   -webkit-backdrop-filter: blur(var(--blur-amount));
-  border: 1px solid var(--border-window);
+  border: var(--menu-border-width) solid var(--border-window);
   border-radius: var(--window-border-radius);
-  box-shadow: var(--shadow-dropdown);
+  box-shadow: var(--bevel-raised), var(--shadow-dropdown);
   padding: 8px;
 }
 
@@ -285,18 +285,21 @@ function onKeydown(e: KeyboardEvent) {
 
 .menu-item.disabled {
   color: var(--text-tertiary);
-  opacity: 0.5;
+  opacity: var(--menu-disabled-opacity);
+  text-shadow: var(--text-disabled-emboss);
 }
 
 .menu-item.active:not(.disabled) {
-  background: var(--bg-button-hover);
+  background: var(--bg-menu-highlight);
+  color: var(--text-menu-highlight);
 }
 
 /* Visible focus ring for keyboard navigation */
 .menu-item:focus {
   outline: 2px solid var(--color-primary);
   outline-offset: 1px;
-  background: var(--bg-button-hover);
+  background: var(--bg-menu-highlight);
+  color: var(--text-menu-highlight);
 }
 
 .menu-item .menu-item-left {
@@ -334,6 +337,17 @@ function onKeydown(e: KeyboardEvent) {
   height: 14px;
   line-height: 14px;
   font-size: 12px;
+}
+
+/* A highlighted row may invert its background, so its inner bits have to
+   re-derive their colour from the highlight rather than the surface. */
+.menu-item.active:not(.disabled) .checkmark {
+  color: var(--text-menu-highlight);
+}
+
+.menu-item.active:not(.disabled) .accel,
+.menu-item.active:not(.disabled) .submenu-arrow {
+  color: var(--text-menu-highlight-muted);
 }
 
 /* When the menu just opened under the cursor, suppress hover highlight briefly */

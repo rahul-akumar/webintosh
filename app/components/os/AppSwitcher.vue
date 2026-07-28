@@ -63,8 +63,8 @@ const apps = useAppsStore()
   backdrop-filter: blur(var(--blur-amount));
   -webkit-backdrop-filter: blur(var(--blur-amount));
   border: 1px solid var(--border-dock);
-  border-radius: 16px;
-  box-shadow: var(--shadow-dock);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--bevel-raised), var(--shadow-dock);
 }
 
 .switcher-cell {
@@ -79,7 +79,7 @@ const apps = useAppsStore()
   gap: 8px;
   width: 96px;
   padding: 10px 8px;
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   color: var(--text-secondary);
   transition: background-color var(--transition-fast), color var(--transition-fast);
 }

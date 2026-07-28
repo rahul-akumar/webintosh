@@ -129,8 +129,8 @@ function onContextId(id: AppId, e?: MouseEvent) {
   backdrop-filter: blur(var(--blur-amount));
   -webkit-backdrop-filter: blur(var(--blur-amount));
   border: 1px solid var(--border-dock);
-  border-radius: 16px;
-  box-shadow: var(--shadow-dock);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--bevel-raised), var(--shadow-dock);
 }
 
 .dock-list {
@@ -153,7 +153,7 @@ function onContextId(id: AppId, e?: MouseEvent) {
   cursor: pointer;
   width: 48px;
   height: 48px;
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   display: grid;
   place-items: center;
   transition: transform var(--transition-fast), background-color var(--transition-fast);

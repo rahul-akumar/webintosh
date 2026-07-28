@@ -29,6 +29,83 @@
   --z-overlay: 600;
   --z-notification: 700;
   --z-tooltip: 800;
+
+  /* ---------------------------------------------------------------
+     Shared chrome defaults.
+
+     Everything below is a knob a theme may turn. The defaults here
+     reproduce, exactly, what the four original themes rendered before
+     these knobs existed - so a theme that ignores them is unchanged.
+     --------------------------------------------------------------- */
+
+  /* Radius scale for surfaces that don't map onto --window-border-radius
+     or --button-border-radius (dock, launcher, switcher, icon tiles).
+     A theme flattens its whole look by zeroing these. */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+  --radius-2xl: 16px;
+  --radius-control: 50%;
+
+  /* Beveled 3D edges. A flat --border-* colour can't express a bevel:
+     it needs four different colours on four sides. These are inset
+     box-shadow lists, so a theme opts in purely through tokens.
+     Default is `0 0 0 0 transparent` rather than `none` so they stay
+     composable inside a box-shadow list. */
+  --bevel-raised: 0 0 0 0 transparent;
+  --bevel-sunken: 0 0 0 0 transparent;
+  --bevel-raised-thin: 0 0 0 0 transparent;
+  --bevel-sunken-thin: 0 0 0 0 transparent;
+
+  /* Frame widths - the bevel replaces the flat border, so a beveled
+     theme zeroes the border and pads the frame out instead. */
+  --window-border-width: 1px;
+  --window-frame-width: 0px;
+  --menu-border-width: 1px;
+
+  /* Titlebar. The original themes drew one titlebar for both focus
+     states; these split it so a theme can differentiate. */
+  --bg-window-header-inactive: var(--bg-window-header);
+  --text-window-title: var(--text-primary);
+  --text-window-title-inactive: var(--text-secondary);
+
+  /* In-window toolbars (Finder toolbar, About tab strip). They used to
+     borrow --bg-window-header, which only works while the titlebar and
+     the window surface are near-identical - a theme with a strongly
+     coloured titlebar needs to separate the two. */
+  --bg-toolbar: var(--bg-window-header);
+
+  /* Window action controls (macOS traffic lights by default). */
+  --control-size: 12px;
+  --control-close-bg: #FF5F57;
+  --control-minimize-bg: #FFBD2E;
+  --control-maximize-bg: #28CA42;
+  --control-glyph-color: transparent;
+  --control-close-glyph: '';
+  --control-minimize-glyph: '';
+  --control-maximize-glyph: '';
+  --border-control: rgba(0, 0, 0, 0.12);
+  --border-control-inactive: var(--border-window);
+
+  /* Highlighted menu row. Separate from --bg-button-hover because a
+     menu highlight may invert its text while a button hover doesn't. */
+  --bg-menu-highlight: var(--bg-button-hover);
+  --text-menu-highlight: var(--text-primary);
+  --text-menu-highlight-muted: var(--text-secondary);
+  --text-menubar-highlight: var(--text-menubar);
+
+  /* Disabled treatment. Themes that emboss instead of fading set the
+     opacity to 1 and supply an offset highlight shadow. */
+  --menu-disabled-opacity: 0.5;
+  --text-disabled-emboss: none;
+
+  /* Filled call-to-action button (Settings upload/URL). */
+  --bg-accent-button: var(--color-primary);
+  --text-accent-button: #FFFFFF;
+
+  /* Accent used by non-Settings chrome (window snap preview). */
+  --accent-color: #0a84ff;
 }
 
 body {
@@ -227,4 +304,123 @@ body {
   --opacity-disabled: 0.4;
   --window-border-radius: 12px;
   --button-border-radius: 8px;
+}
+
+/* ===========================
+   RETRO 95 THEME
+   Windows 95/98: teal desktop, silver chrome, navy titlebars.
+   Nothing here blurs, rounds, or blurs a shadow - the whole look is
+   flat fills plus the beveled edges defined at the bottom of the block.
+   =========================== */
+[data-theme="retro-95"] {
+  /* Background Colors */
+  --bg-desktop: #008080;
+  --bg-system: #C0C0C0;
+  --bg-window: #C0C0C0;
+  --bg-window-action-inactive: #C0C0C0;
+  --bg-window-nav: #C0C0C0;
+  --bg-window-header: linear-gradient(90deg, #000080 0%, #1084D0 100%);
+  --bg-window-header-inactive: linear-gradient(90deg, #808080 0%, #B5B5B5 100%);
+  --bg-toolbar: #C0C0C0;
+  --bg-menubar: #C0C0C0;
+  --bg-dock: #C0C0C0;
+  --bg-context-menu: #C0C0C0;
+  --bg-button: #C0C0C0;
+  --bg-button-hover: #CFCFCF;
+  --bg-button-active: #B8B8B8;
+  --bg-input: #FFFFFF;
+  --bg-selection: #000080;
+  --bg-menu-highlight: #000080;
+  --bg-notification: #C0C0C0;
+
+  /* Text Colors */
+  --text-primary: #000000;
+  --text-secondary: #404040;
+  --text-tertiary: #808080;
+  --text-inverse: #FFFFFF;
+  --text-menubar: #000000;
+  --text-selection: #FFFFFF;
+  --text-menu-highlight: #FFFFFF;
+  --text-menu-highlight-muted: #DFDFDF;
+  --text-menubar-highlight: #FFFFFF;
+  --text-window-title: #FFFFFF;
+  --text-window-title-inactive: #DFDFDF;
+
+  /* Border Colors - the bevel carries the edge, so most borders either
+     match the surface (invisible seam) or vanish entirely. */
+  --border-window: #808080;
+  --border-window-header: #C0C0C0;
+  --border-button: #808080;
+  --border-input: #808080;
+  --border-context-menu: #C0C0C0;
+  --border-dock: #C0C0C0;
+  --border-notification: #C0C0C0;
+  --border-control: transparent;
+  --border-control-inactive: transparent;
+
+  /* Shadows - hard offsets only, never blurred. */
+  --shadow-window: 2px 2px 0 rgba(0, 0, 0, 0.35);
+  --shadow-dock: 2px 2px 0 rgba(0, 0, 0, 0.35);
+  --shadow-dropdown: 2px 2px 0 rgba(0, 0, 0, 0.35);
+  --shadow-context-menu: 2px 2px 0 rgba(0, 0, 0, 0.35);
+  --shadow-notification: 2px 2px 0 rgba(0, 0, 0, 0.35);
+  --shadow-notification-hover: 2px 2px 0 rgba(0, 0, 0, 0.35);
+  --shadow-button: 0 0 0 0 transparent;
+
+  /* Beveled edges. Outer pair #DFDFDF / #000000, inner pair
+     #FFFFFF / #808080; light on top-left, dark on bottom-right for a
+     raised edge and swapped for a sunken one. 1px shadows are listed
+     first so they win where the rings meet at the corners. */
+  --bevel-raised:
+    inset 1px 1px 0 0 #DFDFDF,
+    inset -1px -1px 0 0 #000000,
+    inset 2px 2px 0 0 #FFFFFF,
+    inset -2px -2px 0 0 #808080;
+  --bevel-sunken:
+    inset 1px 1px 0 0 #808080,
+    inset -1px -1px 0 0 #FFFFFF,
+    inset 2px 2px 0 0 #000000,
+    inset -2px -2px 0 0 #DFDFDF;
+  --bevel-raised-thin:
+    inset 1px 1px 0 0 #FFFFFF,
+    inset -1px -1px 0 0 #808080;
+  --bevel-sunken-thin:
+    inset 1px 1px 0 0 #808080,
+    inset -1px -1px 0 0 #FFFFFF;
+
+  /* Window action controls - square silver buttons with glyphs, not
+     traffic lights. */
+  --control-size: 16px;
+  --control-close-bg: #C0C0C0;
+  --control-minimize-bg: #C0C0C0;
+  --control-maximize-bg: #C0C0C0;
+  --control-glyph-color: #000000;
+  --control-close-glyph: '\2715';
+  --control-minimize-glyph: '\005F';
+  --control-maximize-glyph: '\25A1';
+
+  /* Misc chrome. --color-primary is a :root default, but the theme
+     blocks share its specificity and come later, so this wins. */
+  --color-primary: #000080;
+  --accent-color: #000080;
+  --bg-accent-button: #C0C0C0;
+  --text-accent-button: #000000;
+  --window-border-width: 0px;
+  --window-frame-width: 3px;
+  --menu-border-width: 0px;
+  --menu-disabled-opacity: 1;
+  --text-disabled-emboss: 1px 1px 0 #FFFFFF;
+
+  /* Effects - flat, square, opaque. */
+  --blur-amount: 0px;
+  --opacity-disabled: 0.5;
+  --window-border-radius: 0px;
+  --button-border-radius: 0px;
+  --notification-border-radius: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-control: 0px;
 }

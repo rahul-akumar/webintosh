@@ -183,7 +183,7 @@ const tabs = [
 
 .about-tabs {
   display: flex;
-  background: var(--bg-window-header);
+  background: var(--bg-toolbar);
   justify-content: space-between;
   backdrop-filter: blur(var(--blur-amount));
   -webkit-backdrop-filter: blur(var(--blur-amount));
@@ -271,6 +271,7 @@ const tabs = [
   background: var(--bg-button);
   border: 1px solid var(--border-button);
   border-radius: var(--button-border-radius);
+  box-shadow: var(--bevel-raised-thin);
 }
 
 .info-label {
@@ -321,6 +322,7 @@ const tabs = [
   background: var(--bg-button);
   border: 1px solid var(--border-button);
   border-radius: var(--button-border-radius);
+  box-shadow: var(--bevel-raised-thin);
 }
 
 .release-header {

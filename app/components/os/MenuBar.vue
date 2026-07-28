@@ -181,6 +181,7 @@ function onNavRight() {
   backdrop-filter: blur(var(--blur-amount));
   -webkit-backdrop-filter: blur(var(--blur-amount));
   border-bottom: 1px solid var(--border-window);
+  box-shadow: var(--bevel-raised-thin);
   color: var(--text-menubar);
   user-select: none;
   position: relative;
@@ -199,10 +200,11 @@ function onNavRight() {
   color: var(--text-menubar);
   cursor: pointer;
   padding: 4px 8px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
 }
 .menu-logo:hover {
-  background: var(--bg-button-hover);
+  background: var(--bg-menu-highlight);
+  color: var(--text-menubar-highlight);
 }
 
 .logo-icon {
@@ -225,13 +227,14 @@ function onNavRight() {
   color: var(--text-menubar);
   font-size: 14px;
   padding: 4px 6px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   border: 0;
   background: transparent;
 }
 .menu-item:hover {
-  background: var(--bg-button-hover);
+  background: var(--bg-menu-highlight);
+  color: var(--text-menubar-highlight);
 }
 
 .menu-right .clock {
